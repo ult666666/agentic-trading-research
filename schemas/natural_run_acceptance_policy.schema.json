@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://charles.local/schemas/natural_run_acceptance_policy.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "operating_timezone", "evaluate_after_pt",
+    "minimum_broker_canary_sessions", "required_service_slo_status",
+    "allowed_workflow_statuses", "required_broker_audit_lanes",
+    "require_broker_read_observation", "require_pre_session_readiness", "safety"
+  ],
+  "properties": {
+    "schema": {"const": "natural_run_acceptance_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "operating_timezone": {"const": "America/Los_Angeles"},
+    "evaluate_after_pt": {"const": "14:15"},
+    "minimum_broker_canary_sessions": {"type": "integer", "minimum": 5, "maximum": 100},
+    "required_service_slo_status": {"const": "met"},
+    "allowed_workflow_statuses": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["intake", "macro_refresh", "morning", "post_open", "post_close"],
+      "properties": {
+        "intake": {"$ref": "#/$defs/statuses"},
+        "macro_refresh": {"$ref": "#/$defs/statuses"},
+        "morning": {"$ref": "#/$defs/statuses"},
+        "post_open": {"$ref": "#/$defs/statuses"},
+        "post_close": {"$ref": "#/$defs/statuses"}
+      }
+    },
+    "required_broker_audit_lanes": {
+      "type": "array",
+      "const": ["morning", "postclose", "postopen"]
+    },
+    "require_broker_read_observation": {"const": true},
+    "require_pre_session_readiness": {"const": true},
+    "safety": {"$ref": "#/$defs/safety"}
+  },
+  "$defs": {
+    "statuses": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"enum": ["degraded", "healthy", "skipped_expected"]}
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "read_only", "diagnostic_only", "local_artifact_write_only", "network_invoked",
+        "model_invoked", "broker_invoked", "execution_enabled", "strategy_change_allowed",
+        "risk_limit_change_allowed", "promotion_authorized", "production_gate_enforced"
+      ],
+      "properties": {
+        "read_only": {"const": true},
+        "diagnostic_only": {"const": true},
+        "local_artifact_write_only": {"const": true},
+        "network_invoked": {"const": false},
+        "model_invoked": {"const": false},
+        "broker_invoked": {"const": false},
+        "execution_enabled": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "risk_limit_change_allowed": {"const": false},
+        "promotion_authorized": {"const": false},
+        "production_gate_enforced": {"const": false}
+      }
+    }
+  }
+}

@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "broker_account_aggregate.schema.json",
+  "title": "Shadow-only cross-broker account aggregate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "policy_version",
+    "policy_sha256",
+    "target_session_date",
+    "generated_utc",
+    "mode",
+    "status",
+    "provider_statuses",
+    "portfolio_totals",
+    "manual_execution_sizing_basis",
+    "positions",
+    "quote_cross_checks",
+    "warnings",
+    "blockers",
+    "safety",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "broker_account_aggregate/1.0"},
+    "policy_version": {"const": "1.0.0"},
+    "policy_sha256": {"$ref": "#/$defs/sha"},
+    "target_session_date": {"type": "string", "format": "date"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "mode": {"const": "shadow_observation_only"},
+    "status": {
+      "enum": ["ready", "partial", "blocked", "collecting_connector_namespace"]
+    },
+    "provider_statuses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "provider", "input_status", "admission_status", "activation_state",
+          "namespace_verified", "snapshot_sha256", "reasons"
+        ],
+        "properties": {
+          "provider": {
+            "enum": ["robinhood_readonly", "ibkr_readonly", "webull_readonly"]
+          },
+          "input_status": {
+            "enum": ["verified", "partial", "unavailable", "invalid", "missing"]
+          },
+          "admission_status": {
+            "enum": ["admitted", "not_contributing", "quarantined", "missing"]
+          },
+          "activation_state": {"type": "string", "minLength": 1},
+          "namespace_verified": {"type": "boolean"},
+          "snapshot_sha256": {
+            "oneOf": [{"$ref": "#/$defs/sha"}, {"type": "null"}]
+          },
+          "reasons": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1},
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "portfolio_totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "equity_usd", "cash_usd", "buying_power_usd", "provider_count",
+        "complete", "risk_context_only"
+      ],
+      "properties": {
+        "equity_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+        "cash_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+        "buying_power_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+        "provider_count": {"type": "integer", "minimum": 0},
+        "complete": {"type": "boolean"},
+        "risk_context_only": {"const": true}
+      }
+    },
+    "manual_execution_sizing_basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider", "status", "equity_usd", "cash_usd", "buying_power_usd",
+        "cross_broker_cash_used", "share_count_authorized"
+      ],
+      "properties": {
+        "provider": {"const": "robinhood_readonly"},
+        "status": {"enum": ["ready", "partial", "unavailable"]},
+        "equity_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+        "cash_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+        "buying_power_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+        "cross_broker_cash_used": {"const": false},
+        "share_count_authorized": {"const": false}
+      }
+    },
+    "positions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "symbol", "instrument_type", "total_quantity", "total_market_value_usd",
+          "providers", "per_provider"
+        ],
+        "properties": {
+          "symbol": {"$ref": "#/$defs/symbol"},
+          "instrument_type": {"enum": ["EQUITY", "ETF"]},
+          "total_quantity": {"type": "number", "exclusiveMinimum": 0},
+          "total_market_value_usd": {"type": "number", "minimum": 0},
+          "providers": {
+            "type": "array",
+            "items": {"type": "string"},
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "per_provider": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["provider", "quantity", "market_value_usd"],
+              "properties": {
+                "provider": {"type": "string"},
+                "quantity": {"type": "number", "exclusiveMinimum": 0},
+                "market_value_usd": {"type": "number", "minimum": 0}
+              }
+            }
+          }
+        }
+      }
+    },
+    "quote_cross_checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "symbol", "sources", "max_last_spread_bps", "disagreement",
+          "synthetic_consolidated_price", "price_authority_granted"
+        ],
+        "properties": {
+          "symbol": {"$ref": "#/$defs/symbol"},
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "provider", "last", "bid", "ask", "quote_timestamp_utc", "session"
+              ],
+              "properties": {
+                "provider": {"type": "string"},
+                "last": {"$ref": "#/$defs/nullable_positive"},
+                "bid": {"$ref": "#/$defs/nullable_positive"},
+                "ask": {"$ref": "#/$defs/nullable_positive"},
+                "quote_timestamp_utc": {"type": "string", "format": "date-time"},
+                "session": {"type": "string"}
+              }
+            }
+          },
+          "max_last_spread_bps": {
+            "oneOf": [{"type": "number", "minimum": 0}, {"type": "null"}]
+          },
+          "disagreement": {"type": "boolean"},
+          "synthetic_consolidated_price": {"type": "null"},
+          "price_authority_granted": {"const": false}
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "blockers": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "safety": {"$ref": "#/$defs/safety"},
+    "artifact_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "symbol": {"type": "string", "pattern": "^[A-Z][A-Z0-9.\\-]{0,9}$"},
+    "nullable_nonnegative": {
+      "oneOf": [{"type": "number", "minimum": 0}, {"type": "null"}]
+    },
+    "nullable_positive": {
+      "oneOf": [{"type": "number", "exclusiveMinimum": 0}, {"type": "null"}]
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "research_only", "diagnostic_only", "activation_authority",
+        "source_authority", "live_price_authority", "buy_authority",
+        "feeds_production_scoring", "strategy_change_allowed", "network_access",
+        "broker_invocation", "broker_preview", "broker_simulation", "broker_mutation",
+        "broker_cancel", "execution_enabled"
+      ],
+      "properties": {
+        "research_only": {"const": true},
+        "diagnostic_only": {"const": true},
+        "activation_authority": {"const": false},
+        "source_authority": {"const": false},
+        "live_price_authority": {"const": false},
+        "buy_authority": {"const": false},
+        "feeds_production_scoring": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "network_access": {"const": false},
+        "broker_invocation": {"const": false},
+        "broker_preview": {"const": false},
+        "broker_simulation": {"const": false},
+        "broker_mutation": {"const": false},
+        "broker_cancel": {"const": false},
+        "execution_enabled": {"const": false}
+      }
+    }
+  }
+}

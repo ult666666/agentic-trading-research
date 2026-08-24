@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "data_procurement_policy.schema.json",
+  "title": "Zero-dollar data procurement policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "effective_date",
+    "maximum_external_spend_usd",
+    "paid_provider_purchase_allowed",
+    "paid_subscription_activation_allowed",
+    "free_account_allowed",
+    "free_tier_upgrade_allowed",
+    "agent_may_accept_external_terms",
+    "agent_may_submit_payment_information",
+    "allowed_lanes",
+    "paid_providers",
+    "free_providers",
+    "production_authority",
+    "execution_enabled"
+  ],
+  "properties": {
+    "schema": {"const": "data_procurement_policy/1.0"},
+    "effective_date": {"type": "string", "format": "date"},
+    "maximum_external_spend_usd": {"const": "0.00"},
+    "paid_provider_purchase_allowed": {"const": false},
+    "paid_subscription_activation_allowed": {"const": false},
+    "free_account_allowed": {"const": true},
+    "free_tier_upgrade_allowed": {"const": false},
+    "agent_may_accept_external_terms": {"const": false},
+    "agent_may_submit_payment_information": {"const": false},
+    "allowed_lanes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string"}
+    },
+    "paid_providers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["massive_bakeoff", "databento_bakeoff"],
+      "properties": {
+        "massive_bakeoff": {"const": "disabled"},
+        "databento_bakeoff": {"const": "disabled"}
+      }
+    },
+    "free_providers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["twelve_data_free", "alpha_vantage_free"],
+      "properties": {
+        "twelve_data_free": {"const": "optional_shadow_only"},
+        "alpha_vantage_free": {"const": "optional_reference_only"}
+      }
+    },
+    "production_authority": {"const": false},
+    "execution_enabled": {"const": false}
+  }
+}

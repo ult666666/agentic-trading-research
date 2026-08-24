@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "release_snapshot.schema.json",
+  "title": "Non-destructive dirty-worktree release snapshot receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "snapshot_id",
+    "created_utc",
+    "source_repository_fingerprint",
+    "head_commit",
+    "head_ref",
+    "detached_head",
+    "git_version",
+    "artifacts",
+    "tracked_change_counts",
+    "untracked_inventory",
+    "untracked_total_bytes",
+    "submodules_present",
+    "source_changed_during_snapshot",
+    "snapshot_complete",
+    "restore_supported",
+    "content_sha256",
+    "safety",
+    "receipt_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "release_snapshot/1.0"},
+    "snapshot_id": {"type": "string", "pattern": "^release-[A-Za-z0-9._-]{1,100}$"},
+    "created_utc": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T.*Z$"},
+    "source_repository_fingerprint": {"$ref": "#/$defs/sha256"},
+    "head_commit": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"},
+    "head_ref": {"type": ["string", "null"], "maxLength": 255},
+    "detached_head": {"type": "boolean"},
+    "git_version": {"type": "string", "maxLength": 100},
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["base_bundle", "staged_patch", "unstaged_patch", "status_v2_z", "untracked_tar"],
+      "properties": {
+        "base_bundle": {"$ref": "#/$defs/artifact"},
+        "staged_patch": {"$ref": "#/$defs/artifact"},
+        "unstaged_patch": {"$ref": "#/$defs/artifact"},
+        "status_v2_z": {"$ref": "#/$defs/artifact"},
+        "untracked_tar": {"$ref": "#/$defs/artifact"}
+      }
+    },
+    "tracked_change_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["staged_patch_bytes", "unstaged_patch_bytes"],
+      "properties": {
+        "staged_patch_bytes": {"type": "integer", "minimum": 0},
+        "unstaged_patch_bytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "untracked_inventory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path_b64", "size", "mode", "sha256"],
+        "properties": {
+          "path_b64": {"type": "string"},
+          "size": {"type": "integer", "minimum": 0},
+          "mode": {"type": "integer", "minimum": 0, "maximum": 4095},
+          "sha256": {"$ref": "#/$defs/sha256"}
+        }
+      }
+    },
+    "untracked_total_bytes": {"type": "integer", "minimum": 0},
+    "submodules_present": {"const": false},
+    "source_changed_during_snapshot": {"const": false},
+    "snapshot_complete": {"const": true},
+    "restore_supported": {"const": true},
+    "content_sha256": {"$ref": "#/$defs/sha256"},
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_worktree_write_operations",
+        "source_index_write_operations",
+        "destructive_git_operations",
+        "ignored_files_included",
+        "broker_access",
+        "execution_enabled"
+      ],
+      "properties": {
+        "source_worktree_write_operations": {"const": 0},
+        "source_index_write_operations": {"const": 0},
+        "destructive_git_operations": {"const": 0},
+        "ignored_files_included": {"const": false},
+        "broker_access": {"const": "none"},
+        "execution_enabled": {"const": false}
+      }
+    },
+    "receipt_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "size", "sha256"],
+      "properties": {
+        "path": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$"},
+        "size": {"type": "integer", "minimum": 0},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  }
+}

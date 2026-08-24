@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sanitized_broker_snapshot.schema.json",
+  "title": "Sanitized read-only broker account snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "provider",
+    "target_session_date",
+    "generated_utc",
+    "status",
+    "account",
+    "portfolio",
+    "positions",
+    "quotes",
+    "source_receipt_sha256",
+    "broker_audit_receipt_valid",
+    "no_order_or_mutation_invoked",
+    "raw_payload_persisted",
+    "contains_account_identifiers",
+    "contains_credentials",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "sanitized_broker_snapshot/1.0"},
+    "provider": {
+      "enum": ["robinhood_readonly", "ibkr_readonly", "webull_readonly"]
+    },
+    "target_session_date": {"type": "string", "format": "date"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["verified", "partial", "unavailable", "invalid"]},
+    "account": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["account_type", "currency", "designated_manual_execution_account"],
+      "properties": {
+        "account_type": {"enum": ["cash", "unknown"]},
+        "currency": {"const": "USD"},
+        "designated_manual_execution_account": {"type": "boolean"}
+      }
+    },
+    "portfolio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["equity_usd", "cash_usd", "buying_power_usd"],
+      "properties": {
+        "equity_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+        "cash_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+        "buying_power_usd": {"$ref": "#/$defs/nullable_nonnegative"}
+      }
+    },
+    "positions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "symbol", "instrument_type", "side", "quantity", "market_value_usd"
+        ],
+        "properties": {
+          "symbol": {"$ref": "#/$defs/symbol"},
+          "instrument_type": {"enum": ["EQUITY", "ETF"]},
+          "side": {"const": "LONG"},
+          "quantity": {"type": "number", "exclusiveMinimum": 0},
+          "market_value_usd": {"type": "number", "minimum": 0}
+        }
+      }
+    },
+    "quotes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "symbol", "last", "bid", "ask", "quote_timestamp_utc", "session"
+        ],
+        "properties": {
+          "symbol": {"$ref": "#/$defs/symbol"},
+          "last": {"$ref": "#/$defs/nullable_positive"},
+          "bid": {"$ref": "#/$defs/nullable_positive"},
+          "ask": {"$ref": "#/$defs/nullable_positive"},
+          "quote_timestamp_utc": {"type": "string", "format": "date-time"},
+          "session": {
+            "enum": [
+              "overnight", "premarket", "regular", "postmarket", "closed", "unknown"
+            ]
+          }
+        }
+      }
+    },
+    "source_receipt_sha256": {"$ref": "#/$defs/sha"},
+    "broker_audit_receipt_valid": {"const": true},
+    "no_order_or_mutation_invoked": {"const": true},
+    "raw_payload_persisted": {"const": false},
+    "contains_account_identifiers": {"const": false},
+    "contains_credentials": {"const": false},
+    "artifact_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "symbol": {"type": "string", "pattern": "^[A-Z][A-Z0-9.\\-]{0,9}$"},
+    "nullable_nonnegative": {
+      "oneOf": [{"type": "number", "minimum": 0}, {"type": "null"}]
+    },
+    "nullable_positive": {
+      "oneOf": [{"type": "number", "exclusiveMinimum": 0}, {"type": "null"}]
+    }
+  }
+}

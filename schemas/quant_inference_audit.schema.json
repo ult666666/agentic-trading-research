@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_inference_audit.schema.json",
+  "title": "Quant Inference Audit",
+  "type": "object",
+  "required": [
+    "schema", "source_result_sha256", "policy_version", "policy_sha256", "status",
+    "sample", "descriptive", "hac", "moving_block_bootstrap", "multiple_model_inference",
+    "audit_sha256", "diagnostic_only", "feeds_production", "execution_enabled"
+  ],
+  "properties": {
+    "schema": {"const": "quant_inference_audit/1.0"},
+    "source_result_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "policy_version": {"type": "string"},
+    "policy_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "status": {"enum": ["reviewable", "insufficient_sample", "degenerate"]},
+    "sample": {"type": "object"},
+    "descriptive": {"type": "object"},
+    "hac": {"type": "object"},
+    "moving_block_bootstrap": {"type": "object"},
+    "multiple_model_inference": {"type": "object"},
+    "audit_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "diagnostic_only": {"const": true},
+    "feeds_production": {"const": false},
+    "execution_enabled": {"const": false}
+  }
+}

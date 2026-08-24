@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_strategy_shadow_plan.schema.json",
+  "title": "Quant Strategy Shadow Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "tool", "ok", "plan_id", "created_at_utc", "start_session_date",
+    "policy_version", "policy_sha256", "approval_reference", "evidence_gate",
+    "cohort_lock", "policy_contracts", "candidate", "benchmark", "incumbents",
+    "checkpoints", "observation_contract", "limitations", "profitability_status",
+    "shadow_observation_started", "human_approval_recorded", "actual_orders_count",
+    "research_only", "diagnostic_only", "execution_enabled", "activation_authority",
+    "strategy_change_allowed", "feeds_production", "feeds_research_factory",
+    "feeds_buy_gate", "profitability_claim_allowed", "automatic_promotion_allowed",
+    "automatic_shadow_start_allowed", "registry_mutation_allowed", "broker_access",
+    "broker_tool_invoked", "account_data_allowed", "order_data_allowed",
+    "network_allowed", "model_invoked", "plan_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "quant_strategy_shadow_plan/1.0"},
+    "tool": {"const": "quant.strategy_shadow_monitor"},
+    "ok": {"const": true},
+    "plan_id": {"$ref": "#/$defs/id"},
+    "created_at_utc": {"$ref": "#/$defs/utc"},
+    "start_session_date": {"$ref": "#/$defs/date"},
+    "policy_version": {"const": "1.0.0"},
+    "policy_sha256": {"$ref": "#/$defs/sha"},
+    "approval_reference": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$"},
+    "evidence_gate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "file_sha256", "result_sha256", "status"],
+      "properties": {
+        "path": {"$ref": "#/$defs/runtime_path"},
+        "file_sha256": {"$ref": "#/$defs/sha"},
+        "result_sha256": {"$ref": "#/$defs/sha"},
+        "status": {"const": "eligible_for_shadow_observation_review"}
+      }
+    },
+    "cohort_lock": {
+      "type": "object", "additionalProperties": false,
+      "required": ["cohort_id", "cohort_sha256", "registry_lock_head_sha256",
+                   "uniqueness_result_sha256", "source_set_sha256"],
+      "properties": {
+        "cohort_id": {"$ref": "#/$defs/id"},
+        "cohort_sha256": {"$ref": "#/$defs/sha"},
+        "registry_lock_head_sha256": {"$ref": "#/$defs/sha"},
+        "uniqueness_result_sha256": {"$ref": "#/$defs/sha"},
+        "source_set_sha256": {"$ref": "#/$defs/sha"}
+      }
+    },
+    "policy_contracts": {
+      "type": "object", "additionalProperties": false,
+      "required": ["inference_policy", "uniqueness_policy", "artifact_policy", "market_calendar"],
+      "properties": {
+        "inference_policy": {"$ref": "#/$defs/policy_ref"},
+        "uniqueness_policy": {"$ref": "#/$defs/policy_ref"},
+        "artifact_policy": {"$ref": "#/$defs/policy_ref"},
+        "market_calendar": {"$ref": "#/$defs/policy_ref"}
+      }
+    },
+    "candidate": {"allOf": [{"$ref": "#/$defs/strategy"}, {"properties": {"role": {"const": "candidate"}}}]},
+    "benchmark": {"allOf": [{"$ref": "#/$defs/strategy"}, {"properties": {"role": {"const": "benchmark"}}}]},
+    "incumbents": {
+      "type": "array", "minItems": 1, "maxItems": 20,
+      "items": {"allOf": [{"$ref": "#/$defs/strategy"}, {"properties": {"role": {"const": "incumbent"}}}]}
+    },
+    "checkpoints": {
+      "type": "object", "additionalProperties": false,
+      "required": ["descriptive_sessions", "decision_alpha_schedule",
+                   "maximum_familywise_alpha", "evaluation_rule"],
+      "properties": {
+        "descriptive_sessions": {"const": [20, 40]},
+        "decision_alpha_schedule": {
+          "type": "array", "minItems": 1, "maxItems": 8,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["session_count", "two_sided_alpha"],
+            "properties": {
+              "session_count": {"type": "integer", "minimum": 60, "maximum": 504},
+              "two_sided_alpha": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.05}
+            }
+          }
+        },
+        "maximum_familywise_alpha": {"const": 0.05},
+        "evaluation_rule": {"const": "evaluate_only_latest_reached_preregistered_prefix_never_rolling_optional_stop"}
+      }
+    },
+    "observation_contract": {
+      "type": "object", "additionalProperties": false,
+      "required": ["session_spine", "missing_session_rule", "backfill_rule",
+                   "net_of_modeled_costs_required", "return_provenance_rule",
+                   "standard_return_schema", "return_bundle_schema",
+                   "frozen_incumbent_composite_rule", "maximum_sessions"],
+      "properties": {
+        "session_spine": {"const": "versioned_us_market_calendar_no_compression"},
+        "missing_session_rule": {"const": "append_explicit_unavailable_event_never_silently_omit"},
+        "backfill_rule": {"const": "complete_returns_after_recording_deadline_forbidden_unavailable_marker_allowed"},
+        "net_of_modeled_costs_required": {"const": true},
+        "return_provenance_rule": {"const": "derive_from_hash_bound_standard_portfolio_nav_never_accept_caller_return"},
+        "standard_return_schema": {"const": "quant_portfolio_backtest/1.0"},
+        "return_bundle_schema": {"const": "quant_strategy_shadow_return_bundle/1.0"},
+        "frozen_incumbent_composite_rule": {"const": "equal_weight_daily_net_return"},
+        "maximum_sessions": {"type": "integer", "minimum": 252, "maximum": 1008}
+      }
+    },
+    "limitations": {"type": "array", "minItems": 5, "maxItems": 12, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "profitability_status": {"const": "not_established"},
+    "shadow_observation_started": {"const": false},
+    "human_approval_recorded": {"const": true},
+    "actual_orders_count": {"const": 0},
+    "research_only": {"const": true}, "diagnostic_only": {"const": true},
+    "execution_enabled": {"const": false}, "activation_authority": {"const": false},
+    "strategy_change_allowed": {"const": false}, "feeds_production": {"const": false},
+    "feeds_research_factory": {"const": false}, "feeds_buy_gate": {"const": false},
+    "profitability_claim_allowed": {"const": false}, "automatic_promotion_allowed": {"const": false},
+    "automatic_shadow_start_allowed": {"const": false}, "registry_mutation_allowed": {"const": false},
+    "broker_access": {"const": "none"}, "broker_tool_invoked": {"const": false},
+    "account_data_allowed": {"const": false}, "order_data_allowed": {"const": false},
+    "network_allowed": {"const": false}, "model_invoked": {"const": false},
+    "plan_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "utc": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"},
+    "date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "runtime_path": {"type": "string", "pattern": "^data/runtime/(experiments|health|quant)/[^\\u0000]+$"},
+    "policy_ref": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "file_sha256", "semantic_sha256"],
+      "properties": {
+        "path": {"type": "string", "pattern": "^config/[A-Za-z0-9._/-]+$"},
+        "file_sha256": {"$ref": "#/$defs/sha"},
+        "semantic_sha256": {"$ref": "#/$defs/sha"}
+      }
+    },
+    "strategy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["strategy_id", "portfolio_id", "role", "historical_source", "strategy_contract"],
+      "properties": {
+        "strategy_id": {"$ref": "#/$defs/id"},
+        "portfolio_id": {"type": "string", "minLength": 1, "maxLength": 192},
+        "role": {"enum": ["candidate", "benchmark", "incumbent"]},
+        "historical_source": {
+          "type": "object", "additionalProperties": false,
+          "required": ["path", "file_sha256", "result_sha256", "content_sha256"],
+          "properties": {
+            "path": {"$ref": "#/$defs/runtime_path"},
+            "file_sha256": {"$ref": "#/$defs/sha"},
+            "result_sha256": {"$ref": "#/$defs/sha"},
+            "content_sha256": {"$ref": "#/$defs/sha"}
+          }
+        },
+        "strategy_contract": {
+          "type": "object", "additionalProperties": false,
+          "required": ["schema", "variant_id", "plan_version", "cost_stress_multiplier",
+                       "cost_policy_version", "portfolio_policy_version", "cost_policy_sha256",
+                       "portfolio_policy_sha256", "conservative_rules_sha256",
+                       "source_backtest_plan_sha256", "portfolio_plan_sha256",
+                       "benchmark_semantic_validation_required", "replay_spec_complete",
+                       "replay_spec_sha256", "strategy_contract_sha256"],
+          "properties": {
+            "schema": {"const": "quant_strategy_shadow_strategy_contract/1.1"},
+            "variant_id": {"type": "string", "minLength": 1},
+            "plan_version": {"type": "string", "minLength": 1},
+            "cost_stress_multiplier": {"type": "number", "exclusiveMinimum": 0},
+            "cost_policy_version": {"type": "string", "minLength": 1},
+            "portfolio_policy_version": {"type": "string", "minLength": 1},
+            "cost_policy_sha256": {"$ref": "#/$defs/sha"},
+            "portfolio_policy_sha256": {"$ref": "#/$defs/sha"},
+            "conservative_rules_sha256": {"$ref": "#/$defs/sha"},
+            "source_backtest_plan_sha256": {"$ref": "#/$defs/sha"},
+            "portfolio_plan_sha256": {"$ref": "#/$defs/sha"},
+            "benchmark_semantic_validation_required": {"type": "boolean"},
+            "replay_spec_complete": {"const": true},
+            "replay_spec_sha256": {"$ref": "#/$defs/sha"},
+            "strategy_contract_sha256": {"$ref": "#/$defs/sha"}
+          }
+        }
+      }
+    }
+  }
+}

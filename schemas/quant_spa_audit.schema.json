@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://charles.local/schemas/quant_spa_audit.schema.json",
+  "title": "Quant Superior Predictive Ability Audit",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "actionable", "diagnostic_only", "feeds_production", "excluded_from_expectancy",
+    "excluded_from_official_replay_outcomes", "excluded_from_performance",
+    "excluded_from_win_rate", "note", "record_type", "activation_authority",
+    "strategy_change_allowed", "execution_enabled", "executed_trade_performance",
+    "broker_access", "account_data_allowed", "network_invoked", "model_invoked",
+    "promotion_allowed", "profitability_claim_allowed", "feeds_research_factory",
+    "feeds_buy_gate", "counts_in_metrics", "tool", "ok", "schema", "audit_version",
+    "generated_utc", "policy_path", "policy_sha256", "source_panel_path",
+    "source_panel_file_sha256", "source_panel_sha256", "comparison_id", "status",
+    "sample", "hypothesis", "method", "analysis", "limitations", "audit_sha256"
+  ],
+  "properties": {
+    "actionable": {"const": false}, "diagnostic_only": {"const": true},
+    "feeds_production": {"const": false}, "excluded_from_expectancy": {"const": true},
+    "excluded_from_official_replay_outcomes": {"const": true},
+    "excluded_from_performance": {"const": true}, "excluded_from_win_rate": {"const": true},
+    "note": {"const": "Offline quant research lab diagnostic. NOT a proposed Buy; NEVER feeds production scoring/gates; excluded from all performance metrics."},
+    "record_type": {"const": "non_actionable_diagnostic"},
+    "activation_authority": {"const": false}, "strategy_change_allowed": {"const": false},
+    "execution_enabled": {"const": false}, "executed_trade_performance": {"const": false},
+    "broker_access": {"const": "none"}, "account_data_allowed": {"const": false},
+    "network_invoked": {"const": false}, "model_invoked": {"const": false},
+    "promotion_allowed": {"const": false}, "profitability_claim_allowed": {"const": false},
+    "feeds_research_factory": {"const": false}, "feeds_buy_gate": {"const": false},
+    "counts_in_metrics": {"const": false}, "tool": {"const": "quant.spa_audit"},
+    "ok": {"const": true}, "schema": {"const": "quant_spa_audit/1.0"},
+    "audit_version": {"const": "1.1.0"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "policy_path": {"type": "string", "minLength": 1},
+    "policy_sha256": {"$ref": "#/$defs/sha"},
+    "source_panel_path": {"type": "string", "minLength": 1},
+    "source_panel_file_sha256": {"$ref": "#/$defs/sha"},
+    "source_panel_sha256": {"$ref": "#/$defs/sha"},
+    "comparison_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "status": {"enum": ["reviewable", "incomplete_family", "insufficient_sample", "computational_limit", "degenerate"]},
+    "sample": {
+      "type": "object", "additionalProperties": false,
+      "required": ["observation_count", "model_count", "declared_model_count", "family_complete", "minimum_observations", "date_start", "date_end", "benchmark_id", "cost_stress_multiplier"],
+      "properties": {
+        "observation_count": {"type": "integer", "minimum": 1},
+        "model_count": {"type": "integer", "minimum": 2},
+        "declared_model_count": {"type": "integer", "minimum": 2},
+        "family_complete": {"type": "boolean"},
+        "minimum_observations": {"type": "integer", "minimum": 60},
+        "date_start": {"type": "string", "format": "date"}, "date_end": {"type": "string", "format": "date"},
+        "benchmark_id": {"type": "string"}, "cost_stress_multiplier": {"type": "number", "minimum": 1}
+      }
+    },
+    "hypothesis": {
+      "type": "object", "additionalProperties": false,
+      "required": ["null", "alternative", "direction", "significance_level"],
+      "properties": {
+        "null": {"const": "no_tested_model_has_positive_expected_return_differential_vs_benchmark"},
+        "alternative": {"const": "at_least_one_tested_model_has_positive_expected_return_differential"},
+        "direction": {"const": "model_daily_return_minus_benchmark_daily_return"},
+        "significance_level": {"const": 0.05}
+      }
+    },
+    "method": {
+      "type": "object", "additionalProperties": false,
+      "required": ["test", "test_statistic", "bootstrap", "variance_estimator", "null_recentering", "primary_p_value", "p_value_comparison", "bootstrap_seed", "same_uniform_draws_across_block_length_sensitivity"],
+      "properties": {
+        "test": {"const": "hansen_2005_superior_predictive_ability"},
+        "test_statistic": {"const": "studentized_maximum_positive_mean_return_differential"},
+        "bootstrap": {"const": "politis_romano_stationary_bootstrap"},
+        "variance_estimator": {"const": "hansen_2005_stationary_bootstrap_population_long_run_variance"},
+        "null_recentering": {"const": ["lower", "consistent", "upper"]},
+        "primary_p_value": {"const": "consistent"},
+        "p_value_comparison": {"const": "strict_bootstrap_statistic_greater_than_observed"},
+        "bootstrap_seed": {"type": "integer", "minimum": 0},
+        "same_uniform_draws_across_block_length_sensitivity": {"const": true}
+      }
+    },
+    "analysis": {"$ref": "#/$defs/analysis"},
+    "limitations": {"type": "array", "minItems": 5, "uniqueItems": true, "items": {"type": "string"}},
+    "audit_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "pValues": {
+      "type": "object", "additionalProperties": false, "required": ["lower", "consistent", "upper"],
+      "properties": {
+        "lower": {"type": "number", "minimum": 0, "maximum": 1},
+        "consistent": {"type": "number", "minimum": 0, "maximum": 1},
+        "upper": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "model": {
+      "type": "object", "additionalProperties": false,
+      "required": ["model_id", "mean_return_differential", "stationary_bootstrap_long_run_variance", "studentized_mean_component", "consistent_null_recenter"],
+      "properties": {
+        "model_id": {"type": "string"}, "mean_return_differential": {"type": "number"},
+        "stationary_bootstrap_long_run_variance": {"type": "number", "exclusiveMinimum": 0},
+        "studentized_mean_component": {"type": "number"}, "consistent_null_recenter": {"type": "number"}
+      }
+    },
+    "availableConfiguration": {
+      "type": "object", "additionalProperties": false,
+      "required": ["available", "reason", "expected_block_length", "restart_probability", "observed_test_statistic", "best_sample_model_id", "best_sample_mean_return_differential", "consistent_relevant_model_count", "p_values", "strict_exceedance_counts", "bootstrap_replications", "minimum_p_value_resolution", "monte_carlo_standard_errors", "primary_null_rejected_at_configured_alpha", "zero_exceedance_is_not_zero_true_probability", "models"],
+      "properties": {
+        "available": {"const": true}, "reason": {"type": "null"},
+        "expected_block_length": {"type": "integer", "minimum": 2}, "restart_probability": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.5},
+        "observed_test_statistic": {"type": "number", "minimum": 0}, "best_sample_model_id": {"type": "string"},
+        "best_sample_mean_return_differential": {"type": "number"}, "consistent_relevant_model_count": {"type": "integer", "minimum": 0},
+        "p_values": {"$ref": "#/$defs/pValues"},
+        "strict_exceedance_counts": {"type": "object", "additionalProperties": false, "required": ["lower", "consistent", "upper"], "properties": {"lower": {"type": "integer", "minimum": 0}, "consistent": {"type": "integer", "minimum": 0}, "upper": {"type": "integer", "minimum": 0}}},
+        "bootstrap_replications": {"type": "integer", "minimum": 2000}, "minimum_p_value_resolution": {"type": "number", "exclusiveMinimum": 0},
+        "monte_carlo_standard_errors": {"$ref": "#/$defs/pValues"},
+        "primary_null_rejected_at_configured_alpha": {"type": "boolean"},
+        "zero_exceedance_is_not_zero_true_probability": {"type": "boolean"},
+        "models": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/model"}}
+      }
+    },
+    "unavailableConfiguration": {
+      "type": "object", "additionalProperties": false,
+      "required": ["available", "reason", "expected_block_length", "restart_probability", "degenerate_model_ids"],
+      "properties": {
+        "available": {"const": false}, "reason": {"const": "nonpositive_stationary_bootstrap_long_run_variance"},
+        "expected_block_length": {"type": "integer", "minimum": 2}, "restart_probability": {"type": "number", "exclusiveMinimum": 0},
+        "degenerate_model_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+      }
+    },
+    "analysis": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["available", "reason", "estimated_scalar_additions", "configurations", "primary_expected_block_length", "primary_configuration", "robust_across_configured_block_lengths", "statistical_evidence_only", "establishes_profitability", "grants_strategy_promotion"],
+          "properties": {
+            "available": {"const": true}, "reason": {"type": "null"}, "estimated_scalar_additions": {"type": "integer", "minimum": 1},
+            "configurations": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/availableConfiguration"}},
+            "primary_expected_block_length": {"type": "integer", "minimum": 2}, "primary_configuration": {"type": "integer", "minimum": 0},
+            "robust_across_configured_block_lengths": {"type": "boolean"}, "statistical_evidence_only": {"const": true},
+            "establishes_profitability": {"const": false}, "grants_strategy_promotion": {"const": false}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["available", "reason", "configurations", "robust_across_configured_block_lengths"],
+          "properties": {
+            "available": {"const": false}, "reason": {"type": "string"},
+            "estimated_scalar_additions": {"type": "integer", "minimum": 1},
+            "configurations": {"type": "array", "items": {"oneOf": [{"$ref": "#/$defs/availableConfiguration"}, {"$ref": "#/$defs/unavailableConfiguration"}]}},
+            "robust_across_configured_block_lengths": {"const": false}
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "morning_engineering_audit.schema.json",
+  "title": "Deterministic post-Morning engineering audit",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "trading_date", "natural_run_id", "idempotency_key", "source_evidence",
+    "timestamps", "terminal", "finality_evidence", "stage_timeline", "budgets",
+    "critical_path", "provider_health", "causal_assessment", "issue", "reliability",
+    "remediation", "highest_priority_improvement", "trends", "trust_effect", "safety",
+    "audit_version", "audit_hash"
+  ],
+  "properties": {
+    "schema": {"const": "morning_engineering_audit/1.0"},
+    "trading_date": {"type": "string", "format": "date"},
+    "natural_run_id": {"type": "string"},
+    "idempotency_key": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source_evidence": {"type": "array"},
+    "timestamps": {"type": "object"},
+    "terminal": {"type": "object"},
+    "finality_evidence": {"type": "object"},
+    "stage_timeline": {"type": "array"},
+    "budgets": {"type": "object"},
+    "critical_path": {"type": "object"},
+    "provider_health": {"type": "object"},
+    "causal_assessment": {"type": "object"},
+    "issue": {"type": "object"},
+    "reliability": {"type": "object"},
+    "remediation": {"type": "object"},
+    "highest_priority_improvement": {"type": "string"},
+    "trends": {"type": "object"},
+    "trust_effect": {"type": "object"},
+    "safety": {"type": "object"},
+    "audit_version": {"const": "1.0.0"},
+    "audit_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

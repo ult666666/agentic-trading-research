@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sec_document_review_result.schema.json",
+  "title": "Sealed SEC document-review result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "agent_name", "target_session_date", "generated_utc",
+    "knowledge_cutoff_utc", "policy_path", "policy_sha256", "source_queue_path",
+    "source_queue_file_sha256", "source_queue_sha256", "source_draft_path",
+    "source_draft_file_sha256", "status", "complete_task_denominator", "task_count",
+    "review_count", "reviews", "summary", "limitations", "safety", "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "sec_document_review_result/1.0"},
+    "version": {"const": "1.0.0"},
+    "agent_name": {"const": "sec-ir-verification-agent"},
+    "target_session_date": {"type": "string", "format": "date"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "knowledge_cutoff_utc": {"type": "string", "format": "date-time"},
+    "policy_path": {"type": "string", "minLength": 1},
+    "policy_sha256": {"$ref": "#/$defs/sha"},
+    "source_queue_path": {"type": "string", "minLength": 1},
+    "source_queue_file_sha256": {"$ref": "#/$defs/sha"},
+    "source_queue_sha256": {"$ref": "#/$defs/sha"},
+    "source_draft_path": {"type": "string", "minLength": 1},
+    "source_draft_file_sha256": {"$ref": "#/$defs/sha"},
+    "status": {"enum": ["completed", "partial", "failed"]},
+    "complete_task_denominator": {"const": true},
+    "task_count": {"type": "integer", "minimum": 0},
+    "review_count": {"type": "integer", "minimum": 0},
+    "reviews": {"type": "array", "items": {"$ref": "#/$defs/review"}},
+    "summary": {
+      "type": "object", "additionalProperties": false,
+      "required": ["disposition_counts", "receipt_count", "fact_count", "dilution_risk_counts", "prompt_injection_count"],
+      "properties": {
+        "disposition_counts": {"$ref": "#/$defs/counts"},
+        "receipt_count": {"type": "integer", "minimum": 0},
+        "fact_count": {"type": "integer", "minimum": 0},
+        "dilution_risk_counts": {"$ref": "#/$defs/counts"},
+        "prompt_injection_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "limitations": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"$ref": "#/$defs/token"}},
+    "safety": {"$ref": "sec_document_review_policy.schema.json#/$defs/safety"},
+    "artifact_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "token": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_]{0,95}$"},
+    "counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "receipt": {
+      "type": "object", "additionalProperties": false,
+      "required": ["url", "source_domain", "retrieved_at_utc", "content_sha256", "document_kind", "content_type", "http_status", "raw_source_persisted", "receipt_sha256"],
+      "properties": {
+        "url": {"type": "string", "format": "uri"},
+        "source_domain": {"const": "www.sec.gov"},
+        "retrieved_at_utc": {"type": "string", "format": "date-time"},
+        "content_sha256": {"$ref": "#/$defs/sha"},
+        "document_kind": {"enum": ["filing_index", "directory_index", "primary_document", "exhibit", "complete_submission"]},
+        "content_type": {"enum": ["html", "xml", "text", "json", "pdf"]},
+        "http_status": {"const": 200},
+        "raw_source_persisted": {"const": false},
+        "receipt_sha256": {"$ref": "#/$defs/sha"}
+      }
+    },
+    "fact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["fact_id", "fact_field", "value_status", "normalized_value", "units", "exact_excerpt", "citation_url", "event_effective_date", "issuer_only", "fact_sha256"],
+      "properties": {
+        "fact_id": {"type": "string", "pattern": "^fact:[0-9a-f]{64}$"},
+        "fact_field": {"$ref": "#/$defs/token"},
+        "value_status": {"enum": ["present", "missing", "unavailable", "conflicted"]},
+        "normalized_value": {"type": ["string", "number", "boolean", "null"]},
+        "units": {"type": ["string", "null"], "maxLength": 64},
+        "exact_excerpt": {"type": ["string", "null"], "maxLength": 500},
+        "citation_url": {"type": ["string", "null"], "format": "uri"},
+        "event_effective_date": {"type": ["string", "null"], "format": "date"},
+        "issuer_only": {"type": "boolean"},
+        "fact_sha256": {"$ref": "#/$defs/sha"}
+      }
+    },
+    "review": {
+      "type": "object", "additionalProperties": false,
+      "required": ["task_id", "source_task_sha256", "disposition", "completed_checks", "source_receipts", "facts", "could_not_verify", "dilution_or_financing_risk", "prompt_injection_detected", "raw_source_persisted", "grants_catalyst_confirmation", "review_sha256"],
+      "properties": {
+        "task_id": {"type": "string", "pattern": "^sec_review:[0-9a-f]{64}$"},
+        "source_task_sha256": {"$ref": "#/$defs/sha"},
+        "disposition": {"enum": ["verified", "refuted", "partial", "conflicted", "unavailable"]},
+        "completed_checks": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/token"}},
+        "source_receipts": {"type": "array", "items": {"$ref": "#/$defs/receipt"}},
+        "facts": {"type": "array", "items": {"$ref": "#/$defs/fact"}},
+        "could_not_verify": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/token"}},
+        "dilution_or_financing_risk": {"enum": ["found", "not_found", "unknown"]},
+        "prompt_injection_detected": {"type": "boolean"},
+        "raw_source_persisted": {"const": false},
+        "grants_catalyst_confirmation": {"const": false},
+        "review_sha256": {"$ref": "#/$defs/sha"}
+      }
+    }
+  }
+}

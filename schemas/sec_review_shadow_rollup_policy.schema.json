@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sec_review_shadow_rollup_policy.schema.json",
+  "title": "SEC shadow adoption rollup policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "input_status_schema", "input_result_schema", "output_schema",
+    "observation_start_date", "default_limit", "checkpoint", "states", "result_statuses",
+    "review_dispositions", "rules", "safety"
+  ],
+  "properties": {
+    "schema": {"const": "sec_review_shadow_rollup_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "input_status_schema": {"const": "sec_review_shadow_status/1.0"},
+    "input_result_schema": {"const": "sec_document_review_result/1.0"},
+    "output_schema": {"const": "sec_review_shadow_rollup/1.0"},
+    "observation_start_date": {"const": "2026-07-10"},
+    "default_limit": {"type": "integer", "minimum": 1, "maximum": 252},
+    "checkpoint": {
+      "type": "object", "additionalProperties": false,
+      "required": ["minimum_queue_sessions", "minimum_sealed_reviews"],
+      "properties": {
+        "minimum_queue_sessions": {"const": 20},
+        "minimum_sealed_reviews": {"const": 100}
+      }
+    },
+    "states": {"const": ["waiting_for_sec_batch", "queue_ready", "waiting_for_review_draft", "review_draft_ready", "result_sealed", "at_issue"]},
+    "result_statuses": {"const": ["completed", "partial", "failed"]},
+    "review_dispositions": {"const": ["verified", "refuted", "partial", "conflicted", "unavailable"]},
+    "rules": {"type": "object"},
+    "safety": {"$ref": "#/$defs/safety"}
+  },
+  "$defs": {
+    "safety": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "research_only", "diagnostic_only", "execution_enabled", "feeds_production",
+        "feeds_evidence_quorum", "feeds_buy_gate", "feeds_production_scoring",
+        "feeds_freeze_gate", "grants_catalyst_confirmation", "grants_source_authority",
+        "strategy_change_allowed", "counts_in_metrics", "profitability_claim_allowed",
+        "bridge_activation_allowed", "network_invoked", "model_invoked", "broker_access",
+        "broker_tool_invoked", "input_mutation_allowed", "derived_output_only"
+      ],
+      "properties": {
+        "research_only": {"const": true},
+        "diagnostic_only": {"const": true},
+        "execution_enabled": {"const": false},
+        "feeds_production": {"const": false},
+        "feeds_evidence_quorum": {"const": false},
+        "feeds_buy_gate": {"const": false},
+        "feeds_production_scoring": {"const": false},
+        "feeds_freeze_gate": {"const": false},
+        "grants_catalyst_confirmation": {"const": false},
+        "grants_source_authority": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "counts_in_metrics": {"const": false},
+        "profitability_claim_allowed": {"const": false},
+        "bridge_activation_allowed": {"const": false},
+        "network_invoked": {"const": false},
+        "model_invoked": {"const": false},
+        "broker_access": {"const": "none"},
+        "broker_tool_invoked": {"const": false},
+        "input_mutation_allowed": {"const": false},
+        "derived_output_only": {"const": true}
+      }
+    }
+  }
+}

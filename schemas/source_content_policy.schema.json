@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "source_content_policy.schema.json",
+  "title": "Shadow-only source-content receipt policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "mode",
+    "sources",
+    "limits",
+    "allowed_detected_content_types",
+    "rules",
+    "safety"
+  ],
+  "properties": {
+    "schema": {"const": "source_content_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "mode": {"const": "shadow_only"},
+    "sources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sec_edgar"],
+      "properties": {
+        "sec_edgar": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["exact_hosts", "path_prefixes", "matrix_source", "receipt_role"],
+          "properties": {
+            "exact_hosts": {
+              "const": ["sec.gov", "www.sec.gov"]
+            },
+            "path_prefixes": {
+              "const": ["/Archives/"]
+            },
+            "matrix_source": {"const": "sec_edgar"},
+            "receipt_role": {"const": "primary_document_candidate"}
+          }
+        }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "maximum_body_bytes",
+        "maximum_anchor_bytes",
+        "minimum_anchors",
+        "maximum_anchors",
+        "maximum_excerpt_characters",
+        "maximum_excerpt_words",
+        "future_timestamp_tolerance_seconds",
+        "maximum_target_session_distance_days",
+        "maximum_redirects"
+      ],
+      "properties": {
+        "maximum_body_bytes": {"type": "integer", "minimum": 1, "maximum": 16777216},
+        "maximum_anchor_bytes": {"type": "integer", "minimum": 1, "maximum": 8192},
+        "minimum_anchors": {"const": 1},
+        "maximum_anchors": {"type": "integer", "minimum": 1, "maximum": 64},
+        "maximum_excerpt_characters": {"type": "integer", "minimum": 0, "maximum": 280},
+        "maximum_excerpt_words": {"type": "integer", "minimum": 0, "maximum": 25},
+        "future_timestamp_tolerance_seconds": {"type": "integer", "minimum": 0, "maximum": 300},
+        "maximum_target_session_distance_days": {"type": "integer", "minimum": 0, "maximum": 10},
+        "maximum_redirects": {"const": 0}
+      }
+    },
+    "allowed_detected_content_types": {
+      "const": ["html", "json", "text", "xml"]
+    },
+    "rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "https_only",
+        "exact_host_match",
+        "query_forbidden",
+        "userinfo_forbidden",
+        "fragments_forbidden",
+        "private_or_local_ip_forbidden",
+        "duplicate_json_keys_forbidden",
+        "content_and_anchor_hashes_rederived",
+        "no_overwrite_fixture_publication",
+        "raw_content_not_embedded",
+        "model_interpretation_requires_adjudication",
+        "production_sealer_available"
+      ],
+      "properties": {
+        "https_only": {"const": true},
+        "exact_host_match": {"const": true},
+        "query_forbidden": {"const": true},
+        "userinfo_forbidden": {"const": true},
+        "fragments_forbidden": {"const": true},
+        "private_or_local_ip_forbidden": {"const": true},
+        "duplicate_json_keys_forbidden": {"const": true},
+        "content_and_anchor_hashes_rederived": {"const": true},
+        "no_overwrite_fixture_publication": {"const": true},
+        "raw_content_not_embedded": {"const": true},
+        "model_interpretation_requires_adjudication": {"const": true},
+        "production_sealer_available": {"const": false}
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "research_only",
+        "shadow_only",
+        "execution_enabled",
+        "feeds_production",
+        "feeds_buy_gate",
+        "grants_source_authority",
+        "grants_catalyst_confirmation",
+        "grants_official_research",
+        "strategy_change_allowed",
+        "counts_in_metrics",
+        "builder_network_invoked",
+        "broker_access",
+        "collector_trust",
+        "adjudication_required"
+      ],
+      "properties": {
+        "research_only": {"const": true},
+        "shadow_only": {"const": true},
+        "execution_enabled": {"const": false},
+        "feeds_production": {"const": false},
+        "feeds_buy_gate": {"const": false},
+        "grants_source_authority": {"const": false},
+        "grants_catalyst_confirmation": {"const": false},
+        "grants_official_research": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "counts_in_metrics": {"const": false},
+        "builder_network_invoked": {"const": false},
+        "broker_access": {"const": "none"},
+        "collector_trust": {"const": "local_fixture_only"},
+        "adjudication_required": {"const": true}
+      }
+    }
+  }
+}

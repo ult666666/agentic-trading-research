@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_research_bundle.schema.json",
+  "title": "Immutable Quant Research Bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "bundle_id", "experiment_id", "program_id", "program_version",
+    "preregistered_at_utc", "holdout_locked_at_utc", "selection_completed_at_utc",
+    "manifest", "walk_forward", "selection_bias", "folds", "holdout",
+    "cost_stress", "bundle_sha256", "actionable", "record_type",
+    "excluded_from_performance", "excluded_from_win_rate", "excluded_from_expectancy",
+    "excluded_from_official_replay_outcomes", "diagnostic_only", "feeds_production",
+    "note", "activation_authority", "strategy_change_allowed", "execution_enabled",
+    "executed_trade_performance"
+  ],
+  "properties": {
+    "schema": {"const": "quant_research_bundle/1.0"},
+    "bundle_id": {"$ref": "#/$defs/identifier"},
+    "experiment_id": {"$ref": "#/$defs/identifier"},
+    "program_id": {"$ref": "#/$defs/identifier"},
+    "program_version": {"$ref": "#/$defs/identifier"},
+    "preregistered_at_utc": {"type": "string", "format": "date-time"},
+    "holdout_locked_at_utc": {"type": "string", "format": "date-time"},
+    "selection_completed_at_utc": {"type": "string", "format": "date-time"},
+    "manifest": {"$ref": "#/$defs/ref"},
+    "walk_forward": {"$ref": "#/$defs/ref"},
+    "selection_bias": {"$ref": "#/$defs/ref"},
+    "folds": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["fold", "backtest", "diagnostics"],
+        "properties": {
+          "fold": {"type": "integer", "minimum": 1},
+          "backtest": {"$ref": "#/$defs/ref"},
+          "diagnostics": {"$ref": "#/$defs/ref"}
+        }
+      }
+    },
+    "holdout": {"$ref": "#/$defs/backtestPair"},
+    "cost_stress": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "cost_multiplier", "backtest", "diagnostics"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "cost_multiplier": {"type": "number", "minimum": 1},
+          "backtest": {"$ref": "#/$defs/ref"},
+          "diagnostics": {"$ref": "#/$defs/ref"}
+        }
+      }
+    },
+    "portfolio_export": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contract", "candidate_portfolio", "source_backtest"],
+      "properties": {
+        "contract": {"$ref": "#/$defs/ref"},
+        "candidate_portfolio": {"$ref": "#/$defs/ref"},
+        "source_backtest": {"$ref": "#/$defs/ref"}
+      }
+    },
+    "bundle_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "actionable": {"const": false},
+    "record_type": {"const": "non_actionable_diagnostic"},
+    "excluded_from_performance": {"const": true},
+    "excluded_from_win_rate": {"const": true},
+    "excluded_from_expectancy": {"const": true},
+    "excluded_from_official_replay_outcomes": {"const": true},
+    "diagnostic_only": {"const": true},
+    "feeds_production": {"const": false},
+    "note": {"const": "Offline quant research lab diagnostic. NOT a proposed Buy; NEVER feeds production scoring/gates; excluded from all performance metrics."},
+    "activation_authority": {"const": false},
+    "strategy_change_allowed": {"const": false},
+    "execution_enabled": {"const": false},
+    "executed_trade_performance": {"const": false}
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+    },
+    "safeRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\u0000]+$"
+    },
+    "ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"$ref": "#/$defs/safeRelativePath"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "backtestPair": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["backtest", "diagnostics"],
+      "properties": {
+        "backtest": {"$ref": "#/$defs/ref"},
+        "diagnostics": {"$ref": "#/$defs/ref"}
+      }
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://charles.local/schemas/documentation_truth_receipt.schema.json",
+  "title": "Documentation Truth Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "generated_utc",
+    "status",
+    "policy_sha256",
+    "facts_sha256",
+    "source_sha256",
+    "expected_blocks_sha256",
+    "documents_checked",
+    "tracked_text_files_scanned",
+    "errors",
+    "safety",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "documentation_truth_receipt/1.0"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["healthy", "at_issue"]},
+    "policy_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "facts_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "source_sha256": {
+      "type": "object",
+      "additionalProperties": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+    },
+    "expected_blocks_sha256": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operator_facts", "readme_schedule"],
+      "properties": {
+        "operator_facts": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "readme_schedule": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "documents_checked": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[A-Za-z0-9_./-]+$"}
+    },
+    "tracked_text_files_scanned": {"type": "integer", "minimum": 0},
+    "errors": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[A-Za-z0-9_./:-]+$"}
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "diagnostic_only",
+        "read_only",
+        "local_artifact_write_only",
+        "execution_enabled",
+        "broker_invoked",
+        "network_invoked",
+        "model_invoked",
+        "contains_account_data",
+        "contains_credentials",
+        "grants_authority"
+      ],
+      "properties": {
+        "diagnostic_only": {"const": true},
+        "read_only": {"const": true},
+        "local_artifact_write_only": {"const": true},
+        "execution_enabled": {"const": false},
+        "broker_invoked": {"const": false},
+        "network_invoked": {"const": false},
+        "model_invoked": {"const": false},
+        "contains_account_data": {"const": false},
+        "contains_credentials": {"const": false},
+        "grants_authority": {"const": false}
+      }
+    },
+    "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

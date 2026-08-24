@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_label_policy.schema.json",
+  "title": "Quant Forward Label Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "dataset_schema", "row_schema",
+    "feature_dataset_schema", "adjusted_bar_view_schema", "benchmark",
+    "horizons_sessions", "maximum_rows", "maximum_calendar_search_days",
+    "output_decimal_places", "decision_baseline", "entry_baseline",
+    "exit_baseline", "session_spine", "economic_return_eligible_views",
+    "allow_unverified_archive_diagnostics", "require_exact_session_alignment",
+    "require_prior_bar_prefix_binding", "ignore_bars_after_as_of", "safety"
+  ],
+  "properties": {
+    "schema": {"const": "quant_label_policy/1.0"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "dataset_schema": {"const": "quant_forward_label_dataset/1.0"},
+    "row_schema": {"const": "quant_forward_label_row/1.0"},
+    "feature_dataset_schema": {"const": "quant_feature_dataset/1.0"},
+    "adjusted_bar_view_schema": {"const": "adjusted_bar_view/1.0"},
+    "benchmark": {"const": "SPY"},
+    "horizons_sessions": {
+      "type": "array", "const": [1, 3, 5, 10]
+    },
+    "maximum_rows": {"type": "integer", "minimum": 1, "maximum": 100000},
+    "maximum_calendar_search_days": {"type": "integer", "minimum": 10, "maximum": 366},
+    "output_decimal_places": {"type": "integer", "minimum": 4, "maximum": 12},
+    "decision_baseline": {"const": "previous_session_close"},
+    "entry_baseline": {"const": "event_session_open"},
+    "exit_baseline": {"const": "horizon_session_close"},
+    "session_spine": {"const": "versioned_market_calendar"},
+    "economic_return_eligible_views": {
+      "type": "array", "const": ["total_return"]
+    },
+    "allow_unverified_archive_diagnostics": {"const": true},
+    "require_exact_session_alignment": {"const": true},
+    "require_prior_bar_prefix_binding": {"const": true},
+    "ignore_bars_after_as_of": {"const": true},
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "research_only", "diagnostic_only", "execution_enabled",
+        "activation_authority", "feeds_production", "feeds_research_factory",
+        "feeds_buy_gate", "promotion_allowed", "strategy_change_allowed",
+        "profitability_claim_allowed", "counts_in_metrics",
+        "account_data_allowed", "broker_access", "network_invoked", "model_invoked"
+      ],
+      "properties": {
+        "research_only": {"const": true},
+        "diagnostic_only": {"const": true},
+        "execution_enabled": {"const": false},
+        "activation_authority": {"const": false},
+        "feeds_production": {"const": false},
+        "feeds_research_factory": {"const": false},
+        "feeds_buy_gate": {"const": false},
+        "promotion_allowed": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "profitability_claim_allowed": {"const": false},
+        "counts_in_metrics": {"const": false},
+        "account_data_allowed": {"const": false},
+        "broker_access": {"const": "none"},
+        "network_invoked": {"const": false},
+        "model_invoked": {"const": false}
+      }
+    }
+  }
+}

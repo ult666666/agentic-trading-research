@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_inference_policy.schema.json",
+  "title": "Quant Inference Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "confidence_level", "normal_critical_value",
+    "minimum_hac_observations", "minimum_bootstrap_observations", "hac_kernel",
+    "hac_lag_rule", "bootstrap_method", "bootstrap_replications",
+    "bootstrap_block_length_rule", "bootstrap_quantile_rule", "bootstrap_seed",
+    "effective_sample_size_rule", "interval_purge_rule", "group_purge_rule",
+    "embargo_rule", "embargo_calendar_days", "spa_status", "safety"
+  ],
+  "properties": {
+    "schema": {"const": "quant_inference_policy/1.0"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "confidence_level": {"const": 0.95},
+    "normal_critical_value": {"const": 1.9599639845},
+    "minimum_hac_observations": {"type": "integer", "minimum": 2},
+    "minimum_bootstrap_observations": {"type": "integer", "minimum": 2},
+    "hac_kernel": {"const": "bartlett"},
+    "hac_lag_rule": {"const": "floor_4_n_over_100_power_2_over_9_capped_n_minus_1"},
+    "bootstrap_method": {"const": "moving_overlapping_blocks"},
+    "bootstrap_replications": {"type": "integer", "minimum": 1000},
+    "bootstrap_block_length_rule": {"const": "ceil_cube_root_n_capped_n"},
+    "bootstrap_quantile_rule": {"const": "linear_interpolation_type_7"},
+    "bootstrap_seed": {"type": "integer", "minimum": 0},
+    "effective_sample_size_rule": {"const": "positive_autocorrelation_sum_through_hac_lag"},
+    "interval_purge_rule": {"const": "remove_train_label_intervals_overlapping_any_test_label_interval"},
+    "group_purge_rule": {"const": "remove_train_observations_sharing_any_test_group"},
+    "embargo_rule": {"const": "remove_train_event_dates_after_test_label_end_through_embargo_days"},
+    "embargo_calendar_days": {"type": "integer", "minimum": 0},
+    "spa_status": {"const": "not_implemented_requires_separate_reference_validation"},
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["research_only", "diagnostic_only", "execution_enabled", "activation_authority", "feeds_production", "strategy_change_allowed", "promotion_gate_change_allowed", "profitability_claim_allowed", "spa_claim_allowed", "broker_access"],
+      "properties": {
+        "research_only": {"const": true},
+        "diagnostic_only": {"const": true},
+        "execution_enabled": {"const": false},
+        "activation_authority": {"const": false},
+        "feeds_production": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "promotion_gate_change_allowed": {"const": false},
+        "profitability_claim_allowed": {"const": false},
+        "spa_claim_allowed": {"const": false},
+        "broker_access": {"const": "none"}
+      }
+    }
+  }
+}

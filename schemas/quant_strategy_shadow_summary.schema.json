@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_strategy_shadow_summary.schema.json",
+  "title": "Quant Strategy Shadow Summary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "tool", "ok", "generated_at_utc", "plan_id", "plan_sha256",
+    "ledger_file_sha256", "ledger_head_sha256", "cache_key", "status",
+    "observation_progress", "checkpoint_evaluation", "current_metrics", "quality_gates",
+    "failed_gate_codes", "reliability_status", "uniqueness_status", "profitability_status",
+    "eligible_for_human_shadow_evidence_review", "compact_context", "limitations",
+    "actual_orders_count", "research_only", "diagnostic_only", "execution_enabled",
+    "activation_authority", "strategy_change_allowed", "feeds_production",
+    "feeds_research_factory", "feeds_buy_gate", "profitability_claim_allowed",
+    "automatic_promotion_allowed", "automatic_shadow_start_allowed", "registry_mutation_allowed",
+    "broker_access", "broker_tool_invoked", "account_data_allowed", "order_data_allowed",
+    "network_allowed", "model_invoked", "summary_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "quant_strategy_shadow_summary/1.0"},
+    "tool": {"const": "quant.strategy_shadow_monitor"}, "ok": {"const": true},
+    "generated_at_utc": {"$ref": "#/$defs/utc"},
+    "plan_id": {"$ref": "#/$defs/id"}, "plan_sha256": {"$ref": "#/$defs/sha"},
+    "ledger_file_sha256": {"$ref": "#/$defs/sha"}, "ledger_head_sha256": {"$ref": "#/$defs/sha"},
+    "cache_key": {"$ref": "#/$defs/sha"},
+    "status": {"enum": ["collecting", "insufficient_quality", "shadow_evidence_not_supportive", "shadow_evidence_supportive_for_human_review"]},
+    "observation_progress": {"$ref": "#/$defs/progress"},
+    "checkpoint_evaluation": {"$ref": "#/$defs/checkpoint"},
+    "current_metrics": {"$ref": "#/$defs/metrics"},
+    "quality_gates": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"$ref": "#/$defs/gate"}},
+    "failed_gate_codes": {"type": "array", "maxItems": 20, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "reliability_status": {"enum": ["healthy", "degraded"]},
+    "uniqueness_status": {"enum": ["not_yet_evaluated", "preserved_at_preregistered_checkpoint", "not_preserved_at_preregistered_checkpoint"]},
+    "profitability_status": {"const": "not_established"},
+    "eligible_for_human_shadow_evidence_review": {"type": "boolean"},
+    "compact_context": {"$ref": "#/$defs/compact"},
+    "limitations": {"type": "array", "minItems": 5, "maxItems": 12, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "actual_orders_count": {"const": 0},
+    "research_only": {"const": true}, "diagnostic_only": {"const": true},
+    "execution_enabled": {"const": false}, "activation_authority": {"const": false},
+    "strategy_change_allowed": {"const": false}, "feeds_production": {"const": false},
+    "feeds_research_factory": {"const": false}, "feeds_buy_gate": {"const": false},
+    "profitability_claim_allowed": {"const": false}, "automatic_promotion_allowed": {"const": false},
+    "automatic_shadow_start_allowed": {"const": false}, "registry_mutation_allowed": {"const": false},
+    "broker_access": {"const": "none"}, "broker_tool_invoked": {"const": false},
+    "account_data_allowed": {"const": false}, "order_data_allowed": {"const": false},
+    "network_allowed": {"const": false}, "model_invoked": {"const": false},
+    "summary_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "utc": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"},
+    "nullable_number": {"type": ["number", "null"]},
+    "progress": {
+      "type": "object", "additionalProperties": false,
+      "required": ["start_session_date", "latest_session_date", "elapsed_sessions",
+                   "complete_sessions", "unavailable_sessions", "expected_closed_sessions_as_of",
+                   "session_denominator_complete", "missing_session_dates",
+                   "next_expected_session_date", "latest_reached_decision_checkpoint",
+                   "next_preregistered_checkpoint", "maximum_observation_sessions",
+                   "observation_horizon_complete"],
+      "properties": {
+        "start_session_date": {"$ref": "#/$defs/date"},
+        "latest_session_date": {"oneOf": [{"$ref": "#/$defs/date"}, {"type": "null"}]},
+        "elapsed_sessions": {"type": "integer", "minimum": 0, "maximum": 1008},
+        "complete_sessions": {"type": "integer", "minimum": 0, "maximum": 1008},
+        "unavailable_sessions": {"type": "integer", "minimum": 0, "maximum": 1008},
+        "expected_closed_sessions_as_of": {"type": "integer", "minimum": 0, "maximum": 1008},
+        "session_denominator_complete": {"type": "boolean"},
+        "missing_session_dates": {"type": "array", "maxItems": 1008, "uniqueItems": true, "items": {"$ref": "#/$defs/date"}},
+        "next_expected_session_date": {"oneOf": [{"$ref": "#/$defs/date"}, {"type": "null"}]},
+        "latest_reached_decision_checkpoint": {"type": ["integer", "null"], "minimum": 60, "maximum": 504},
+        "next_preregistered_checkpoint": {"type": ["integer", "null"], "minimum": 1, "maximum": 504},
+        "maximum_observation_sessions": {"type": "integer", "minimum": 252, "maximum": 1008},
+        "observation_horizon_complete": {"type": "boolean"}
+      }
+    },
+    "metrics": {
+      "type": "object", "additionalProperties": false,
+      "required": ["elapsed_sessions", "complete_sessions", "unavailable_sessions",
+                   "complete_fraction", "candidate_active_sessions", "candidate_active_fraction",
+                   "candidate_total_return", "benchmark_total_return",
+                   "candidate_excess_mean_daily_return", "candidate_positive_day_fraction",
+                   "candidate_max_drawdown"],
+      "properties": {
+        "elapsed_sessions": {"type": "integer", "minimum": 0, "maximum": 1008},
+        "complete_sessions": {"type": "integer", "minimum": 0, "maximum": 1008},
+        "unavailable_sessions": {"type": "integer", "minimum": 0, "maximum": 1008},
+        "complete_fraction": {"$ref": "#/$defs/nullable_number"},
+        "candidate_active_sessions": {"type": "integer", "minimum": 0, "maximum": 1008},
+        "candidate_active_fraction": {"$ref": "#/$defs/nullable_number"},
+        "candidate_total_return": {"$ref": "#/$defs/nullable_number"},
+        "benchmark_total_return": {"$ref": "#/$defs/nullable_number"},
+        "candidate_excess_mean_daily_return": {"$ref": "#/$defs/nullable_number"},
+        "candidate_positive_day_fraction": {"$ref": "#/$defs/nullable_number"},
+        "candidate_max_drawdown": {"$ref": "#/$defs/nullable_number"}
+      }
+    },
+    "hac": {
+      "type": "object", "additionalProperties": false,
+      "required": ["available", "reason", "n", "lag", "mean", "standard_error",
+                   "confidence_interval", "lower_bound_above_zero"],
+      "properties": {
+        "available": {"type": "boolean"}, "reason": {"type": ["string", "null"]},
+        "n": {"type": "integer", "minimum": 0, "maximum": 1008},
+        "lag": {"type": "integer", "minimum": 0, "maximum": 1007},
+        "two_sided_alpha": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.05},
+        "critical_value": {"type": "number", "exclusiveMinimum": 0},
+        "mean": {"$ref": "#/$defs/nullable_number"},
+        "standard_error": {"$ref": "#/$defs/nullable_number"},
+        "confidence_interval": {
+          "oneOf": [{"type": "null"}, {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number"}}]
+        },
+        "lower_bound_above_zero": {"type": ["boolean", "null"]}
+      }
+    },
+    "dependence_map": {
+      "type": "object", "maxProperties": 20,
+      "propertyNames": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+      "additionalProperties": {"type": ["number", "null"]}
+    },
+    "checkpoint": {
+      "type": "object", "additionalProperties": false,
+      "required": ["checkpoint_sessions", "two_sided_alpha", "alpha_spent_through_checkpoint",
+                   "prefix_metrics", "candidate_vs_benchmark_hac",
+                   "candidate_vs_incumbent_composite_hac", "incumbent_correlations",
+                   "incumbent_active_day_jaccards", "maximum_absolute_incumbent_correlation",
+                   "maximum_incumbent_active_day_jaccard"],
+      "properties": {
+        "checkpoint_sessions": {"type": ["integer", "null"], "minimum": 60, "maximum": 504},
+        "two_sided_alpha": {"type": ["number", "null"], "exclusiveMinimum": 0, "maximum": 0.05},
+        "alpha_spent_through_checkpoint": {"type": "number", "minimum": 0, "maximum": 0.05},
+        "prefix_metrics": {"oneOf": [{"$ref": "#/$defs/metrics"}, {"type": "null"}]},
+        "candidate_vs_benchmark_hac": {"oneOf": [{"$ref": "#/$defs/hac"}, {"type": "null"}]},
+        "candidate_vs_incumbent_composite_hac": {"oneOf": [{"$ref": "#/$defs/hac"}, {"type": "null"}]},
+        "incumbent_correlations": {"$ref": "#/$defs/dependence_map"},
+        "incumbent_active_day_jaccards": {"$ref": "#/$defs/dependence_map"},
+        "maximum_absolute_incumbent_correlation": {"$ref": "#/$defs/nullable_number"},
+        "maximum_incumbent_active_day_jaccard": {"$ref": "#/$defs/nullable_number"}
+      }
+    },
+    "count_observed": {
+      "type": "object", "additionalProperties": false,
+      "required": ["observed", "expected", "missing"],
+      "properties": {
+        "observed": {"type": "integer", "minimum": 0},
+        "expected": {"type": "integer", "minimum": 0},
+        "missing": {"type": "integer", "minimum": 0}
+      }
+    },
+    "missing_required": {
+      "type": "object", "additionalProperties": false,
+      "required": ["missing"], "properties": {"missing": {"const": 0}}
+    },
+    "gate_value": {
+      "oneOf": [
+        {"type": "number"}, {"type": "boolean"}, {"type": "string"}, {"type": "null"},
+        {"$ref": "#/$defs/count_observed"}, {"$ref": "#/$defs/missing_required"}
+      ]
+    },
+    "gate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["code", "category", "passed", "observed", "required"],
+      "properties": {
+        "code": {"type": "string", "minLength": 1},
+        "category": {"enum": ["quality", "return", "risk", "uniqueness"]},
+        "passed": {"type": "boolean"},
+        "observed": {"$ref": "#/$defs/gate_value"},
+        "required": {"$ref": "#/$defs/gate_value"}
+      }
+    },
+    "compact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["plan_id", "status", "elapsed_sessions", "complete_sessions",
+                   "expected_closed_sessions_as_of", "session_denominator_complete",
+                   "missing_session_count", "checkpoint_sessions", "next_checkpoint",
+                   "candidate_total_return", "candidate_max_drawdown", "failed_gate_codes",
+                   "profitability_status", "execution_enabled"],
+      "properties": {
+        "plan_id": {"$ref": "#/$defs/id"},
+        "status": {"enum": ["collecting", "insufficient_quality", "shadow_evidence_not_supportive", "shadow_evidence_supportive_for_human_review"]},
+        "elapsed_sessions": {"type": "integer", "minimum": 0},
+        "complete_sessions": {"type": "integer", "minimum": 0},
+        "expected_closed_sessions_as_of": {"type": "integer", "minimum": 0},
+        "session_denominator_complete": {"type": "boolean"},
+        "missing_session_count": {"type": "integer", "minimum": 0},
+        "checkpoint_sessions": {"type": ["integer", "null"], "minimum": 60},
+        "next_checkpoint": {"type": ["integer", "null"], "minimum": 1},
+        "candidate_total_return": {"$ref": "#/$defs/nullable_number"},
+        "candidate_max_drawdown": {"$ref": "#/$defs/nullable_number"},
+        "failed_gate_codes": {"type": "array", "maxItems": 20, "uniqueItems": true, "items": {"type": "string"}},
+        "profitability_status": {"const": "not_established"},
+        "execution_enabled": {"const": false}
+      }
+    }
+  }
+}

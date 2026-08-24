@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sec_review_shadow_status.schema.json",
+  "title": "SEC document-review shadow coordinator status",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "target_session_date", "generated_utc", "knowledge_cutoff_utc",
+    "status", "state", "ok", "reason_codes", "source", "artifacts", "counts", "safety",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "sec_review_shadow_status/1.0"},
+    "version": {"const": "1.0.0"},
+    "target_session_date": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "knowledge_cutoff_utc": {"type": ["string", "null"], "format": "date-time"},
+    "status": {"enum": ["waiting", "ready", "at_issue"]},
+    "state": {"enum": ["waiting_for_sec_batch", "queue_ready", "waiting_for_review_draft", "review_draft_ready", "result_sealed", "at_issue"]},
+    "ok": {"type": "boolean"},
+    "reason_codes": {
+      "type": "array", "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_]{0,95}$"}
+    },
+    "source": {"$ref": "#/$defs/source"},
+    "artifacts": {"$ref": "#/$defs/artifacts"},
+    "counts": {"$ref": "#/$defs/counts"},
+    "safety": {"$ref": "sec_review_shadow_config.schema.json#/$defs/safety"},
+    "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "nullablePath": {"type": ["string", "null"], "minLength": 1},
+    "nullableSha": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["readiness_path", "readiness_file_sha256", "manifest_path", "manifest_file_sha256", "manifest_sha256", "batch_id", "retrieved_at_utc"],
+      "properties": {
+        "readiness_path": {"$ref": "#/$defs/nullablePath"},
+        "readiness_file_sha256": {"$ref": "#/$defs/nullableSha"},
+        "manifest_path": {"$ref": "#/$defs/nullablePath"},
+        "manifest_file_sha256": {"$ref": "#/$defs/nullableSha"},
+        "manifest_sha256": {"$ref": "#/$defs/nullableSha"},
+        "batch_id": {"$ref": "#/$defs/nullableSha"},
+        "retrieved_at_utc": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "artifactRef": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"$ref": "#/$defs/nullablePath"},
+        "sha256": {"$ref": "#/$defs/nullableSha"}
+      }
+    },
+    "artifacts": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_batch", "event_bundle", "review_queue", "result_draft", "sealed_result", "status"],
+      "properties": {
+        "source_batch": {"$ref": "#/$defs/artifactRef"},
+        "event_bundle": {"$ref": "#/$defs/artifactRef"},
+        "review_queue": {"$ref": "#/$defs/artifactRef"},
+        "result_draft": {"$ref": "#/$defs/artifactRef"},
+        "sealed_result": {"$ref": "#/$defs/artifactRef"},
+        "status": {"$ref": "#/$defs/artifactRef"}
+      }
+    },
+    "counts": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_records", "eligible_filings", "excluded_filings", "review_tasks", "sealed_reviews"],
+      "properties": {
+        "source_records": {"type": "integer", "minimum": 0},
+        "eligible_filings": {"type": "integer", "minimum": 0},
+        "excluded_filings": {"type": "integer", "minimum": 0},
+        "review_tasks": {"type": "integer", "minimum": 0},
+        "sealed_reviews": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

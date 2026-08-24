@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://charles.local/schemas/agent_context_index.schema.json",
+  "title": "Agent Context Index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "system", "source_hashes", "counts", "budgets", "domains", "components", "brief_markdown", "agent_usage", "safety", "artifact_sha256"],
+  "properties": {
+    "schema": {"const": "agent_context_index/1.0"},
+    "system": {"type": "object", "additionalProperties": false, "required": ["name", "purpose", "current_stage", "profitability_state", "execution_model", "primary_constraint"], "properties": {
+      "name": {"type": "string", "minLength": 1, "maxLength": 80},
+      "purpose": {"type": "string", "minLength": 20, "maxLength": 320},
+      "current_stage": {"type": "string", "minLength": 20, "maxLength": 320},
+      "profitability_state": {"const": "not_established"},
+      "execution_model": {"const": "human_places_every_order_manually"},
+      "primary_constraint": {"type": "string", "minLength": 20, "maxLength": 320}
+    }},
+    "source_hashes": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "required": ["policy", "constitution", "model_inventory", "workflows"]},
+    "counts": {"type": "object", "additionalProperties": false, "required": ["domains", "components", "anchors", "workflows", "models"], "properties": {
+      "domains": {"type": "integer", "minimum": 1}, "components": {"type": "integer", "minimum": 1},
+      "anchors": {"type": "integer", "minimum": 1}, "workflows": {"type": "integer", "minimum": 1},
+      "models": {"type": "integer", "minimum": 1}
+    }},
+    "budgets": {"type": "object", "additionalProperties": false, "required": ["approximation_method", "brief_characters", "brief_approximate_tokens", "brief_max_characters", "index_characters", "index_approximate_tokens", "index_max_characters", "component_max_characters"], "properties": {
+      "approximation_method": {"const": "ceil_unicode_characters_divided_by_3"},
+      "brief_characters": {"type": "integer", "minimum": 1}, "brief_approximate_tokens": {"type": "integer", "minimum": 1},
+      "brief_max_characters": {"type": "integer", "minimum": 1}, "index_characters": {"type": "integer", "minimum": 1},
+      "index_approximate_tokens": {"type": "integer", "minimum": 1}, "index_max_characters": {"type": "integer", "minimum": 1},
+      "component_max_characters": {"type": "integer", "minimum": 1}
+    }},
+    "domains": {"type": "array", "minItems": 1, "maxItems": 10, "items": {"type": "object", "additionalProperties": false, "required": ["id", "label", "summary", "component_count"], "properties": {
+      "id": {"$ref": "#/$defs/token"}, "label": {"type": "string", "minLength": 1, "maxLength": 48},
+      "summary": {"type": "string", "minLength": 20, "maxLength": 320}, "component_count": {"type": "integer", "minimum": 0}
+    }}},
+    "components": {"type": "array", "minItems": 1, "maxItems": 100, "items": {"$ref": "#/$defs/component"}},
+    "brief_markdown": {"type": "string", "minLength": 100, "maxLength": 6000},
+    "agent_usage": {"type": "object", "additionalProperties": false, "required": ["brief", "index", "component"], "properties": {
+      "brief": {"const": "python3 scripts/agent_context.py brief --format markdown"},
+      "index": {"const": "python3 scripts/agent_context.py index --format json"},
+      "component": {"const": "python3 scripts/agent_context.py show --component <component-id> --format markdown"}
+    }},
+    "safety": {"$ref": "agent_context_policy.schema.json#/$defs/safety"},
+    "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "token": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+    "component": {"type": "object", "additionalProperties": false, "required": ["id", "kind", "domain", "label", "summary", "status", "source_refs", "dependencies", "authority", "detail_command"], "properties": {
+      "id": {"type": "string", "pattern": "^(anchor|workflow|model)\\.[a-z][a-z0-9_]{0,79}$"},
+      "kind": {"enum": ["anchor", "workflow", "model"]}, "domain": {"$ref": "#/$defs/token"},
+      "label": {"type": "string", "minLength": 1, "maxLength": 96},
+      "summary": {"type": "string", "minLength": 10, "maxLength": 280},
+      "status": {"enum": ["configured", "validated_by_tests", "calibration_pending", "untested"]},
+      "source_refs": {"type": "array", "minItems": 1, "maxItems": 4, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 180}},
+      "dependencies": {"type": "array", "maxItems": 8, "uniqueItems": true, "items": {"type": "string", "pattern": "^(anchor|workflow|model)\\.[a-z][a-z0-9_]{0,79}$"}},
+      "authority": {"const": "research_only_no_execution"},
+      "detail_command": {"type": "string", "minLength": 20, "maxLength": 180}
+    }}
+  }
+}

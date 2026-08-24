@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "listing_event_payload.schema.json",
+  "title": "Nasdaq point-in-time listing add/delete event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id", "symbol", "company_name", "nasdaq_action", "bx_action", "psx_action",
+    "effective_date", "primary_listing_market", "file_creation_time_utc",
+    "current_event_file_only", "complete_historical_coverage",
+    "security_master_interval_granted", "universe_eligibility_granted",
+    "delisting_confirmation_scope"
+  ],
+  "properties": {
+    "event_id": {"type": "string"},
+    "symbol": {"type": "string"},
+    "company_name": {"type": ["string", "null"]},
+    "nasdaq_action": {"enum": ["add", "delete", null]},
+    "bx_action": {"enum": ["add", "delete", null]},
+    "psx_action": {"enum": ["add", "delete", null]},
+    "effective_date": {"type": "string", "format": "date"},
+    "primary_listing_market": {"type": ["string", "null"]},
+    "file_creation_time_utc": {"type": ["string", "null"], "format": "date-time"},
+    "current_event_file_only": {"const": true},
+    "complete_historical_coverage": {"const": false},
+    "security_master_interval_granted": {"const": false},
+    "universe_eligibility_granted": {"const": false},
+    "delisting_confirmation_scope": {
+      "enum": ["nasdaq_system_delete_event", null]
+    }
+  }
+}

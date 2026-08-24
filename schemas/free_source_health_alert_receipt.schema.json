@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "free_source_health_alert_receipt.schema.json",
+  "title": "Local free-source alert transition receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "generated_utc",
+    "status",
+    "transition",
+    "severity",
+    "health_status",
+    "health_artifact_sha256",
+    "previous_active_fingerprint",
+    "active_fingerprint",
+    "active_codes",
+    "notification_required",
+    "notification_kind",
+    "state_written",
+    "errors",
+    "diagnostic_only",
+    "source_data_read_only",
+    "local_state_write_only",
+    "maximum_external_spend_usd",
+    "external_notification_enabled",
+    "execution_enabled",
+    "source_authority_granted",
+    "buy_authority_granted",
+    "feeds_production_scoring",
+    "strategy_activation_allowed",
+    "model_invoked",
+    "broker_invoked",
+    "contains_account_data",
+    "contains_credentials",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "free_source_health_alert_receipt/1.0"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["alert", "unchanged", "resolved", "clear", "unavailable", "blocked"]},
+    "transition": {
+      "enum": [
+        "new_alert",
+        "changed_alert",
+        "unchanged",
+        "resolved",
+        "clear",
+        "unavailable",
+        "state_invalid"
+      ]
+    },
+    "severity": {"enum": ["none", "warning", "critical"]},
+    "health_status": {
+      "type": ["string", "null"],
+      "enum": ["collecting", "healthy", "degraded", "blocked", "invalid", null]
+    },
+    "health_artifact_sha256": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "previous_active_fingerprint": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "active_fingerprint": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "active_codes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z0-9_.:-]+$"}
+    },
+    "notification_required": {"type": "boolean"},
+    "notification_kind": {"enum": ["none", "alert", "recovery"]},
+    "state_written": {"type": "boolean"},
+    "errors": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "diagnostic_only": {"const": true},
+    "source_data_read_only": {"const": true},
+    "local_state_write_only": {"const": true},
+    "maximum_external_spend_usd": {"const": "0.00"},
+    "external_notification_enabled": {"const": false},
+    "execution_enabled": {"const": false},
+    "source_authority_granted": {"const": false},
+    "buy_authority_granted": {"const": false},
+    "feeds_production_scoring": {"const": false},
+    "strategy_activation_allowed": {"const": false},
+    "model_invoked": {"const": false},
+    "broker_invoked": {"const": false},
+    "contains_account_data": {"const": false},
+    "contains_credentials": {"const": false},
+    "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

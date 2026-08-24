@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "autonomy_service_slo_policy.schema.json",
+  "title": "Autonomous research workflow service-SLO policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "operating_timezone",
+    "market_calendar_required",
+    "workflows",
+    "safety"
+  ],
+  "properties": {
+    "schema": {"const": "autonomy_service_slo_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "operating_timezone": {"const": "America/Los_Angeles"},
+    "market_calendar_required": {"const": true},
+    "workflows": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["intake", "macro_refresh", "morning", "post_open", "post_close"],
+      "properties": {
+        "intake": {"$ref": "#/$defs/workflow"},
+        "macro_refresh": {"$ref": "#/$defs/workflow"},
+        "morning": {"$ref": "#/$defs/workflow"},
+        "post_open": {"$ref": "#/$defs/workflow"},
+        "post_close": {"$ref": "#/$defs/workflow"}
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "read_only",
+        "diagnostic_only",
+        "local_artifact_only",
+        "retry_authority",
+        "schedule_change_allowed",
+        "report_change_allowed",
+        "strategy_change_allowed",
+        "execution_enabled",
+        "broker_invoked",
+        "contains_account_data",
+        "contains_credentials"
+      ],
+      "properties": {
+        "read_only": {"const": true},
+        "diagnostic_only": {"const": true},
+        "local_artifact_only": {"const": true},
+        "retry_authority": {"const": false},
+        "schedule_change_allowed": {"const": false},
+        "report_change_allowed": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "execution_enabled": {"const": false},
+        "broker_invoked": {"const": false},
+        "contains_account_data": {"const": false},
+        "contains_credentials": {"const": false}
+      }
+    }
+  },
+  "$defs": {
+    "workflow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scheduled_pt",
+        "start_deadline_pt",
+        "terminal_deadline_pt",
+        "objective",
+        "terminal_source",
+        "accepted_terminal_workflow_statuses",
+        "expected_skip_outcomes"
+      ],
+      "properties": {
+        "scheduled_pt": {
+          "type": "string",
+          "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+        },
+        "start_deadline_pt": {
+          "type": "string",
+          "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+        },
+        "terminal_deadline_pt": {
+          "type": "string",
+          "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+        },
+        "objective": {
+          "type": "string",
+          "pattern": "^[a-z0-9_]+$"
+        },
+        "terminal_source": {
+          "enum": ["autonomy_attempt", "validated_freeze_receipt", "validated_morning_terminal"]
+        },
+        "accepted_terminal_workflow_statuses": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": ["healthy", "degraded", "skipped_expected"]
+          }
+        },
+        "expected_skip_outcomes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$"
+          }
+        }
+      }
+    }
+  }
+}

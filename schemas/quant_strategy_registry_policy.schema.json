@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_strategy_registry_policy.schema.json",
+  "title": "Quant Strategy Registry Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "registry_id",
+    "source_artifact_schema",
+    "allowed_source_roots",
+    "roles",
+    "transition_rules",
+    "minimum_incumbents",
+    "maximum_incumbents",
+    "benchmark_selection_rule",
+    "incumbent_selection_rule",
+    "candidate_lock_rule",
+    "source_binding_rule",
+    "source_contract_rule",
+    "date_alignment_rule",
+    "append_rule",
+    "history_rewrite_allowed",
+    "source_rebinding_allowed",
+    "automatic_transition_allowed",
+    "transition_requires_approval_reference",
+    "safety"
+  ],
+  "properties": {
+    "schema": {"const": "quant_strategy_registry_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "registry_id": {"const": "charles-quant-strategy-library"},
+    "source_artifact_schema": {"const": "quant_portfolio_backtest/1.0"},
+    "allowed_source_roots": {
+      "const": [
+        "data/runtime/experiments",
+        "data/runtime/quant/strategy_artifacts"
+      ]
+    },
+    "roles": {
+      "const": [
+        "benchmark_reference",
+        "incumbent_reference",
+        "candidate_review",
+        "retired_reference"
+      ]
+    },
+    "transition_rules": {
+      "const": {
+        "benchmark_reference": ["retired_reference"],
+        "candidate_review": ["incumbent_reference", "retired_reference"],
+        "incumbent_reference": ["retired_reference"],
+        "retired_reference": []
+      }
+    },
+    "minimum_incumbents": {"const": 1},
+    "maximum_incumbents": {"const": 20},
+    "benchmark_selection_rule": {"const": "exactly_one_benchmark_reference_at_candidate_registration_sequence"},
+    "incumbent_selection_rule": {"const": "all_incumbent_references_at_candidate_registration_sequence_no_discretionary_omission"},
+    "candidate_lock_rule": {"const": "candidate_review_registration_event_sequence"},
+    "source_binding_rule": {"const": "repo_relative_path_plus_content_and_result_sha256_captured_at_registration"},
+    "source_contract_rule": {"const": "matching_cost_stress_cost_policy_and_portfolio_policy_required"},
+    "date_alignment_rule": {"const": "common_date_intersection_without_imputation_subject_to_uniqueness_policy"},
+    "append_rule": {"const": "exclusive_lock_validate_head_append_one_fsync"},
+    "history_rewrite_allowed": {"const": false},
+    "source_rebinding_allowed": {"const": false},
+    "automatic_transition_allowed": {"const": false},
+    "transition_requires_approval_reference": {"const": true},
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "research_only", "diagnostic_only", "execution_enabled", "activation_authority",
+        "feeds_production", "feeds_research_factory", "strategy_change_allowed",
+        "promotion_gate_change_allowed", "profitability_claim_allowed",
+        "automatic_promotion_allowed", "broker_access", "broker_tool_invoked",
+        "model_invoked", "account_data_allowed", "order_data_allowed", "network_allowed"
+      ],
+      "properties": {
+        "research_only": {"const": true},
+        "diagnostic_only": {"const": true},
+        "execution_enabled": {"const": false},
+        "activation_authority": {"const": false},
+        "feeds_production": {"const": false},
+        "feeds_research_factory": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "promotion_gate_change_allowed": {"const": false},
+        "profitability_claim_allowed": {"const": false},
+        "automatic_promotion_allowed": {"const": false},
+        "broker_access": {"const": "none"},
+        "broker_tool_invoked": {"const": false},
+        "model_invoked": {"const": false},
+        "account_data_allowed": {"const": false},
+        "order_data_allowed": {"const": false},
+        "network_allowed": {"const": false}
+      }
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_cost_policy.schema.json",
+  "title": "Quant Cost Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "methodology",
+    "spread_component_rule",
+    "impact_component_rule",
+    "impact_coefficient",
+    "minimum_cost_bps_per_side",
+    "fixed_fee_bps_per_side",
+    "maximum_spread_bps",
+    "maximum_fraction_of_adv",
+    "maximum_daily_volatility_bps",
+    "stress_multipliers",
+    "missing_input_rule",
+    "future_input_rule",
+    "capacity_rule",
+    "fill_probability_rule",
+    "safety"
+  ],
+  "properties": {
+    "schema": {"const": "quant_cost_policy/1.0"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "methodology": {"const": "half_spread_plus_square_root_impact_with_floor"},
+    "spread_component_rule": {"const": "half_observed_spread_bps"},
+    "impact_component_rule": {"const": "impact_coefficient_times_daily_volatility_bps_times_sqrt_fraction_of_adv"},
+    "impact_coefficient": {"type": "number", "exclusiveMinimum": 0},
+    "minimum_cost_bps_per_side": {"type": "number", "minimum": 0},
+    "fixed_fee_bps_per_side": {"type": "number", "minimum": 0},
+    "maximum_spread_bps": {"type": "number", "exclusiveMinimum": 0},
+    "maximum_fraction_of_adv": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+    "maximum_daily_volatility_bps": {"type": "number", "exclusiveMinimum": 0},
+    "stress_multipliers": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {"type": "number", "minimum": 1}
+    },
+    "missing_input_rule": {"const": "unestimable_never_impute_zero_or_assume_fill"},
+    "future_input_rule": {"const": "reject_observed_after_decision_cutoff"},
+    "capacity_rule": {"const": "reject_when_spread_participation_or_volatility_exceeds_limit"},
+    "fill_probability_rule": {"const": "never_estimated_without_order_book_and_queue_data"},
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["research_only", "diagnostic_only", "execution_enabled", "activation_authority", "feeds_production", "strategy_change_allowed", "broker_access", "actual_order_simulation", "fill_probability_claim_allowed", "fallback_cost_allowed"],
+      "properties": {
+        "research_only": {"const": true},
+        "diagnostic_only": {"const": true},
+        "execution_enabled": {"const": false},
+        "activation_authority": {"const": false},
+        "feeds_production": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "broker_access": {"const": "none"},
+        "actual_order_simulation": {"const": false},
+        "fill_probability_claim_allowed": {"const": false},
+        "fallback_cost_allowed": {"const": false}
+      }
+    }
+  }
+}

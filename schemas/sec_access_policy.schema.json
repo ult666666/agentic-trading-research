@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sec_access_policy.schema.json",
+  "title": "SEC automated-access policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "official_sources", "identity", "transport", "probe", "rules", "safety"],
+  "properties": {
+    "schema": {"const": "sec_access_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "official_sources": {
+      "const": [
+        "https://www.sec.gov/about/developer-resources",
+        "https://www.sec.gov/about/webmaster-frequently-asked-questions",
+        "https://www.sec.gov/search-filings/edgar-application-programming-interfaces"
+      ]
+    },
+    "identity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["environment_variable", "consent_environment_variable", "required_consent_value", "minimum_length", "maximum_length", "contact_email_required", "application_identifier_required", "ascii_printable_only", "forbidden_email_domains", "forbidden_email_local_parts", "forbidden_identity_tokens"],
+      "properties": {
+        "environment_variable": {"const": "SEC_USER_AGENT"},
+        "consent_environment_variable": {"const": "SEC_USER_AGENT_APPROVED"},
+        "required_consent_value": {"const": "1"},
+        "minimum_length": {"const": 12},
+        "maximum_length": {"const": 160},
+        "contact_email_required": {"const": true},
+        "application_identifier_required": {"const": true},
+        "ascii_printable_only": {"const": true},
+        "forbidden_email_domains": {"const": ["example.com", "example.org", "example.net", "invalid", "localhost", "test"]},
+        "forbidden_email_local_parts": {"const": ["noreply", "no-reply", "donotreply", "do-not-reply"]},
+        "forbidden_identity_tokens": {"const": ["sample company", "sample domain", "replace me", "placeholder", "unknown contact"]}
+      }
+    },
+    "transport": {
+      "type": "object", "additionalProperties": false,
+      "required": ["scheme", "host", "endpoint_prefix", "method", "sec_published_max_requests_per_second", "project_max_requests_per_second", "minimum_request_gap_seconds", "timeout_seconds", "maximum_response_bytes", "redirects_allowed", "accepted_content_types"],
+      "properties": {
+        "scheme": {"const": "https"},
+        "host": {"const": "data.sec.gov"},
+        "endpoint_prefix": {"const": "https://data.sec.gov/submissions/"},
+        "method": {"const": "GET"},
+        "sec_published_max_requests_per_second": {"const": 10},
+        "project_max_requests_per_second": {"const": 5},
+        "minimum_request_gap_seconds": {"const": 0.2},
+        "timeout_seconds": {"const": 15},
+        "maximum_response_bytes": {"const": 10000000},
+        "redirects_allowed": {"const": false},
+        "accepted_content_types": {"const": ["application/json", "application/*+json"]}
+      }
+    },
+    "probe": {
+      "type": "object", "additionalProperties": false,
+      "required": ["cik", "scheduled", "explicit_confirmation_flag", "raw_response_persisted"],
+      "properties": {
+        "cik": {"const": "0000320193"},
+        "scheduled": {"const": false},
+        "explicit_confirmation_flag": {"const": "--confirm-external-pii-transmission"},
+        "raw_response_persisted": {"const": false}
+      }
+    },
+    "rules": {
+      "type": "object", "additionalProperties": false,
+      "required": ["identity_value_never_logged", "identity_value_never_persisted_in_artifacts", "identity_hash_never_persisted", "explicit_external_pii_transmission_consent_required", "invalid_identity_blocks_sec_network_call", "invalid_identity_does_not_block_other_intake_providers", "response_size_is_bounded", "redirects_fail_closed_before_follow", "parsed_payload_is_hashed_then_raw_response_discarded", "network_probe_is_attended_only"],
+      "properties": {
+        "identity_value_never_logged": {"const": true},
+        "identity_value_never_persisted_in_artifacts": {"const": true},
+        "identity_hash_never_persisted": {"const": true},
+        "explicit_external_pii_transmission_consent_required": {"const": true},
+        "invalid_identity_blocks_sec_network_call": {"const": true},
+        "invalid_identity_does_not_block_other_intake_providers": {"const": true},
+        "response_size_is_bounded": {"const": true},
+        "redirects_fail_closed_before_follow": {"const": true},
+        "parsed_payload_is_hashed_then_raw_response_discarded": {"const": true},
+        "network_probe_is_attended_only": {"const": true}
+      }
+    },
+    "safety": {"$ref": "#/$defs/safety"}
+  },
+  "$defs": {
+    "safety": {
+      "type": "object", "additionalProperties": false,
+      "required": ["research_only", "execution_enabled", "feeds_production_scoring", "feeds_buy_gate", "feeds_freeze_gate", "grants_catalyst_confirmation", "strategy_change_allowed", "counts_in_metrics", "broker_access", "broker_tool_invoked", "model_invoked", "account_data_allowed", "raw_response_persistence_allowed", "identity_value_artifact_allowed", "identity_hash_artifact_allowed"],
+      "properties": {
+        "research_only": {"const": true},
+        "execution_enabled": {"const": false},
+        "feeds_production_scoring": {"const": false},
+        "feeds_buy_gate": {"const": false},
+        "feeds_freeze_gate": {"const": false},
+        "grants_catalyst_confirmation": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "counts_in_metrics": {"const": false},
+        "broker_access": {"const": "none"},
+        "broker_tool_invoked": {"const": false},
+        "model_invoked": {"const": false},
+        "account_data_allowed": {"const": false},
+        "raw_response_persistence_allowed": {"const": false},
+        "identity_value_artifact_allowed": {"const": false},
+        "identity_hash_artifact_allowed": {"const": false}
+      }
+    }
+  }
+}

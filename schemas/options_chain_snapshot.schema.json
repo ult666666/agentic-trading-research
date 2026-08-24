@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "options_chain_snapshot.schema.json",
+  "title": "Sanitized options-chain snapshot (options research lane, v0)",
+  "description": "Output of scripts/validate_options_chain_snapshot.py. Positive-allowlist rebuild of a raw collector payload: no field not named here may appear. Raw payloads are never authoritative; only this sanitized, hash-bound form is consumed downstream. Research-only: nothing in this schema is an order surface.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "snapshot_id", "source_namespace", "source_tool", "collected_at",
+    "market_date", "market_session", "underlying", "contracts", "rejected_contracts",
+    "validation_status", "blockers", "warnings", "raw_payload_sha256",
+    "normalized_payload_sha256", "collector_provenance", "same_session_consistent"
+  ],
+  "properties": {
+    "schema_version": { "const": "options_chain_snapshot/1.0" },
+    "snapshot_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "source_namespace": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "source_tool": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "collected_at": { "type": "string", "format": "date-time" },
+    "market_date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "market_session": { "enum": ["regular", "premarket", "other"] },
+    "same_session_consistent": { "type": "boolean" },
+    "underlying": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["symbol", "instrument_type", "bid", "ask", "last", "quote_timestamp",
+                   "quote_session", "quote_age_seconds"],
+      "properties": {
+        "symbol": { "type": "string", "pattern": "^[A-Z][A-Z.]{0,9}$" },
+        "instrument_type": { "enum": ["equity", "etf"] },
+        "bid": { "type": "number", "exclusiveMinimum": 0 },
+        "ask": { "type": "number", "exclusiveMinimum": 0 },
+        "last": { "type": "number", "exclusiveMinimum": 0 },
+        "quote_timestamp": { "type": "string", "format": "date-time" },
+        "quote_session": { "enum": ["regular", "premarket", "previous_close", "other"] },
+        "quote_age_seconds": { "type": "number", "minimum": 0 }
+      }
+    },
+    "contracts": {
+      "type": "array",
+      "maxItems": 500,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["contract_symbol", "option_type", "expiration", "dte", "strike",
+                     "contract_multiplier", "adjusted_contract", "bid", "ask", "midpoint",
+                     "quote_timestamp", "quote_session", "quote_age_seconds", "volume",
+                     "open_interest", "delta", "abs_delta", "relative_spread"],
+        "properties": {
+          "contract_symbol": { "type": "string", "pattern": "^[A-Z][A-Z.]{0,9}\\d{6}[CP]\\d{8}$" },
+          "option_type": { "enum": ["call", "put"] },
+          "expiration": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+          "dte": { "type": "integer", "minimum": 0 },
+          "strike": { "type": "number", "exclusiveMinimum": 0 },
+          "contract_multiplier": { "const": 100 },
+          "adjusted_contract": { "const": false },
+          "bid": { "type": "number", "exclusiveMinimum": 0 },
+          "ask": { "type": "number", "exclusiveMinimum": 0 },
+          "midpoint": { "type": "number", "exclusiveMinimum": 0 },
+          "last": { "type": ["number", "null"] },
+          "quote_timestamp": { "type": "string", "format": "date-time" },
+          "quote_session": { "enum": ["regular", "premarket", "previous_close", "other"] },
+          "quote_age_seconds": { "type": "number", "minimum": 0 },
+          "volume": { "type": "integer", "minimum": 0 },
+          "open_interest": { "type": "integer", "minimum": 0 },
+          "implied_volatility": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+          "delta": { "type": "number", "exclusiveMinimum": -1, "exclusiveMaximum": 1 },
+          "gamma": { "type": ["number", "null"] },
+          "theta": { "type": ["number", "null"] },
+          "vega": { "type": ["number", "null"] },
+          "abs_delta": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1 },
+          "relative_spread": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+    "rejected_contracts": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["contract_symbol", "reasons"],
+        "properties": {
+          "contract_symbol": { "type": "string", "maxLength": 64 },
+          "reasons": { "type": "array", "items": { "type": "string", "maxLength": 80 },
+                       "minItems": 1, "maxItems": 20 }
+        }
+      }
+    },
+    "rejected_contracts_truncated": { "type": "integer", "minimum": 0 },
+    "validation_status": { "enum": ["VALID", "REJECTED"] },
+    "blockers": { "type": "array", "items": { "type": "string", "maxLength": 120 } },
+    "warnings": { "type": "array", "items": { "type": "string", "maxLength": 120 } },
+    "raw_payload_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "normalized_payload_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "collector_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["collector", "collector_version"],
+      "properties": {
+        "collector": { "type": "string", "maxLength": 128 },
+        "collector_version": { "type": "string", "maxLength": 64 },
+        "audit_receipt_path": { "type": ["string", "null"], "maxLength": 256 }
+      }
+    }
+  }
+}

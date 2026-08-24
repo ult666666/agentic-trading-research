@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "manual_execution_case_registry.schema.json",
+  "title": "Complete frozen-candidate execution observation registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "policy_version", "policy_sha256", "target_session_date", "generated_utc",
+    "source_candidates_path", "source_candidates_sha256", "source_candidate_count",
+    "case_count", "cases", "complete_denominator", "safety", "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "manual_execution_case_registry/1.0"},
+    "policy_version": {"const": "1.0.0"},
+    "policy_sha256": {"$ref": "#/$defs/sha"},
+    "target_session_date": {"type": "string", "format": "date"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "source_candidates_path": {"type": "string", "minLength": 1},
+    "source_candidates_sha256": {"$ref": "#/$defs/sha"},
+    "source_candidate_count": {"type": "integer", "minimum": 0},
+    "case_count": {"type": "integer", "minimum": 0},
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": [
+          "case_id", "candidate_index", "candidate_sha256", "symbol", "classification",
+          "official_research", "buy_authorized", "counts_in_metrics",
+          "proposal_eligible_for_manual_action", "proposal_reference_price",
+          "proposal_max_entry"
+        ],
+        "properties": {
+          "case_id": {"type": "string", "pattern": "^case:[0-9a-f]{64}$"},
+          "candidate_index": {"type": "integer", "minimum": 0},
+          "candidate_sha256": {"$ref": "#/$defs/sha"},
+          "symbol": {"type": "string", "pattern": "^[A-Z][A-Z0-9.-]{0,9}$"},
+          "classification": {"type": "string", "minLength": 1},
+          "official_research": {"type": "boolean"},
+          "buy_authorized": {"type": "boolean"},
+          "counts_in_metrics": {"type": "boolean"},
+          "proposal_eligible_for_manual_action": {"type": "boolean"},
+          "proposal_reference_price": {"type": ["number", "null"], "exclusiveMinimum": 0},
+          "proposal_max_entry": {"type": ["number", "null"], "exclusiveMinimum": 0}
+        }
+      }
+    },
+    "complete_denominator": {"const": true},
+    "safety": {"$ref": "manual_execution_observation_policy.schema.json#/properties/safety"},
+    "artifact_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

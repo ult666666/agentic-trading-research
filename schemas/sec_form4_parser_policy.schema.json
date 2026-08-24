@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://charles.local/schemas/sec_form4_parser_policy.schema.json",
+  "title": "SEC Form 4 Parser Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "request_schema", "output_schema", "allowed_document_types",
+    "official_sources", "transaction_codes", "limits", "rules", "safety"
+  ],
+  "properties": {
+    "schema": {"const": "sec_form4_parser_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "request_schema": {"const": "sec_form4_parse_request/1.0"},
+    "output_schema": {"const": "sec_form4_transaction_bundle/1.0"},
+    "allowed_document_types": {"const": ["4", "4/A"]},
+    "official_sources": {
+      "type": "array", "minItems": 3, "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^https://www\\.sec\\.gov/"}
+    },
+    "transaction_codes": {
+      "type": "object", "additionalProperties": false,
+      "required": ["A", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "O", "P", "S", "U", "V", "W", "X", "Z"],
+      "properties": {
+        "A": {"$ref": "#/$defs/code"}, "C": {"$ref": "#/$defs/code"},
+        "D": {"$ref": "#/$defs/code"}, "E": {"$ref": "#/$defs/code"},
+        "F": {"$ref": "#/$defs/code"}, "G": {"$ref": "#/$defs/code"},
+        "H": {"$ref": "#/$defs/code"}, "I": {"$ref": "#/$defs/code"},
+        "J": {"$ref": "#/$defs/code"}, "K": {"$ref": "#/$defs/code"},
+        "L": {"$ref": "#/$defs/code"}, "M": {"$ref": "#/$defs/code"},
+        "O": {"$ref": "#/$defs/code"}, "P": {"$ref": "#/$defs/code"},
+        "S": {"$ref": "#/$defs/code"}, "U": {"$ref": "#/$defs/code"},
+        "V": {"$ref": "#/$defs/code"}, "W": {"$ref": "#/$defs/code"},
+        "X": {"$ref": "#/$defs/code"}, "Z": {"$ref": "#/$defs/code"}
+      }
+    },
+    "limits": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "maximum_xml_bytes", "maximum_xml_elements", "maximum_xml_depth",
+        "maximum_reporting_owners", "maximum_transactions", "maximum_text_characters",
+        "maximum_footnote_references_per_transaction"
+      ],
+      "properties": {
+        "maximum_xml_bytes": {"type": "integer", "minimum": 100000, "maximum": 10000000},
+        "maximum_xml_elements": {"type": "integer", "minimum": 1000, "maximum": 100000},
+        "maximum_xml_depth": {"type": "integer", "minimum": 8, "maximum": 128},
+        "maximum_reporting_owners": {"type": "integer", "minimum": 1, "maximum": 100},
+        "maximum_transactions": {"type": "integer", "minimum": 1, "maximum": 10000},
+        "maximum_text_characters": {"type": "integer", "minimum": 32, "maximum": 1000},
+        "maximum_footnote_references_per_transaction": {"type": "integer", "minimum": 1, "maximum": 100}
+      }
+    },
+    "rules": {
+      "type": "object", "additionalProperties": {"const": true},
+      "minProperties": 13, "maxProperties": 13
+    },
+    "safety": {"$ref": "#/$defs/safety"}
+  },
+  "$defs": {
+    "code": {
+      "type": "object", "additionalProperties": false,
+      "required": ["classification", "expected_direction"],
+      "properties": {
+        "classification": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_]{0,159}$"},
+        "expected_direction": {"enum": ["acquisition", "disposition", null]}
+      }
+    },
+    "safety": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "research_only", "diagnostic_only", "external_network_invoked", "model_invoked",
+        "broker_access", "account_data_allowed", "raw_xml_persisted_in_output",
+        "reporting_owner_pii_persisted", "feeds_production", "feeds_buy_gate",
+        "feeds_production_scoring", "grants_insider_purchase_confirmation",
+        "grants_catalyst_confirmation", "strategy_change_allowed", "risk_limit_change_allowed",
+        "counts_in_metrics", "execution_enabled"
+      ],
+      "properties": {
+        "research_only": {"const": true},
+        "diagnostic_only": {"const": true},
+        "external_network_invoked": {"const": false},
+        "model_invoked": {"const": false},
+        "broker_access": {"const": "none"},
+        "account_data_allowed": {"const": false},
+        "raw_xml_persisted_in_output": {"const": false},
+        "reporting_owner_pii_persisted": {"const": false},
+        "feeds_production": {"const": false},
+        "feeds_buy_gate": {"const": false},
+        "feeds_production_scoring": {"const": false},
+        "grants_insider_purchase_confirmation": {"const": false},
+        "grants_catalyst_confirmation": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "risk_limit_change_allowed": {"const": false},
+        "counts_in_metrics": {"const": false},
+        "execution_enabled": {"const": false}
+      }
+    }
+  }
+}

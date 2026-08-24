@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_purge_embargo_audit.schema.json",
+  "title": "Quant Purge Embargo Audit",
+  "type": "object",
+  "required": [
+    "schema", "fold_id", "source_assignments_sha256", "policy_version", "policy_sha256",
+    "test_observation_ids", "kept_train_observation_ids", "purged_train",
+    "counts", "leakage_free_after_purge", "audit_sha256", "diagnostic_only",
+    "feeds_production", "execution_enabled"
+  ],
+  "properties": {
+    "schema": {"const": "quant_purge_embargo_audit/1.0"},
+    "fold_id": {"type": "string"},
+    "source_assignments_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "policy_version": {"type": "string"},
+    "policy_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "test_observation_ids": {"type": "array", "items": {"type": "string"}},
+    "kept_train_observation_ids": {"type": "array", "items": {"type": "string"}},
+    "purged_train": {"type": "array"},
+    "counts": {"type": "object"},
+    "leakage_free_after_purge": {"const": true},
+    "audit_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "diagnostic_only": {"const": true},
+    "feeds_production": {"const": false},
+    "execution_enabled": {"const": false}
+  }
+}

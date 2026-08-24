@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_strategy_comparison_cohort.schema.json",
+  "title": "Quant Strategy Comparison Cohort",
+  "type": "object",
+  "required": [
+    "schema", "cohort_id", "candidate_strategy_id", "generated_at_utc", "status",
+    "registry_lock", "policy", "selection_decisions", "selected_sources",
+    "comparison_preflight", "blockers", "cohort_sha256", "diagnostic_only",
+    "feeds_production", "feeds_research_factory", "execution_enabled",
+    "activation_authority", "automatic_promotion_allowed", "actual_orders_count"
+  ],
+  "properties": {
+    "schema": {"const": "quant_strategy_comparison_cohort/1.0"},
+    "cohort_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "candidate_strategy_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "generated_at_utc": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"},
+    "status": {"enum": ["ready", "blocked"]},
+    "registry_lock": {"type": "object"},
+    "policy": {"type": "object"},
+    "selection_decisions": {"type": "array"},
+    "selected_sources": {"type": "object"},
+    "comparison_preflight": {"type": "object"},
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "cohort_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "diagnostic_only": {"const": true},
+    "feeds_production": {"const": false},
+    "feeds_research_factory": {"const": false},
+    "execution_enabled": {"const": false},
+    "activation_authority": {"const": false},
+    "automatic_promotion_allowed": {"const": false},
+    "actual_orders_count": {"const": 0}
+  }
+}

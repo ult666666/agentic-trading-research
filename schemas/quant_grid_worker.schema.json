@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_grid_worker.schema.json",
+  "title": "Quant Grid Worker Health",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "tool", "ok", "target_session_date", "post_close_run_id",
+    "generated_utc", "status", "program_id", "corpus_sha256",
+    "corpus_eligible_rows", "settled_rows", "pre_holdout_rows", "holdout_rows",
+    "variant_count", "fold_count", "selected_variant_id", "bundle_path",
+    "bundle_sha256", "portfolio_export_status", "portfolio_export_contract_sha256",
+    "candidate_portfolio_result_sha256", "benchmark_adjusted_view_sha256",
+    "blockers", "exclusions", "activation_authority", "worker_sha256",
+    "actionable", "record_type", "excluded_from_performance",
+    "excluded_from_win_rate", "excluded_from_expectancy",
+    "excluded_from_official_replay_outcomes", "diagnostic_only", "feeds_production",
+    "note", "strategy_change_allowed", "execution_enabled",
+    "executed_trade_performance", "broker_access", "broker_tool_invoked",
+    "model_invoked", "network_invoked", "profitability_claim_allowed",
+    "automatic_activation_allowed"
+  ],
+  "properties": {
+    "schema": {"const": "quant_grid_worker/1.0"},
+    "tool": {"const": "quant.grid_worker"},
+    "ok": {"const": true},
+    "target_session_date": {"type": "string", "format": "date"},
+    "post_close_run_id": {"type": "string", "pattern": "^postclose-[0-9]{8}T[0-9]{6}Z-[0-9a-f]{12}$"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "status": {
+      "enum": [
+        "data_not_ready", "corpus_unavailable", "corpus_not_reviewable",
+        "insufficient_settled_sample", "insufficient_temporal_sample",
+        "selection_bias_unavailable", "bundle_created", "bundle_existing", "blocked"
+      ]
+    },
+    "program_id": {"type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "corpus_sha256": {"$ref": "#/$defs/nullableSha"},
+    "corpus_eligible_rows": {"$ref": "#/$defs/count"},
+    "settled_rows": {"$ref": "#/$defs/count"},
+    "pre_holdout_rows": {"$ref": "#/$defs/count"},
+    "holdout_rows": {"$ref": "#/$defs/count"},
+    "variant_count": {"$ref": "#/$defs/count"},
+    "fold_count": {"$ref": "#/$defs/count"},
+    "selected_variant_id": {"type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "bundle_path": {"type": ["string", "null"], "minLength": 1},
+    "bundle_sha256": {"$ref": "#/$defs/nullableSha"},
+    "portfolio_export_status": {"enum": ["not_attempted", "ready", "existing_ready"]},
+    "portfolio_export_contract_sha256": {"$ref": "#/$defs/nullableSha"},
+    "candidate_portfolio_result_sha256": {"$ref": "#/$defs/nullableSha"},
+    "benchmark_adjusted_view_sha256": {"$ref": "#/$defs/nullableSha"},
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "exclusions": {"type": "array", "items": {"type": "string"}},
+    "activation_authority": {"const": false},
+    "worker_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "actionable": {"const": false},
+    "record_type": {"const": "non_actionable_diagnostic"},
+    "excluded_from_performance": {"const": true},
+    "excluded_from_win_rate": {"const": true},
+    "excluded_from_expectancy": {"const": true},
+    "excluded_from_official_replay_outcomes": {"const": true},
+    "diagnostic_only": {"const": true},
+    "feeds_production": {"const": false},
+    "note": {"const": "Offline quant research lab diagnostic. NOT a proposed Buy; NEVER feeds production scoring/gates; excluded from all performance metrics."},
+    "strategy_change_allowed": {"const": false},
+    "execution_enabled": {"const": false},
+    "executed_trade_performance": {"const": false},
+    "broker_access": {"const": "none"},
+    "broker_tool_invoked": {"const": false},
+    "model_invoked": {"const": false},
+    "network_invoked": {"const": false},
+    "profitability_claim_allowed": {"const": false},
+    "automatic_activation_allowed": {"const": false}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "bundle_created"}}},
+      "then": {"properties": {"portfolio_export_status": {"const": "ready"}}}
+    },
+    {
+      "if": {"properties": {"status": {"const": "bundle_existing"}}},
+      "then": {"properties": {"portfolio_export_status": {"const": "existing_ready"}}}
+    },
+    {
+      "if": {
+        "properties": {
+          "portfolio_export_status": {"enum": ["ready", "existing_ready"]}
+        }
+      },
+      "then": {
+        "properties": {
+          "selected_variant_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+          "bundle_path": {"type": "string", "minLength": 1},
+          "bundle_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "portfolio_export_contract_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "candidate_portfolio_result_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "benchmark_adjusted_view_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "blockers": {"const": []}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "count": {"type": "integer", "minimum": 0},
+    "nullableSha": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

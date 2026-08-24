@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_forward_label_dataset.schema.json",
+  "title": "Point-in-Time Quant Forward Label Dataset",
+  "type": "object",
+  "required": [
+    "schema", "row_schema", "ok", "tool", "as_of_date", "benchmark",
+    "horizons_sessions", "policy_version", "policy_sha256",
+    "feature_dataset_sha256", "bars_source", "label_contract", "row_count",
+    "status_counts", "complete_label_count", "economic_label_count", "rows",
+    "rows_payload_sha256", "dataset_sha256", "actionable", "record_type",
+    "excluded_from_performance", "excluded_from_win_rate",
+    "excluded_from_expectancy", "excluded_from_official_replay_outcomes",
+    "diagnostic_only", "feeds_production", "activation_authority",
+    "strategy_change_allowed", "execution_enabled", "executed_trade_performance",
+    "feeds_research_factory", "feeds_buy_gate", "promotion_allowed",
+    "profitability_claim_allowed", "counts_in_metrics", "account_data_allowed",
+    "broker_access", "network_invoked", "model_invoked", "note"
+  ],
+  "properties": {
+    "schema": {"const": "quant_forward_label_dataset/1.0"},
+    "row_schema": {"const": "quant_forward_label_row/1.0"},
+    "ok": {"const": true},
+    "tool": {"const": "quant.labels"},
+    "as_of_date": {"type": "string", "format": "date"},
+    "benchmark": {"const": "SPY"},
+    "horizons_sessions": {"type": "array", "const": [1, 3, 5, 10]},
+    "policy_version": {"type": "string"},
+    "policy_sha256": {"$ref": "#/$defs/sha256"},
+    "feature_dataset_sha256": {"$ref": "#/$defs/sha256"},
+    "bars_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind", "schema", "view", "source_provider", "source_sha256",
+        "file_sha256", "economic_return_eligible", "bars_after_as_of_ignored"
+      ],
+      "properties": {
+        "kind": {"enum": ["adjusted_bar_view", "unverified_archive"]},
+        "schema": {"type": ["string", "null"]},
+        "view": {"enum": ["total_return", "unverified_archive"]},
+        "source_provider": {"type": ["string", "null"]},
+        "source_sha256": {"$ref": "#/$defs/sha256"},
+        "file_sha256": {"anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]},
+        "economic_return_eligible": {"type": "boolean"},
+        "bars_after_as_of_ignored": {"const": true}
+      }
+    },
+    "label_contract": {"type": "object"},
+    "row_count": {"type": "integer", "minimum": 0},
+    "status_counts": {"type": "object"},
+    "complete_label_count": {"type": "integer", "minimum": 0},
+    "economic_label_count": {"type": "integer", "minimum": 0},
+    "rows": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/row"}
+    },
+    "rows_payload_sha256": {"$ref": "#/$defs/sha256"},
+    "dataset_sha256": {"$ref": "#/$defs/sha256"},
+    "actionable": {"const": false},
+    "record_type": {"const": "non_actionable_diagnostic"},
+    "excluded_from_performance": {"const": true},
+    "excluded_from_win_rate": {"const": true},
+    "excluded_from_expectancy": {"const": true},
+    "excluded_from_official_replay_outcomes": {"const": true},
+    "diagnostic_only": {"const": true},
+    "feeds_production": {"const": false},
+    "activation_authority": {"const": false},
+    "strategy_change_allowed": {"const": false},
+    "execution_enabled": {"const": false},
+    "executed_trade_performance": {"const": false},
+    "feeds_research_factory": {"const": false},
+    "feeds_buy_gate": {"const": false},
+    "promotion_allowed": {"const": false},
+    "profitability_claim_allowed": {"const": false},
+    "counts_in_metrics": {"const": false},
+    "account_data_allowed": {"const": false},
+    "broker_access": {"const": "none"},
+    "network_invoked": {"const": false},
+    "model_invoked": {"const": false},
+    "note": {"type": "string"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "numberOrNull": {"type": ["number", "null"]},
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "symbol_previous_close_return", "benchmark_previous_close_return",
+        "previous_close_excess_return", "symbol_event_open_return",
+        "benchmark_event_open_return", "event_open_excess_return",
+        "maximum_favorable_excursion_from_event_open",
+        "maximum_adverse_excursion_from_event_open"
+      ],
+      "properties": {
+        "symbol_previous_close_return": {"type": "number"},
+        "benchmark_previous_close_return": {"type": "number"},
+        "previous_close_excess_return": {"type": "number"},
+        "symbol_event_open_return": {"type": "number"},
+        "benchmark_event_open_return": {"type": "number"},
+        "event_open_excess_return": {"type": "number"},
+        "maximum_favorable_excursion_from_event_open": {"type": "number"},
+        "maximum_adverse_excursion_from_event_open": {"type": "number"}
+      }
+    },
+    "label": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "horizon_sessions", "exit_session_date", "status", "reason",
+        "metrics", "economic_return_eligible"
+      ],
+      "properties": {
+        "horizon_sessions": {"enum": [1, 3, 5, 10]},
+        "exit_session_date": {"type": "string", "format": "date"},
+        "status": {"enum": ["complete", "pending", "incomplete", "excluded"]},
+        "reason": {"type": ["string", "null"]},
+        "metrics": {"anyOf": [{"$ref": "#/$defs/metrics"}, {"type": "null"}]},
+        "economic_return_eligible": {"type": "boolean"}
+      }
+    },
+    "row": {
+      "type": "object",
+      "required": [
+        "schema", "row_id", "feature_row_id", "event_id", "symbol",
+        "event_date", "as_of_date", "benchmark", "feature_row_sha256",
+        "status", "status_reason", "economic_return_eligible", "session_spine",
+        "baseline", "labels", "row_sha256", "actionable", "diagnostic_only",
+        "feeds_production", "execution_enabled"
+      ],
+      "properties": {
+        "schema": {"const": "quant_forward_label_row/1.0"},
+        "row_id": {"type": "string"},
+        "feature_row_id": {"type": "string"},
+        "event_id": {"type": "string"},
+        "symbol": {"type": "string"},
+        "event_date": {"type": "string", "format": "date"},
+        "as_of_date": {"type": "string", "format": "date"},
+        "benchmark": {"const": "SPY"},
+        "feature_row_sha256": {"$ref": "#/$defs/sha256"},
+        "status": {"enum": ["complete", "pending", "incomplete", "excluded"]},
+        "status_reason": {"type": ["string", "null"]},
+        "economic_return_eligible": {"type": "boolean"},
+        "session_spine": {
+          "type": "array", "minItems": 10, "maxItems": 10,
+          "items": {"type": "string", "format": "date"}
+        },
+        "baseline": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "previous_session_date", "event_session_date",
+            "symbol_previous_close", "benchmark_previous_close",
+            "symbol_event_open", "benchmark_event_open"
+          ],
+          "properties": {
+            "previous_session_date": {"type": ["string", "null"], "format": "date"},
+            "event_session_date": {"type": "string", "format": "date"},
+            "symbol_previous_close": {"$ref": "#/$defs/numberOrNull"},
+            "benchmark_previous_close": {"$ref": "#/$defs/numberOrNull"},
+            "symbol_event_open": {"$ref": "#/$defs/numberOrNull"},
+            "benchmark_event_open": {"$ref": "#/$defs/numberOrNull"}
+          }
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["1", "3", "5", "10"],
+          "properties": {
+            "1": {"$ref": "#/$defs/label"},
+            "3": {"$ref": "#/$defs/label"},
+            "5": {"$ref": "#/$defs/label"},
+            "10": {"$ref": "#/$defs/label"}
+          }
+        },
+        "row_sha256": {"$ref": "#/$defs/sha256"}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

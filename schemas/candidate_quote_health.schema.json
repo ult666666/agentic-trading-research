@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "candidate_quote_health.schema.json",
+  "title": "Candidate quote health",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "target_session_date", "generated_utc", "status", "ok",
+    "request_present", "bundle_present", "requested_count", "fresh_count",
+    "actionable_count", "unavailable_count", "reason_codes", "source",
+    "request_sha256", "bundle_sha256", "diagnostic_only", "read_only",
+    "contains_account_data", "contains_credentials", "buy_authority_granted",
+    "execution_enabled", "strategy_change_allowed", "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "candidate_quote_health/1.0"},
+    "target_session_date": {"type": "string", "format": "date"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["ready", "partial", "unavailable", "empty", "missing", "at_issue"]},
+    "ok": {"type": "boolean"},
+    "request_present": {"type": "boolean"},
+    "bundle_present": {"type": "boolean"},
+    "requested_count": {"type": "integer", "minimum": 0},
+    "fresh_count": {"type": "integer", "minimum": 0},
+    "actionable_count": {"type": "integer", "minimum": 0},
+    "unavailable_count": {"type": "integer", "minimum": 0},
+    "reason_codes": {"type": "array", "items": {"type": "string"}},
+    "source": {"const": "robinhood_readonly"},
+    "request_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "bundle_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "diagnostic_only": {"const": true},
+    "read_only": {"const": true},
+    "contains_account_data": {"const": false},
+    "contains_credentials": {"const": false},
+    "buy_authority_granted": {"const": false},
+    "execution_enabled": {"const": false},
+    "strategy_change_allowed": {"const": false},
+    "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

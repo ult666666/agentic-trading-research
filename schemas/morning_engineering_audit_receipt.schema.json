@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "morning_engineering_audit_receipt.schema.json",
+  "title": "Post-Morning engineering audit receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "trading_date", "natural_run_id", "idempotency_key", "selected_sources",
+    "audit_started_utc", "audit_finished_utc", "audit_path", "audit_file_sha256",
+    "audit_hash", "summary_path", "summary_file_sha256", "remediation", "backlog_result",
+    "protected_observations", "assertions", "receipt_hash"
+  ],
+  "properties": {
+    "schema": {"const": "morning_engineering_audit_receipt/1.0"},
+    "trading_date": {"type": "string", "format": "date"},
+    "natural_run_id": {"type": "string"},
+    "idempotency_key": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "selected_sources": {"type": "array"},
+    "audit_started_utc": {"type": "string", "format": "date-time"},
+    "audit_finished_utc": {"type": "string", "format": "date-time"},
+    "audit_path": {"type": "string"},
+    "audit_file_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "audit_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "summary_path": {"type": "string"},
+    "summary_file_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "remediation": {"type": "object"},
+    "backlog_result": {"type": "object"},
+    "protected_observations": {"type": "object"},
+    "assertions": {"type": "object"},
+    "receipt_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

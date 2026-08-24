@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_benchmark_reference.schema.json",
+  "title": "Cost-Matched Quant Benchmark Reference",
+  "type": "object",
+  "required": [
+    "schema", "experiment_id", "variant_id", "cost_stress_multiplier",
+    "policy_versions", "lineage", "summary", "decisions", "daily_path",
+    "decisions_sha256", "daily_path_sha256", "benchmark_reference",
+    "result_sha256", "diagnostic_only", "feeds_production", "execution_enabled",
+    "contains_account_data", "share_recommendation"
+  ],
+  "properties": {
+    "schema": {"const": "quant_portfolio_backtest/1.0"},
+    "variant_id": {"const": "SPY_TOTAL_RETURN_REFERENCE"},
+    "cost_stress_multiplier": {"type": "number", "minimum": 1},
+    "benchmark_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema", "artifact_policy_version", "artifact_policy_sha256", "symbol",
+        "adjustment_view", "allocation_rule", "allocation_weight", "entry_rule",
+        "mark_rule", "exit_rule", "cost_rule", "base_cost_bps_per_side",
+        "applied_cost_bps_per_side", "candidate_result_sha256",
+        "candidate_content_sha256", "candidate_daily_path_sha256",
+        "candidate_source_backtest_plan_sha256", "candidate_portfolio_plan_sha256",
+        "candidate_dates", "candidate_dates_sha256", "candidate_observation_count",
+        "first_date", "last_date", "adjusted_view_sha256", "bars_payload_sha256",
+        "aligned_spy_bars", "aligned_spy_bars_sha256", "cost_policy",
+        "portfolio_policy", "comparison_only", "candidate_constraint_exemptions",
+        "profitability_status", "actual_orders_count"
+      ],
+      "properties": {
+        "schema": {"const": "quant_benchmark_reference/1.0"},
+        "artifact_policy_version": {"const": "1.0.0"},
+        "artifact_policy_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "symbol": {"const": "SPY"},
+        "adjustment_view": {"const": "total_return"},
+        "allocation_rule": {"const": "portfolio_policy_maximum_gross_exposure"},
+        "allocation_weight": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+        "entry_rule": {"const": "first_candidate_session_open"},
+        "mark_rule": {"const": "total_return_adjusted_daily_close"},
+        "exit_rule": {"const": "final_candidate_session_close"},
+        "cost_rule": {"const": "cost_policy_minimum_bps_per_side_times_candidate_stress_on_entry_and_exit"},
+        "base_cost_bps_per_side": {"type": "number", "minimum": 0},
+        "applied_cost_bps_per_side": {"type": "number", "minimum": 0},
+        "candidate_result_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "candidate_content_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "candidate_daily_path_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "candidate_source_backtest_plan_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "candidate_portfolio_plan_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "candidate_dates": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "format": "date"}},
+        "candidate_dates_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "candidate_observation_count": {"type": "integer", "minimum": 1},
+        "first_date": {"type": "string", "format": "date"},
+        "last_date": {"type": "string", "format": "date"},
+        "adjusted_view_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "bars_payload_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "aligned_spy_bars": {"type": "array", "minItems": 1},
+        "aligned_spy_bars_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "cost_policy": {"type": "object"},
+        "portfolio_policy": {"type": "object"},
+        "comparison_only": {"const": true},
+        "candidate_constraint_exemptions": {
+          "const": [
+            "single_asset_position_weight_cap",
+            "single_asset_sector_weight_cap",
+            "single_asset_catalyst_weight_cap",
+            "aggregate_stop_risk_not_applicable_to_passive_reference"
+          ]
+        },
+        "profitability_status": {"const": "not_established"},
+        "actual_orders_count": {"const": 0}
+      }
+    },
+    "result_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "diagnostic_only": {"const": true},
+    "feeds_production": {"const": false},
+    "execution_enabled": {"const": false},
+    "contains_account_data": {"const": false},
+    "share_recommendation": {"const": false}
+  }
+}

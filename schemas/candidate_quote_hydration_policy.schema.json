@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "candidate_quote_hydration_policy.schema.json",
+  "title": "Candidate quote hydration policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "enabled", "source", "max_symbols",
+    "event_window_calendar_days", "collector", "paths", "validation",
+    "authority", "safety"
+  ],
+  "properties": {
+    "schema": {"const": "candidate_quote_hydration_policy/1.0"},
+    "version": {"type": "string", "minLength": 1},
+    "enabled": {"const": true},
+    "source": {"const": "robinhood_readonly"},
+    "max_symbols": {"type": "integer", "minimum": 1, "maximum": 25},
+    "event_window_calendar_days": {
+      "type": "object", "additionalProperties": false,
+      "required": ["lookback", "lookahead"],
+      "properties": {
+        "lookback": {"type": "integer", "minimum": 0, "maximum": 14},
+        "lookahead": {"type": "integer", "minimum": 1, "maximum": 21}
+      }
+    },
+    "collector": {
+      "type": "object", "additionalProperties": false,
+      "required": ["model", "timeout_seconds", "max_raw_bytes", "allowed_read_tools"],
+      "properties": {
+        "model": {"type": "string", "minLength": 1},
+        "timeout_seconds": {"type": "integer", "minimum": 30, "maximum": 240},
+        "max_raw_bytes": {"type": "integer", "minimum": 16384, "maximum": 1048576},
+        "allowed_read_tools": {
+          "type": "array", "minItems": 2, "maxItems": 4, "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^mcp__robinhood-trading__get_equity_(quotes|tradability)$"}
+        }
+      }
+    },
+    "paths": {
+      "type": "object", "additionalProperties": false,
+      "required": ["request_template", "bundle_template", "raw_directory", "health_template"],
+      "properties": {
+        "request_template": {"type": "string"},
+        "bundle_template": {"type": "string"},
+        "raw_directory": {"type": "string"},
+        "health_template": {"type": "string"}
+      }
+    },
+    "validation": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "inherit_robinhood_verifier_freshness", "require_target_date_match",
+        "require_bid_le_ask", "allowed_sessions", "complete_request_denominator",
+        "delete_raw_after_validation", "require_broker_audit_receipt_for_price_rows"
+      ],
+      "properties": {
+        "inherit_robinhood_verifier_freshness": {"const": true},
+        "require_target_date_match": {"const": true},
+        "require_bid_le_ask": {"const": true},
+        "allowed_sessions": {
+          "type": "array", "minItems": 2, "maxItems": 2, "uniqueItems": true,
+          "items": {"enum": ["premarket", "regular"]}
+        },
+        "complete_request_denominator": {"const": true},
+        "delete_raw_after_validation": {"const": true},
+        "require_broker_audit_receipt_for_price_rows": {"const": true}
+      }
+    },
+    "authority": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "candidate_specific_research_price", "market_anchor_authority",
+        "second_independent_live_source_for_buy", "buy_authority_granted",
+        "execution_authority_granted"
+      ],
+      "properties": {
+        "candidate_specific_research_price": {"const": true},
+        "market_anchor_authority": {"const": false},
+        "second_independent_live_source_for_buy": {"const": false},
+        "buy_authority_granted": {"const": false},
+        "execution_authority_granted": {"const": false}
+      }
+    },
+    "safety": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "research_only", "strictly_read_only", "contains_account_data",
+        "contains_credentials", "raw_payload_persisted", "order_preview_allowed",
+        "order_mutation_allowed", "execution_enabled", "strategy_change_allowed"
+      ],
+      "properties": {
+        "research_only": {"const": true},
+        "strictly_read_only": {"const": true},
+        "contains_account_data": {"const": false},
+        "contains_credentials": {"const": false},
+        "raw_payload_persisted": {"const": false},
+        "order_preview_allowed": {"const": false},
+        "order_mutation_allowed": {"const": false},
+        "execution_enabled": {"const": false},
+        "strategy_change_allowed": {"const": false}
+      }
+    }
+  }
+}

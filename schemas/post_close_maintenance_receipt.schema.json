@@ -1,0 +1,223 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "post_close_maintenance_receipt.schema.json",
+  "title": "Supervised post-close deterministic maintenance receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "target_session_date",
+    "captured_utc",
+    "outer_run_id",
+    "outer_run_started_utc",
+    "outer_child_pid",
+    "mode",
+    "morning_authority_reason",
+    "diagnostic_run_id",
+    "diagnostic_run_id_generated",
+    "stages",
+    "stages_sha256",
+    "output_observations",
+    "output_observations_sha256",
+    "protected_before",
+    "protected_before_sha256",
+    "protected_after",
+    "protected_after_sha256",
+    "protected_unchanged",
+    "network_attempted",
+    "safety",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "post_close_maintenance_receipt/1.0"},
+    "target_session_date": {"type": "string", "format": "date"},
+    "captured_utc": {"$ref": "#/$defs/utcTimestamp"},
+    "outer_run_id": {
+      "type": "string",
+      "pattern": "^postclose-20[0-9]{6}T[0-9]{6}Z-[0-9a-f]{12}$"
+    },
+    "outer_run_started_utc": {"$ref": "#/$defs/utcTimestamp"},
+    "outer_child_pid": {"type": "integer", "minimum": 2},
+    "mode": {"const": "maintenance"},
+    "morning_authority_reason": {"const": "no_official_morning_artifact"},
+    "diagnostic_run_id": {"type": "string", "minLength": 1, "maxLength": 180},
+    "diagnostic_run_id_generated": {"type": "boolean"},
+    "stages": {
+      "type": "array",
+      "minItems": 20,
+      "maxItems": 20,
+      "prefixItems": [
+        {"$ref": "#/$defs/stage1"},
+        {"$ref": "#/$defs/stage2"},
+        {"$ref": "#/$defs/stage3"},
+        {"$ref": "#/$defs/stage4"},
+        {"$ref": "#/$defs/stage5"},
+        {"$ref": "#/$defs/stage6"},
+        {"$ref": "#/$defs/stage7"},
+        {"$ref": "#/$defs/stage8"},
+        {"$ref": "#/$defs/stage9"},
+        {"$ref": "#/$defs/stage10"},
+        {"$ref": "#/$defs/stage11"},
+        {"$ref": "#/$defs/stage12"},
+        {"$ref": "#/$defs/stage13"},
+        {"$ref": "#/$defs/stage14"},
+        {"$ref": "#/$defs/stage15"},
+        {"$ref": "#/$defs/stage16"},
+        {"$ref": "#/$defs/stage17"},
+        {"$ref": "#/$defs/stage18"},
+        {"$ref": "#/$defs/stage19"},
+        {"$ref": "#/$defs/stage20"}
+      ]
+    },
+    "stages_sha256": {"$ref": "#/$defs/sha256"},
+    "output_observations": {
+      "type": "array",
+      "minItems": 22,
+      "maxItems": 22,
+      "items": {"$ref": "#/$defs/observation"}
+    },
+    "output_observations_sha256": {"$ref": "#/$defs/sha256"},
+    "protected_before": {"$ref": "#/$defs/protectedSurfaces"},
+    "protected_before_sha256": {"$ref": "#/$defs/sha256"},
+    "protected_after": {"$ref": "#/$defs/protectedSurfaces"},
+    "protected_after_sha256": {"$ref": "#/$defs/sha256"},
+    "protected_unchanged": {"const": true},
+    "network_attempted": {"type": "boolean"},
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "research_only",
+        "diagnostic_only",
+        "maintenance_only",
+        "model_invoked",
+        "broker_invoked",
+        "activation_authority",
+        "official_research_authority",
+        "source_authority",
+        "report_authority",
+        "report_write_authority",
+        "report_mutation_observed",
+        "watchlist_write_authority",
+        "watchlist_mutation_observed",
+        "buy_authorized",
+        "risk_authority",
+        "governance_authority",
+        "strategy_change_allowed",
+        "execution_enabled",
+        "orders_enabled",
+        "options_execution_enabled",
+        "event_contract_execution_enabled"
+      ],
+      "properties": {
+        "research_only": {"const": true},
+        "diagnostic_only": {"const": true},
+        "maintenance_only": {"const": true},
+        "model_invoked": {"const": false},
+        "broker_invoked": {"const": false},
+        "activation_authority": {"const": false},
+        "official_research_authority": {"const": false},
+        "source_authority": {"const": false},
+        "report_authority": {"const": false},
+        "report_write_authority": {"const": false},
+        "report_mutation_observed": {"const": false},
+        "watchlist_write_authority": {"const": false},
+        "watchlist_mutation_observed": {"const": false},
+        "buy_authorized": {"const": false},
+        "risk_authority": {"const": false},
+        "governance_authority": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "execution_enabled": {"const": false},
+        "orders_enabled": {"const": false},
+        "options_execution_enabled": {"const": false},
+        "event_contract_execution_enabled": {"const": false}
+      }
+    },
+    "artifact_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "utcTimestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]+)?\\+00:00$"
+    },
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "stageBase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index", "name", "invoked", "returncode", "disposition"],
+      "properties": {
+        "index": {"type": "integer", "minimum": 1, "maximum": 20},
+        "name": {"type": "string"},
+        "invoked": {"type": "boolean"},
+        "returncode": {"type": "integer", "minimum": 0, "maximum": 255},
+        "disposition": {
+          "enum": [
+            "invoked_returned_zero",
+            "invoked_returned_nonzero",
+            "not_invoked_run_id_unavailable",
+            "not_invoked_upstream_unavailable"
+          ]
+        }
+      }
+    },
+    "stage1": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 1}, "name": {"const": "post_close_market_snapshot"}}}]},
+    "stage2": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 2}, "name": {"const": "archive_outcome_bars"}}}]},
+    "stage3": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 3}, "name": {"const": "rejection_ledger_record"}}}]},
+    "stage4": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 4}, "name": {"const": "rejection_ledger_outcomes"}}}]},
+    "stage5": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 5}, "name": {"const": "outcome_tracker"}}}]},
+    "stage6": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 6}, "name": {"const": "research_attribution"}}}]},
+    "stage7": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 7}, "name": {"const": "score_calibration"}}}]},
+    "stage8": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 8}, "name": {"const": "outcome_pipeline_health"}}}]},
+    "stage9": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 9}, "name": {"const": "free_source_health"}}}]},
+    "stage10": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 10}, "name": {"const": "free_source_alert"}}}]},
+    "stage11": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 11}, "name": {"const": "candidate_artifact_health_rollup"}}}]},
+    "stage12": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 12}, "name": {"const": "sec_review_shadow_rollup"}}}]},
+    "stage13": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 13}, "name": {"const": "manual_execution_observation_sync"}}}]},
+    "stage14": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 14}, "name": {"const": "manual_observation_health"}}}]},
+    "stage15": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 15}, "name": {"const": "model_monitor"}}}]},
+    "stage16": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 16}, "name": {"const": "quant_session_capture"}}}]},
+    "stage17": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 17}, "name": {"const": "quant_feature_corpus"}}}]},
+    "stage18": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 18}, "name": {"const": "quant_grid_worker"}}}]},
+    "stage19": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 19}, "name": {"const": "quant_research_factory"}}}]},
+    "stage20": {"allOf": [{"$ref": "#/$defs/stageBase"}, {"properties": {"index": {"const": 20}, "name": {"const": "quant_strategy_artifact_stager"}}}]},
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "path", "state", "file_sha256"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "path": {"type": "string", "minLength": 1},
+        "state": {"enum": ["absent", "regular_file"]},
+        "file_sha256": {"oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]}
+      }
+    },
+    "surfaceEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "state", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "state": {"const": "regular_file"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "surface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "path", "state", "sha256", "entries"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "path": {"type": "string", "minLength": 1},
+        "state": {"enum": ["namespace", "regular_file", "absent"]},
+        "sha256": {"oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]},
+        "entries": {"type": "array", "items": {"$ref": "#/$defs/surfaceEntry"}}
+      }
+    },
+    "protectedSurfaces": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {"$ref": "#/$defs/surface"}
+    }
+  }
+}

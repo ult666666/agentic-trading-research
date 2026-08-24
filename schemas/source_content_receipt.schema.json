@@ -1,0 +1,242 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "source_content_receipt.schema.json",
+  "title": "Shadow-only source-content receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "identity",
+    "source",
+    "request",
+    "retrieval",
+    "content",
+    "claim_anchors",
+    "disposition",
+    "limitations",
+    "safety",
+    "receipt_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "source_content_receipt/1.0"},
+    "version": {"const": "1.0.0"},
+    "identity": {"$ref": "#/$defs/identity"},
+    "source": {"$ref": "#/$defs/source"},
+    "request": {"$ref": "#/$defs/request"},
+    "retrieval": {"$ref": "#/$defs/retrieval"},
+    "content": {"$ref": "#/$defs/content"},
+    "claim_anchors": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {"$ref": "#/$defs/anchor"}
+    },
+    "disposition": {"const": "eligible_for_shadow_adjudication"},
+    "limitations": {
+      "type": "array",
+      "minItems": 5,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/token"}
+    },
+    "safety": {"$ref": "#/$defs/safety"},
+    "receipt_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "token": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.:-]{0,127}$"},
+    "timestamp": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_id",
+        "target_session_date",
+        "run_id",
+        "generated_utc",
+        "knowledge_cutoff_utc",
+        "policy_path",
+        "policy_sha256",
+        "source_matrix_path",
+        "source_matrix_sha256",
+        "producer"
+      ],
+      "properties": {
+        "receipt_id": {"type": "string", "pattern": "^source_receipt:[0-9a-f]{64}$"},
+        "target_session_date": {"type": "string", "format": "date"},
+        "run_id": {"$ref": "#/$defs/token"},
+        "generated_utc": {"$ref": "#/$defs/timestamp"},
+        "knowledge_cutoff_utc": {"$ref": "#/$defs/timestamp"},
+        "policy_path": {"const": "config/source_content_policy.json"},
+        "policy_sha256": {"$ref": "#/$defs/sha"},
+        "source_matrix_path": {"const": "config/source_authority.yaml"},
+        "source_matrix_sha256": {"$ref": "#/$defs/sha"},
+        "producer": {"const": "source_content_receipt.py:fixture_sealer"}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "matrix_source",
+        "receipt_role",
+        "entity_id",
+        "origin_id",
+        "authority_derived_from_matrix",
+        "receipt_grants_authority"
+      ],
+      "properties": {
+        "source_id": {"$ref": "#/$defs/token"},
+        "matrix_source": {"$ref": "#/$defs/token"},
+        "receipt_role": {"$ref": "#/$defs/token"},
+        "entity_id": {"type": ["string", "null"], "maxLength": 128},
+        "origin_id": {"type": "string", "pattern": "^origin:[0-9a-f]{64}$"},
+        "authority_derived_from_matrix": {"const": false},
+        "receipt_grants_authority": {"const": false}
+      }
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "canonical_url",
+        "canonical_url_sha256",
+        "canonical_host",
+        "credentials_present"
+      ],
+      "properties": {
+        "method": {"const": "GET"},
+        "canonical_url": {"type": "string", "format": "uri"},
+        "canonical_url_sha256": {"$ref": "#/$defs/sha"},
+        "canonical_host": {"type": "string", "minLength": 1, "maxLength": 253},
+        "credentials_present": {"const": false}
+      }
+    },
+    "retrieval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "started_utc",
+        "finished_utc",
+        "elapsed_ms",
+        "http_status",
+        "final_canonical_url",
+        "redirect_chain",
+        "declared_content_type",
+        "detected_content_type"
+      ],
+      "properties": {
+        "started_utc": {"$ref": "#/$defs/timestamp"},
+        "finished_utc": {"$ref": "#/$defs/timestamp"},
+        "elapsed_ms": {"type": "integer", "minimum": 0},
+        "http_status": {"const": 200},
+        "final_canonical_url": {"type": "string", "format": "uri"},
+        "redirect_chain": {"type": "array", "maxItems": 0},
+        "declared_content_type": {"type": "string", "minLength": 1, "maxLength": 128},
+        "detected_content_type": {"enum": ["html", "json", "text", "xml"]}
+      }
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "transport_body_sha256",
+        "representation_sha256",
+        "transport_byte_count",
+        "representation_byte_count",
+        "content_encoding",
+        "raw_content_embedded",
+        "raw_content_persisted_by_receipt"
+      ],
+      "properties": {
+        "transport_body_sha256": {"$ref": "#/$defs/sha"},
+        "representation_sha256": {"$ref": "#/$defs/sha"},
+        "transport_byte_count": {"type": "integer", "minimum": 1},
+        "representation_byte_count": {"type": "integer", "minimum": 1},
+        "content_encoding": {"const": "identity"},
+        "raw_content_embedded": {"const": false},
+        "raw_content_persisted_by_receipt": {"const": false}
+      }
+    },
+    "anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "anchor_id",
+        "claim_key",
+        "polarity",
+        "materiality",
+        "locator_type",
+        "byte_start",
+        "byte_end",
+        "parent_representation_sha256",
+        "fragment_sha256",
+        "fragment_byte_count",
+        "normalized_value_sha256",
+        "normalized_value_semantically_verified",
+        "bounded_excerpt",
+        "bounded_excerpt_sha256",
+        "excerpt_omitted_reason",
+        "semantic_binding",
+        "anchor_verified"
+      ],
+      "properties": {
+        "anchor_id": {"type": "string", "pattern": "^anchor:[0-9a-f]{64}$"},
+        "claim_key": {"$ref": "#/$defs/token"},
+        "polarity": {"enum": ["supports", "contradicts", "neutral"]},
+        "materiality": {"enum": ["material", "supporting"]},
+        "locator_type": {"const": "raw_byte_range"},
+        "byte_start": {"type": "integer", "minimum": 0},
+        "byte_end": {"type": "integer", "minimum": 1},
+        "parent_representation_sha256": {"$ref": "#/$defs/sha"},
+        "fragment_sha256": {"$ref": "#/$defs/sha"},
+        "fragment_byte_count": {"type": "integer", "minimum": 1},
+        "normalized_value_sha256": {"$ref": "#/$defs/sha"},
+        "normalized_value_semantically_verified": {"const": false},
+        "bounded_excerpt": {"type": ["string", "null"], "maxLength": 280},
+        "bounded_excerpt_sha256": {"anyOf": [{"$ref": "#/$defs/sha"}, {"type": "null"}]},
+        "excerpt_omitted_reason": {"enum": ["not_omitted", "copyright_or_size_limit", "non_utf8_fragment"]},
+        "semantic_binding": {"const": "adjudication_required"},
+        "anchor_verified": {"const": true}
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "research_only",
+        "shadow_only",
+        "execution_enabled",
+        "feeds_production",
+        "feeds_buy_gate",
+        "grants_source_authority",
+        "grants_catalyst_confirmation",
+        "grants_official_research",
+        "strategy_change_allowed",
+        "counts_in_metrics",
+        "builder_network_invoked",
+        "broker_access",
+        "collector_trust",
+        "adjudication_required"
+      ],
+      "properties": {
+        "research_only": {"const": true},
+        "shadow_only": {"const": true},
+        "execution_enabled": {"const": false},
+        "feeds_production": {"const": false},
+        "feeds_buy_gate": {"const": false},
+        "grants_source_authority": {"const": false},
+        "grants_catalyst_confirmation": {"const": false},
+        "grants_official_research": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "counts_in_metrics": {"const": false},
+        "builder_network_invoked": {"const": false},
+        "broker_access": {"const": "none"},
+        "collector_trust": {"const": "local_fixture_only"},
+        "adjudication_required": {"const": true}
+      }
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "manual_execution_observation_summary.schema.json",
+  "title": "Manual decision and entry-fill observation summary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "policy_version", "policy_sha256", "target_session_date", "generated_utc",
+    "registry_path", "registry_sha256", "ledger_path", "ledger_sha256",
+    "complete_denominator", "case_count",
+    "event_count", "state_counts", "cases", "effective_spread_bps", "realized_return",
+    "limitations", "safety", "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "manual_execution_observation_summary/1.0"},
+    "policy_version": {"const": "1.0.0"},
+    "policy_sha256": {"$ref": "#/$defs/sha"},
+    "target_session_date": {"type": "string", "format": "date"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "registry_path": {"type": "string", "minLength": 1},
+    "registry_sha256": {"$ref": "#/$defs/sha"},
+    "ledger_path": {"type": "string", "minLength": 1},
+    "ledger_sha256": {"$ref": "#/$defs/sha"},
+    "complete_denominator": {"const": true},
+    "case_count": {"type": "integer", "minimum": 0},
+    "event_count": {"type": "integer", "minimum": 0},
+    "state_counts": {"type": "object"},
+    "cases": {"type": "array", "items": {"type": "object"}},
+    "effective_spread_bps": {"type": "null"},
+    "realized_return": {"type": "null"},
+    "limitations": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "safety": {"$ref": "manual_execution_observation_policy.schema.json#/properties/safety"},
+    "artifact_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

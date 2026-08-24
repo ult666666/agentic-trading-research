@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "asset_allocation_context.schema.json",
+  "title": "Tighten-only Robinhood plus Webull allocation context",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "policy_version",
+    "policy_sha256",
+    "target_session_date",
+    "generated_utc",
+    "status",
+    "source_artifacts",
+    "provider_statuses",
+    "global_totals",
+    "positions",
+    "blockers",
+    "warnings",
+    "safety",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "asset_allocation_context/1.0"},
+    "policy_version": {"const": "1.0.0"},
+    "policy_sha256": {"$ref": "#/$defs/sha"},
+    "target_session_date": {"type": "string", "format": "date"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["ready_for_tighten_only", "blocked", "invalid"]},
+    "source_artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["robinhood_file_sha256", "webull_artifact_sha256", "webull_receipt_sha256"],
+      "properties": {
+        "robinhood_file_sha256": {"$ref": "#/$defs/sha"},
+        "webull_artifact_sha256": {"$ref": "#/$defs/sha"},
+        "webull_receipt_sha256": {"$ref": "#/$defs/sha"}
+      }
+    },
+    "provider_statuses": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["robinhood_readonly", "webull_readonly"],
+      "properties": {
+        "robinhood_readonly": {"type": "string"},
+        "webull_readonly": {"type": "string"}
+      }
+    },
+    "global_totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "equity_usd", "cash_usd", "invested_usd", "invested_pct", "cash_pct",
+        "robinhood_equity_usd", "robinhood_cash_usd", "robinhood_invested_usd",
+        "webull_equity_usd", "webull_cash_usd", "webull_invested_usd"
+      ],
+      "properties": {
+        "equity_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+        "cash_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+        "invested_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+        "invested_pct": {"$ref": "#/$defs/nullable_ratio"},
+        "cash_pct": {"$ref": "#/$defs/nullable_ratio"},
+        "robinhood_equity_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+        "robinhood_cash_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+        "robinhood_invested_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+        "webull_equity_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+        "webull_cash_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+        "webull_invested_usd": {"$ref": "#/$defs/nullable_nonnegative"}
+      }
+    },
+    "positions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "symbol", "webull_market_value_usd", "robinhood_holding_present",
+          "known_market_value_usd", "fully_marked_to_market"
+        ],
+        "properties": {
+          "symbol": {"type": "string", "pattern": "^[A-Z][A-Z0-9.\\-]{0,9}$"},
+          "webull_market_value_usd": {"type": "number", "minimum": 0},
+          "robinhood_holding_present": {"type": "boolean"},
+          "known_market_value_usd": {"type": "number", "minimum": 0},
+          "fully_marked_to_market": {"type": "boolean"}
+        }
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "warnings": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tighten_only", "manual_ticket_sizing_provider", "cross_broker_cash_used_for_sizing",
+        "may_increase_robinhood_size", "source_authority", "live_price_authority",
+        "buy_authority", "execution_enabled"
+      ],
+      "properties": {
+        "tighten_only": {"const": true},
+        "manual_ticket_sizing_provider": {"const": "robinhood_readonly"},
+        "cross_broker_cash_used_for_sizing": {"const": false},
+        "may_increase_robinhood_size": {"const": false},
+        "source_authority": {"const": false},
+        "live_price_authority": {"const": false},
+        "buy_authority": {"const": false},
+        "execution_enabled": {"const": false}
+      }
+    },
+    "artifact_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "nullable_nonnegative": {
+      "oneOf": [{"type": "number", "minimum": 0}, {"type": "null"}]
+    },
+    "nullable_ratio": {
+      "oneOf": [{"type": "number", "minimum": 0}, {"type": "null"}]
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_strategy_artifact_policy.schema.json",
+  "title": "Quant Strategy Artifact Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "objective", "candidate_source_schema",
+    "benchmark_output_schema", "benchmark_metadata_schema", "benchmark_symbol",
+    "benchmark_adjustment_view", "benchmark_allocation_rule", "benchmark_entry_rule",
+    "benchmark_mark_rule", "benchmark_exit_rule", "benchmark_cost_rule",
+    "date_alignment_rule", "missing_bar_rule", "factory_bundle_schema",
+    "preregistered_contract_schema", "required_preregistered_input_refs",
+    "bundle_export_section_keys", "contract_lock_rule", "manifest_binding_rule",
+    "strategy_artifact_root", "history_overwrite_allowed",
+    "registry_mutation_allowed", "safety"
+  ],
+  "properties": {
+    "schema": {"const": "quant_strategy_artifact_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "objective": {"type": "string", "minLength": 1},
+    "candidate_source_schema": {"const": "quant_portfolio_backtest/1.0"},
+    "benchmark_output_schema": {"const": "quant_portfolio_backtest/1.0"},
+    "benchmark_metadata_schema": {"const": "quant_benchmark_reference/1.0"},
+    "benchmark_symbol": {"const": "SPY"},
+    "benchmark_adjustment_view": {"const": "total_return"},
+    "benchmark_allocation_rule": {"const": "portfolio_policy_maximum_gross_exposure"},
+    "benchmark_entry_rule": {"const": "first_candidate_session_open"},
+    "benchmark_mark_rule": {"const": "total_return_adjusted_daily_close"},
+    "benchmark_exit_rule": {"const": "final_candidate_session_close"},
+    "benchmark_cost_rule": {"const": "cost_policy_minimum_bps_per_side_times_candidate_stress_on_entry_and_exit"},
+    "date_alignment_rule": {"const": "exact_candidate_daily_path_dates_without_imputation"},
+    "missing_bar_rule": {"const": "fail_closed"},
+    "factory_bundle_schema": {"const": "quant_research_bundle/1.0"},
+    "preregistered_contract_schema": {"const": "quant_factory_portfolio_export_contract/1.0"},
+    "required_preregistered_input_refs": {
+      "const": [
+        "source_bars", "source_plans", "portfolio_plan", "cost_policy",
+        "portfolio_policy", "benchmark_adjusted_view"
+      ]
+    },
+    "bundle_export_section_keys": {
+      "const": ["contract", "candidate_portfolio", "source_backtest"]
+    },
+    "contract_lock_rule": {"const": "contract_specified_and_manifest_fingerprinted_at_or_before_holdout_lock"},
+    "manifest_binding_rule": {"const": "contract_and_every_preregistered_input_hash_must_appear_in_experiment_manifest_data_snapshots"},
+    "strategy_artifact_root": {"const": "data/runtime/quant/strategy_artifacts"},
+    "history_overwrite_allowed": {"const": false},
+    "registry_mutation_allowed": {"const": false},
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "research_only", "diagnostic_only", "execution_enabled", "activation_authority",
+        "feeds_production", "feeds_research_factory", "strategy_change_allowed",
+        "promotion_gate_change_allowed", "profitability_claim_allowed",
+        "automatic_promotion_allowed", "broker_access", "broker_tool_invoked",
+        "model_invoked", "account_data_allowed", "order_data_allowed",
+        "network_allowed", "actual_order_simulation"
+      ],
+      "properties": {
+        "research_only": {"const": true},
+        "diagnostic_only": {"const": true},
+        "execution_enabled": {"const": false},
+        "activation_authority": {"const": false},
+        "feeds_production": {"const": false},
+        "feeds_research_factory": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "promotion_gate_change_allowed": {"const": false},
+        "profitability_claim_allowed": {"const": false},
+        "automatic_promotion_allowed": {"const": false},
+        "broker_access": {"const": "none"},
+        "broker_tool_invoked": {"const": false},
+        "model_invoked": {"const": false},
+        "account_data_allowed": {"const": false},
+        "order_data_allowed": {"const": false},
+        "network_allowed": {"const": false},
+        "actual_order_simulation": {"const": false}
+      }
+    }
+  }
+}

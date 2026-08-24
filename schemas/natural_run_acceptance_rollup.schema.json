@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://charles.local/schemas/natural_run_acceptance_rollup.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "generated_utc", "status", "minimum_broker_canary_sessions",
+    "valid_receipt_count", "invalid_receipt_count", "operational_acceptance_count",
+    "research_output_acceptance_count", "broker_canary_eligible_count",
+    "eligible_session_dates", "invalid_receipt_path_hashes", "ready_for_human_review",
+    "promotion_authorized", "production_gate_enforced", "safety", "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "natural_run_acceptance_rollup/1.0"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["collecting", "ready_for_review", "blocked"]},
+    "minimum_broker_canary_sessions": {"type": "integer", "minimum": 5},
+    "valid_receipt_count": {"type": "integer", "minimum": 0},
+    "invalid_receipt_count": {"type": "integer", "minimum": 0},
+    "operational_acceptance_count": {"type": "integer", "minimum": 0},
+    "research_output_acceptance_count": {"type": "integer", "minimum": 0},
+    "broker_canary_eligible_count": {"type": "integer", "minimum": 0},
+    "eligible_session_dates": {"type": "array", "uniqueItems": true, "items": {"type": "string", "format": "date"}},
+    "invalid_receipt_path_hashes": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[0-9a-f]{64}$"}},
+    "ready_for_human_review": {"type": "boolean"},
+    "promotion_authorized": {"const": false},
+    "production_gate_enforced": {"const": false},
+    "safety": {"$ref": "#/$defs/safety"},
+    "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "read_only", "diagnostic_only", "local_artifact_write_only", "network_invoked",
+        "model_invoked", "broker_invoked", "execution_enabled", "strategy_change_allowed",
+        "risk_limit_change_allowed", "promotion_authorized", "production_gate_enforced"
+      ],
+      "properties": {
+        "read_only": {"const": true},
+        "diagnostic_only": {"const": true},
+        "local_artifact_write_only": {"const": true},
+        "network_invoked": {"const": false},
+        "model_invoked": {"const": false},
+        "broker_invoked": {"const": false},
+        "execution_enabled": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "risk_limit_change_allowed": {"const": false},
+        "promotion_authorized": {"const": false},
+        "production_gate_enforced": {"const": false}
+      }
+    }
+  }
+}

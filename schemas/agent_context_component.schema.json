@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://charles.local/schemas/agent_context_component.schema.json",
+  "title": "Agent Context Component",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "component", "detail", "source_hashes", "budget", "safety", "artifact_sha256"],
+  "properties": {
+    "schema": {"const": "agent_context_component/1.0"},
+    "component": {"$ref": "agent_context_index.schema.json#/$defs/component"},
+    "detail": {"type": "object", "minProperties": 1, "maxProperties": 12},
+    "source_hashes": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "required": ["policy", "constitution", "model_inventory", "workflows"]},
+    "budget": {"type": "object", "additionalProperties": false, "required": ["approximation_method", "characters", "approximate_tokens", "max_characters"], "properties": {
+      "approximation_method": {"const": "ceil_unicode_characters_divided_by_3"},
+      "characters": {"type": "integer", "minimum": 1}, "approximate_tokens": {"type": "integer", "minimum": 1},
+      "max_characters": {"type": "integer", "minimum": 1}
+    }},
+    "safety": {"$ref": "agent_context_policy.schema.json#/$defs/safety"},
+    "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

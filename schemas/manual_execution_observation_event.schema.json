@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "manual_execution_observation_event.schema.json",
+  "title": "Hash-chained manual execution observation event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "sequence", "case_id", "event_type", "event_at_utc", "recorded_at_utc",
+    "source_type", "verification_level", "source_artifact_path",
+    "source_artifact_sha256", "source_tool", "attestation", "details",
+    "supersedes_sequence", "draft_sha256", "previous_record_sha256", "safety",
+    "record_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "manual_execution_observation_event/1.0"},
+    "sequence": {"type": "integer", "minimum": 1},
+    "case_id": {"type": "string", "pattern": "^case:[0-9a-f]{64}$"},
+    "event_type": {"enum": ["decision", "order_entry", "fill", "terminal"]},
+    "event_at_utc": {"type": "string", "format": "date-time"},
+    "recorded_at_utc": {"type": "string", "format": "date-time"},
+    "source_type": {"enum": ["human_attestation", "broker_readonly_receipt"]},
+    "verification_level": {"enum": ["human_attested_unverified", "receipt_anchored_unconfirmed"]},
+    "source_artifact_path": {"type": ["string", "null"]},
+    "source_artifact_sha256": {"anyOf": [{"$ref": "#/$defs/sha"}, {"type": "null"}]},
+    "source_tool": {"type": ["string", "null"]},
+    "attestation": {"type": "string", "minLength": 20},
+    "details": {"type": "object"},
+    "supersedes_sequence": {"type": ["integer", "null"], "minimum": 1},
+    "draft_sha256": {"$ref": "#/$defs/sha"},
+    "previous_record_sha256": {"anyOf": [{"$ref": "#/$defs/sha"}, {"type": "null"}]},
+    "safety": {"$ref": "manual_execution_observation_policy.schema.json#/properties/safety"},
+    "record_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

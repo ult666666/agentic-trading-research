@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sec_event_parser_policy.schema.json",
+  "title": "SEC structured filing metadata parser policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "input_batch_schema", "required_provider",
+    "required_dataset", "output_schema", "item_code_pattern", "amendment_forms",
+    "supplemental_only_items", "exclusion_precedence", "item_mapping",
+    "form_mapping", "form_prefix_mapping", "unknown_item", "unknown_form",
+    "rules", "safety"
+  ],
+  "properties": {
+    "schema": {"const": "sec_event_parser_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "input_batch_schema": {"const": "provider_collection_batch/1.0"},
+    "required_provider": {"const": "sec_edgar"},
+    "required_dataset": {"const": "filings"},
+    "output_schema": {"const": "sec_filing_event_bundle/1.0"},
+    "item_code_pattern": {"const": "^[0-9]{1,2}\\.[0-9]{2}$"},
+    "amendment_forms": {
+      "type": "array", "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 32}
+    },
+    "supplemental_only_items": {
+      "type": "array", "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[0-9]{1,2}\\.[0-9]{2}$"}
+    },
+    "exclusion_precedence": {
+      "const": [
+        "acceptance_timestamp_missing",
+        "accepted_after_knowledge_cutoff",
+        "observed_after_knowledge_cutoff"
+      ]
+    },
+    "item_mapping": {
+      "type": "object", "minProperties": 1,
+      "propertyNames": {"pattern": "^[0-9]{1,2}\\.[0-9]{2}$"},
+      "additionalProperties": {"$ref": "#/$defs/itemClass"}
+    },
+    "form_mapping": {
+      "type": "object", "minProperties": 1,
+      "additionalProperties": {"$ref": "#/$defs/formClass"}
+    },
+    "form_prefix_mapping": {
+      "type": "object", "minProperties": 1,
+      "additionalProperties": {"$ref": "#/$defs/formClass"}
+    },
+    "unknown_item": {"$ref": "#/$defs/itemClass"},
+    "unknown_form": {"$ref": "#/$defs/formClass"},
+    "rules": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "structured_metadata_only", "filing_content_reviewed",
+        "metadata_does_not_confirm_substance", "registration_statement_does_not_prove_sale",
+        "effectiveness_notice_does_not_prove_sale", "prospectus_does_not_prove_completion",
+        "item_9_01_not_standalone", "amendments_preserved_separately",
+        "complete_input_denominator_required", "missing_acceptance_excluded",
+        "post_cutoff_excluded", "unknown_items_preserved", "unknown_forms_preserved"
+      ],
+      "properties": {
+        "structured_metadata_only": {"const": true},
+        "filing_content_reviewed": {"const": false},
+        "metadata_does_not_confirm_substance": {"const": true},
+        "registration_statement_does_not_prove_sale": {"const": true},
+        "effectiveness_notice_does_not_prove_sale": {"const": true},
+        "prospectus_does_not_prove_completion": {"const": true},
+        "item_9_01_not_standalone": {"const": true},
+        "amendments_preserved_separately": {"const": true},
+        "complete_input_denominator_required": {"const": true},
+        "missing_acceptance_excluded": {"const": true},
+        "post_cutoff_excluded": {"const": true},
+        "unknown_items_preserved": {"const": true},
+        "unknown_forms_preserved": {"const": true}
+      }
+    },
+    "safety": {"$ref": "#/$defs/safety"}
+  },
+  "$defs": {
+    "token": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_]{0,95}$"},
+    "riskFlags": {
+      "type": "array", "uniqueItems": true,
+      "items": {"$ref": "#/$defs/token"}
+    },
+    "itemClass": {
+      "type": "object", "additionalProperties": false,
+      "required": ["title", "event_family", "catalyst_category", "risk_flags", "standalone_event"],
+      "properties": {
+        "title": {"type": "string", "minLength": 1, "maxLength": 240},
+        "event_family": {"$ref": "#/$defs/token"},
+        "catalyst_category": {"$ref": "#/$defs/token"},
+        "risk_flags": {"$ref": "#/$defs/riskFlags"},
+        "standalone_event": {"type": "boolean"}
+      }
+    },
+    "formClass": {
+      "type": "object", "additionalProperties": false,
+      "required": ["filing_family", "catalyst_category", "risk_flags", "metadata_claim"],
+      "properties": {
+        "filing_family": {"$ref": "#/$defs/token"},
+        "catalyst_category": {"$ref": "#/$defs/token"},
+        "risk_flags": {"$ref": "#/$defs/riskFlags"},
+        "metadata_claim": {"$ref": "#/$defs/token"}
+      }
+    },
+    "safety": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "research_only", "diagnostic_only", "execution_enabled", "feeds_buy_gate",
+        "feeds_production_scoring", "activation_authority", "strategy_change_allowed",
+        "broker_access", "broker_tool_invoked", "network_invoked", "model_invoked",
+        "grants_catalyst_confirmation", "directional_signal_allowed",
+        "profitability_claim_allowed"
+      ],
+      "properties": {
+        "research_only": {"const": true},
+        "diagnostic_only": {"const": true},
+        "execution_enabled": {"const": false},
+        "feeds_buy_gate": {"const": false},
+        "feeds_production_scoring": {"const": false},
+        "activation_authority": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "broker_access": {"const": "none"},
+        "broker_tool_invoked": {"const": false},
+        "network_invoked": {"const": false},
+        "model_invoked": {"const": false},
+        "grants_catalyst_confirmation": {"const": false},
+        "directional_signal_allowed": {"const": false},
+        "profitability_claim_allowed": {"const": false}
+      }
+    }
+  }
+}

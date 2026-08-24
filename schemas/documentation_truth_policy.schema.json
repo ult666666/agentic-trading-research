@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://charles.local/schemas/documentation_truth_policy.schema.json",
+  "title": "Documentation Truth Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "facts_document",
+    "readme_document",
+    "documents",
+    "source_paths",
+    "required_anchors",
+    "forbidden_phrases",
+    "privacy_scan_suffixes",
+    "safety"
+  ],
+  "properties": {
+    "schema": {"const": "documentation_truth_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "facts_document": {"const": "OPERATING_STATE.md"},
+    "readme_document": {"const": "README.md"},
+    "documents": {
+      "type": "array",
+      "minItems": 3,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[A-Za-z0-9_./-]+\\.md$"}
+    },
+    "source_paths": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+      }
+    },
+    "required_anchors": {
+      "type": "object",
+      "minProperties": 3,
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {"type": "string", "minLength": 1, "maxLength": 160}
+      }
+    },
+    "forbidden_phrases": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 160}
+    },
+    "privacy_scan_suffixes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^\\.[a-z0-9]+$"}
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "diagnostic_only",
+        "read_only",
+        "local_artifact_write_only",
+        "execution_enabled",
+        "broker_invoked",
+        "network_invoked",
+        "model_invoked",
+        "contains_account_data",
+        "contains_credentials",
+        "grants_authority"
+      ],
+      "properties": {
+        "diagnostic_only": {"const": true},
+        "read_only": {"const": true},
+        "local_artifact_write_only": {"const": true},
+        "execution_enabled": {"const": false},
+        "broker_invoked": {"const": false},
+        "network_invoked": {"const": false},
+        "model_invoked": {"const": false},
+        "contains_account_data": {"const": false},
+        "contains_credentials": {"const": false},
+        "grants_authority": {"const": false}
+      }
+    }
+  }
+}

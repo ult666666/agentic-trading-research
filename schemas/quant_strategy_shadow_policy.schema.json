@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_strategy_shadow_policy.schema.json",
+  "title": "Quant Strategy Shadow Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "objective", "evidence_gate_schema", "plan_schema",
+    "return_bundle_schema", "draft_schema", "event_schema", "summary_schema",
+    "required_evidence_gate_status",
+    "allowed_input_roots", "output_root", "descriptive_checkpoints_sessions",
+    "decision_checkpoint_alpha_schedule", "maximum_familywise_alpha",
+    "minimum_complete_fraction", "minimum_candidate_active_fraction",
+    "minimum_hac_observations", "minimum_candidate_total_return",
+    "minimum_benchmark_excess_hac_lower_bound", "minimum_incumbent_excess_hac_lower_bound",
+    "maximum_absolute_incumbent_correlation", "maximum_active_day_jaccard",
+    "maximum_shadow_drawdown", "maximum_absolute_daily_return", "maximum_gross_exposure",
+    "maximum_observation_sessions", "maximum_recording_delay_hours_for_complete",
+    "maximum_ledger_bytes", "maximum_compact_context_bytes", "output_decimal_places",
+    "session_spine", "missing_session_rule", "backfill_rule", "checkpoint_rule",
+    "incumbent_composite_rule", "return_provenance_rule", "append_rule",
+    "summary_cache_rule", "safety"
+  ],
+  "properties": {
+    "schema": {"const": "quant_strategy_shadow_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "objective": {"type": "string", "minLength": 1},
+    "evidence_gate_schema": {"const": "quant_strategy_evidence_gate/1.0"},
+    "plan_schema": {"const": "quant_strategy_shadow_plan/1.0"},
+    "return_bundle_schema": {"const": "quant_strategy_shadow_return_bundle/1.0"},
+    "draft_schema": {"const": "quant_strategy_shadow_observation_draft/1.0"},
+    "event_schema": {"const": "quant_strategy_shadow_event/1.0"},
+    "summary_schema": {"const": "quant_strategy_shadow_summary/1.0"},
+    "required_evidence_gate_status": {"const": "eligible_for_shadow_observation_review"},
+    "allowed_input_roots": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^data/runtime/(experiments|health|quant)(/.*)?$"}
+    },
+    "output_root": {"const": "data/runtime/quant/strategy_shadow"},
+    "descriptive_checkpoints_sessions": {
+      "const": [20, 40]
+    },
+    "decision_checkpoint_alpha_schedule": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["session_count", "two_sided_alpha"],
+        "properties": {
+          "session_count": {"type": "integer", "minimum": 60, "maximum": 504},
+          "two_sided_alpha": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.05}
+        }
+      }
+    },
+    "maximum_familywise_alpha": {"const": 0.05},
+    "minimum_complete_fraction": {"type": "number", "minimum": 0.9, "maximum": 1},
+    "minimum_candidate_active_fraction": {"type": "number", "minimum": 0.1, "maximum": 1},
+    "minimum_hac_observations": {"type": "integer", "minimum": 30},
+    "minimum_candidate_total_return": {"const": 0.0},
+    "minimum_benchmark_excess_hac_lower_bound": {"const": 0.0},
+    "minimum_incumbent_excess_hac_lower_bound": {"const": 0.0},
+    "maximum_absolute_incumbent_correlation": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.95},
+    "maximum_active_day_jaccard": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.95},
+    "maximum_shadow_drawdown": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.5},
+    "maximum_absolute_daily_return": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+    "maximum_gross_exposure": {"const": 1.0},
+    "maximum_observation_sessions": {"type": "integer", "minimum": 252, "maximum": 1008},
+    "maximum_recording_delay_hours_for_complete": {"type": "integer", "minimum": 1, "maximum": 72},
+    "maximum_ledger_bytes": {"type": "integer", "minimum": 1048576},
+    "maximum_compact_context_bytes": {"type": "integer", "minimum": 1024, "maximum": 8192},
+    "output_decimal_places": {"type": "integer", "minimum": 6, "maximum": 12},
+    "session_spine": {"const": "versioned_us_market_calendar_no_compression"},
+    "missing_session_rule": {"const": "append_explicit_unavailable_event_never_silently_omit"},
+    "backfill_rule": {"const": "complete_returns_after_recording_deadline_forbidden_unavailable_marker_allowed"},
+    "checkpoint_rule": {"const": "evaluate_only_latest_reached_preregistered_prefix_never_rolling_optional_stop"},
+    "incumbent_composite_rule": {"const": "equal_weight_daily_net_return"},
+    "return_provenance_rule": {"const": "derive_from_hash_bound_standard_portfolio_nav_never_accept_caller_return"},
+    "append_rule": {"const": "exclusive_lock_validate_head_append_one_fsync"},
+    "summary_cache_rule": {"const": "same_plan_ledger_head_and_as_of_reuses_identical_output_conflicts_fail_closed"},
+    "safety": {"$ref": "#/$defs/safety"}
+  },
+  "$defs": {
+    "safety": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "research_only", "diagnostic_only", "execution_enabled", "activation_authority",
+        "strategy_change_allowed", "feeds_production", "feeds_research_factory",
+        "feeds_buy_gate", "profitability_claim_allowed", "automatic_promotion_allowed",
+        "automatic_shadow_start_allowed", "registry_mutation_allowed", "broker_access",
+        "broker_tool_invoked", "account_data_allowed", "order_data_allowed",
+        "network_allowed", "model_invoked"
+      ],
+      "properties": {
+        "research_only": {"const": true}, "diagnostic_only": {"const": true},
+        "execution_enabled": {"const": false}, "activation_authority": {"const": false},
+        "strategy_change_allowed": {"const": false}, "feeds_production": {"const": false},
+        "feeds_research_factory": {"const": false}, "feeds_buy_gate": {"const": false},
+        "profitability_claim_allowed": {"const": false},
+        "automatic_promotion_allowed": {"const": false},
+        "automatic_shadow_start_allowed": {"const": false},
+        "registry_mutation_allowed": {"const": false}, "broker_access": {"const": "none"},
+        "broker_tool_invoked": {"const": false}, "account_data_allowed": {"const": false},
+        "order_data_allowed": {"const": false}, "network_allowed": {"const": false},
+        "model_invoked": {"const": false}
+      }
+    }
+  }
+}

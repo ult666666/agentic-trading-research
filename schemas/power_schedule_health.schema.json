@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "power_schedule_health.schema.json",
+  "title": "Mac wake schedule readiness for autonomous research workflows",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "generated_utc",
+    "status",
+    "ok",
+    "operating_timezone",
+    "earliest_workflow_id",
+    "earliest_workflow_start_pt",
+    "required_wake_by_pt",
+    "minimum_wake_lead_minutes",
+    "required_weekdays",
+    "inspection",
+    "repeating_events",
+    "selected_event",
+    "lead_minutes",
+    "minutes_after_required",
+    "reason_codes",
+    "remediation_required",
+    "manual_admin_required",
+    "remediation_command",
+    "read_only",
+    "diagnostic_only",
+    "system_settings_changed",
+    "maximum_external_spend_usd",
+    "execution_enabled",
+    "source_authority_granted",
+    "buy_authority_granted",
+    "feeds_production_scoring",
+    "strategy_activation_allowed",
+    "model_invoked",
+    "broker_invoked",
+    "contains_account_data",
+    "contains_credentials",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "power_schedule_health/1.0"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["ready", "at_issue", "unavailable", "invalid"]},
+    "ok": {"type": "boolean"},
+    "operating_timezone": {"const": "America/Los_Angeles"},
+    "earliest_workflow_id": {"const": "intake"},
+    "earliest_workflow_start_pt": {
+      "type": "string",
+      "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+    },
+    "required_wake_by_pt": {
+      "type": "string",
+      "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+    },
+    "minimum_wake_lead_minutes": {"type": "integer", "minimum": 1},
+    "required_weekdays": {"const": "MTWRF"},
+    "inspection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command",
+        "exit_code",
+        "stdout_sha256",
+        "parsed_repeating_event_count"
+      ],
+      "properties": {
+        "command": {"const": "pmset -g sched"},
+        "exit_code": {"type": ["integer", "null"]},
+        "stdout_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "parsed_repeating_event_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "repeating_events": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/event"}
+    },
+    "selected_event": {
+      "anyOf": [
+        {"type": "null"},
+        {"$ref": "#/$defs/event"}
+      ]
+    },
+    "lead_minutes": {"type": ["integer", "null"]},
+    "minutes_after_required": {"type": ["integer", "null"], "minimum": 0},
+    "reason_codes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z0-9_]+$"}
+    },
+    "remediation_required": {"type": "boolean"},
+    "manual_admin_required": {"type": "boolean"},
+    "remediation_command": {
+      "const": "sudo pmset repeat wakeorpoweron MTWRF 04:55:00"
+    },
+    "read_only": {"const": true},
+    "diagnostic_only": {"const": true},
+    "system_settings_changed": {"const": false},
+    "maximum_external_spend_usd": {"const": "0.00"},
+    "execution_enabled": {"const": false},
+    "source_authority_granted": {"const": false},
+    "buy_authority_granted": {"const": false},
+    "feeds_production_scoring": {"const": false},
+    "strategy_activation_allowed": {"const": false},
+    "model_invoked": {"const": false},
+    "broker_invoked": {"const": false},
+    "contains_account_data": {"const": false},
+    "contains_credentials": {"const": false},
+    "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_type",
+        "time_pt",
+        "minute_of_day",
+        "weekday_coverage",
+        "accepted_event_type",
+        "covers_required_weekdays",
+        "meets_wake_deadline"
+      ],
+      "properties": {
+        "event_type": {"type": "string", "pattern": "^[a-z]+$"},
+        "time_pt": {
+          "type": "string",
+          "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+        },
+        "minute_of_day": {"type": "integer", "minimum": 0, "maximum": 1439},
+        "weekday_coverage": {
+          "type": "string",
+          "pattern": "^[MTWRFSU]*$"
+        },
+        "accepted_event_type": {"type": "boolean"},
+        "covers_required_weekdays": {"type": "boolean"},
+        "meets_wake_deadline": {"type": "boolean"}
+      }
+    }
+  }
+}

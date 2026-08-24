@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_strategy_evidence_gate.schema.json",
+  "title": "Quant Strategy Evidence Gate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "tool",
+    "ok",
+    "generated_utc",
+    "policy_version",
+    "policy_sha256",
+    "target_session_date",
+    "post_close_run_id",
+    "candidate_strategy_id",
+    "candidate_portfolio_id",
+    "benchmark_strategy_id",
+    "benchmark_portfolio_id",
+    "status",
+    "input_artifacts",
+    "bindings",
+    "evidence_snapshot",
+    "evidence_checks",
+    "passed_check_count",
+    "failed_check_codes",
+    "blockers",
+    "limitations",
+    "eligible_for_shadow_observation_review",
+    "shadow_observation_started",
+    "human_approval_required",
+    "production_change_required",
+    "profitability_status",
+    "actual_orders_count",
+    "research_only",
+    "diagnostic_only",
+    "execution_enabled",
+    "activation_authority",
+    "strategy_change_allowed",
+    "feeds_production",
+    "profitability_claim_allowed",
+    "automatic_promotion_allowed",
+    "shadow_observation_start_allowed",
+    "registry_mutation_allowed",
+    "broker_access",
+    "account_data_allowed",
+    "order_data_allowed",
+    "network_allowed",
+    "model_invoked",
+    "result_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "quant_strategy_evidence_gate/1.0"},
+    "tool": {"const": "quant.strategy_evidence_gate"},
+    "ok": {"const": true},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "policy_version": {"const": "1.0.0"},
+    "policy_sha256": {"$ref": "#/$defs/sha"},
+    "target_session_date": {"type": ["string", "null"], "format": "date"},
+    "post_close_run_id": {"type": ["string", "null"]},
+    "candidate_strategy_id": {"type": ["string", "null"]},
+    "candidate_portfolio_id": {"type": ["string", "null"]},
+    "benchmark_strategy_id": {"type": ["string", "null"]},
+    "benchmark_portfolio_id": {"type": ["string", "null"]},
+    "status": {
+      "enum": [
+        "blocked",
+        "not_eligible",
+        "eligible_for_shadow_observation_review"
+      ]
+    },
+    "input_artifacts": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/inputArtifact"}
+    },
+    "bindings": {"type": "object"},
+    "evidence_snapshot": {"type": "object"},
+    "evidence_checks": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/check"}
+    },
+    "passed_check_count": {"type": "integer", "minimum": 0},
+    "failed_check_codes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 5,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "eligible_for_shadow_observation_review": {"type": "boolean"},
+    "shadow_observation_started": {"const": false},
+    "human_approval_required": {"const": true},
+    "production_change_required": {"const": true},
+    "profitability_status": {"const": "not_established"},
+    "actual_orders_count": {"const": 0},
+    "research_only": {"const": true},
+    "diagnostic_only": {"const": true},
+    "execution_enabled": {"const": false},
+    "activation_authority": {"const": false},
+    "strategy_change_allowed": {"const": false},
+    "feeds_production": {"const": false},
+    "profitability_claim_allowed": {"const": false},
+    "automatic_promotion_allowed": {"const": false},
+    "shadow_observation_start_allowed": {"const": false},
+    "registry_mutation_allowed": {"const": false},
+    "broker_access": {"const": "none"},
+    "account_data_allowed": {"const": false},
+    "order_data_allowed": {"const": false},
+    "network_allowed": {"const": false},
+    "model_invoked": {"const": false},
+    "result_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "blocked"}}},
+      "then": {
+        "properties": {
+          "blockers": {"minItems": 1},
+          "eligible_for_shadow_observation_review": {"const": false}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "not_eligible"}}},
+      "then": {
+        "properties": {
+          "blockers": {"maxItems": 0},
+          "failed_check_codes": {"minItems": 1},
+          "eligible_for_shadow_observation_review": {"const": false}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "eligible_for_shadow_observation_review"}}},
+      "then": {
+        "properties": {
+          "blockers": {"maxItems": 0},
+          "failed_check_codes": {"maxItems": 0},
+          "eligible_for_shadow_observation_review": {"const": true}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "inputArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "path", "file_sha256", "schema", "semantic_sha256"],
+      "properties": {
+        "role": {"type": "string", "minLength": 1},
+        "path": {"type": "string", "minLength": 1},
+        "file_sha256": {"$ref": "#/$defs/sha"},
+        "schema": {"type": ["string", "null"]},
+        "semantic_sha256": {"anyOf": [{"$ref": "#/$defs/sha"}, {"type": "null"}]}
+      }
+    },
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "category", "passed", "observed", "required"],
+      "properties": {
+        "code": {"type": "string", "minLength": 1},
+        "category": {"enum": ["factory", "package", "binding", "uniqueness", "inference", "spa"]},
+        "passed": {"type": "boolean"},
+        "observed": {},
+        "required": {}
+      }
+    }
+  }
+}

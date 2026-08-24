@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "security_master_rollforward.schema.json",
+  "title": "Nasdaq listing-event security-master rollforward receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "generated_utc",
+    "knowledge_cutoff_utc",
+    "status",
+    "errors",
+    "event_manifest_count",
+    "event_record_count",
+    "unique_event_count",
+    "duplicate_event_observation_count",
+    "current_master_manifest",
+    "current_symbol_count",
+    "episodes",
+    "episode_symbol_count",
+    "known_start_episode_count",
+    "unknown_start_episode_count",
+    "closed_episode_count",
+    "conflicts",
+    "coverage",
+    "research_only",
+    "shadow_only",
+    "execution_enabled",
+    "feeds_production_scoring",
+    "universe_eligibility_granted",
+    "complete_historical_coverage_granted",
+    "strategy_activation_allowed",
+    "broker_access",
+    "receipt_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "security_master_rollforward/1.0"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "knowledge_cutoff_utc": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["accumulating", "seed_attestation_required", "blocked"]},
+    "errors": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "event_manifest_count": {"type": "integer", "minimum": 0},
+    "event_record_count": {"type": "integer", "minimum": 0},
+    "unique_event_count": {"type": "integer", "minimum": 0},
+    "duplicate_event_observation_count": {"type": "integer", "minimum": 0},
+    "current_master_manifest": {"type": ["string", "null"]},
+    "current_symbol_count": {"type": "integer", "minimum": 0},
+    "episodes": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/episode"}
+    },
+    "episode_symbol_count": {"type": "integer", "minimum": 0},
+    "known_start_episode_count": {"type": "integer", "minimum": 0},
+    "unknown_start_episode_count": {"type": "integer", "minimum": 0},
+    "closed_episode_count": {"type": "integer", "minimum": 0},
+    "conflicts": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/conflict"}
+    },
+    "coverage": {"$ref": "#/$defs/coverage"},
+    "research_only": {"const": true},
+    "shadow_only": {"const": true},
+    "execution_enabled": {"const": false},
+    "feeds_production_scoring": {"const": false},
+    "universe_eligibility_granted": {"const": false},
+    "complete_historical_coverage_granted": {"const": false},
+    "strategy_activation_allowed": {"const": false},
+    "broker_access": {"const": "none"},
+    "receipt_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "nullableDate": {
+      "type": ["string", "null"],
+      "format": "date"
+    },
+    "nullableString": {
+      "type": ["string", "null"]
+    },
+    "episode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "symbol",
+        "episode_ordinal",
+        "start_date",
+        "end_date",
+        "start_event_id",
+        "end_event_id",
+        "start_known",
+        "end_known",
+        "company_name_at_start",
+        "primary_listing_market",
+        "source_record_sha256s",
+        "status",
+        "episode_id"
+      ],
+      "properties": {
+        "symbol": {"type": "string", "pattern": "^[A-Z0-9][A-Z0-9.$^=+\\-]{0,19}$"},
+        "episode_ordinal": {"type": "integer", "minimum": 1},
+        "start_date": {"$ref": "#/$defs/nullableDate"},
+        "end_date": {"$ref": "#/$defs/nullableDate"},
+        "start_event_id": {"$ref": "#/$defs/nullableString"},
+        "end_event_id": {"$ref": "#/$defs/nullableString"},
+        "start_known": {"type": "boolean"},
+        "end_known": {"type": "boolean"},
+        "company_name_at_start": {"$ref": "#/$defs/nullableString"},
+        "primary_listing_market": {"$ref": "#/$defs/nullableString"},
+        "source_record_sha256s": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        },
+        "status": {
+          "enum": [
+            "active_from_event",
+            "closed_from_events",
+            "deleted_start_unknown",
+            "active_start_unknown"
+          ]
+        },
+        "episode_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "conflict": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "record_sha256"],
+          "properties": {
+            "type": {"const": "event_id_missing"},
+            "record_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "event_id"],
+          "properties": {
+            "type": {"enum": ["event_id_payload_conflict", "effective_date_invalid"]},
+            "event_id": {"type": "string", "minLength": 1}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "symbol", "event_id"],
+          "properties": {
+            "type": {"const": "duplicate_add_while_active"},
+            "symbol": {"type": "string"},
+            "event_id": {"type": "string", "minLength": 1}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "symbol", "effective_date"],
+          "properties": {
+            "type": {"const": "same_day_add_delete"},
+            "symbol": {"type": "string"},
+            "effective_date": {"type": "string", "format": "date"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "symbol", "end_date"],
+          "properties": {
+            "type": {"const": "current_directory_after_delete"},
+            "symbol": {"type": "string"},
+            "end_date": {"type": "string", "format": "date"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "symbol", "start_date"],
+          "properties": {
+            "type": {"const": "active_event_missing_current_directory"},
+            "symbol": {"type": "string"},
+            "start_date": {"type": "string", "format": "date"}
+          }
+        }
+      ]
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "earliest_event_effective_date",
+        "required_history_start_date",
+        "history_start_requirement_met",
+        "current_symbol_count",
+        "minimum_current_symbol_count",
+        "current_symbol_breadth_met",
+        "observed_nasdaq_actions",
+        "add_and_delete_requirement_met",
+        "reconciliation_conflict_count",
+        "maximum_reconciliation_conflicts",
+        "conflict_requirement_met",
+        "historical_seed_attestation_present",
+        "rollforward_acceptance_pass"
+      ],
+      "properties": {
+        "earliest_event_effective_date": {"$ref": "#/$defs/nullableDate"},
+        "required_history_start_date": {"$ref": "#/$defs/nullableDate"},
+        "history_start_requirement_met": {"type": "boolean"},
+        "current_symbol_count": {"type": "integer", "minimum": 0},
+        "minimum_current_symbol_count": {"type": ["integer", "null"], "minimum": 0},
+        "current_symbol_breadth_met": {"type": "boolean"},
+        "observed_nasdaq_actions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"enum": ["add", "delete"]}
+        },
+        "add_and_delete_requirement_met": {"type": "boolean"},
+        "reconciliation_conflict_count": {"type": "integer", "minimum": 0},
+        "maximum_reconciliation_conflicts": {"type": ["integer", "null"], "minimum": 0},
+        "conflict_requirement_met": {"type": "boolean"},
+        "historical_seed_attestation_present": {"const": false},
+        "rollforward_acceptance_pass": {"const": false}
+      }
+    }
+  }
+}

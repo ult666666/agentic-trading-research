@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://charles.local/schemas/operator_instruction.schema.json",
+  "title": "Operator Instruction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "instruction_id", "created_utc", "text", "status",
+    "automatic_execution", "safety", "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "operator_instruction/1.0"},
+    "instruction_id": {"type": "string", "pattern": "^[0-9a-f]{24}$"},
+    "created_utc": {"type": "string", "format": "date-time"},
+    "text": {"type": "string", "minLength": 1, "maxLength": 1000},
+    "status": {"const": "queued_for_agent_review"},
+    "automatic_execution": {"const": false},
+    "safety": {"$ref": "operator_control_policy.schema.json#/properties/safety"},
+    "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

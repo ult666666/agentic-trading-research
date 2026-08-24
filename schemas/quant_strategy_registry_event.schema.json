@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_strategy_registry_event.schema.json",
+  "title": "Quant Strategy Registry Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "registry_id", "sequence", "event_type", "occurred_at_utc",
+    "previous_event_sha256", "policy_sha256", "payload", "event_sha256",
+    "tool", "actionable", "record_type", "excluded_from_performance",
+    "excluded_from_win_rate", "excluded_from_expectancy",
+    "excluded_from_official_replay_outcomes", "diagnostic_only", "feeds_production",
+    "note", "activation_authority", "strategy_change_allowed", "execution_enabled",
+    "executed_trade_performance", "feeds_research_factory",
+    "promotion_gate_change_allowed", "profitability_claim_allowed",
+    "automatic_promotion_allowed", "broker_access", "broker_tool_invoked",
+    "model_invoked", "account_data_allowed", "order_data_allowed", "network_allowed"
+  ],
+  "properties": {
+    "tool": {"const": "quant.strategy_registry"},
+    "schema": {"const": "quant_strategy_registry_event/1.0"},
+    "registry_id": {"const": "charles-quant-strategy-library"},
+    "sequence": {"type": "integer", "minimum": 0},
+    "event_type": {"enum": ["genesis", "register_strategy", "transition_role"]},
+    "occurred_at_utc": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"},
+    "previous_event_sha256": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      ]
+    },
+    "policy_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "payload": {"type": "object"},
+    "event_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "actionable": {"const": false},
+    "record_type": {"const": "non_actionable_diagnostic"},
+    "excluded_from_performance": {"const": true},
+    "excluded_from_win_rate": {"const": true},
+    "excluded_from_expectancy": {"const": true},
+    "excluded_from_official_replay_outcomes": {"const": true},
+    "diagnostic_only": {"const": true},
+    "feeds_production": {"const": false},
+    "note": {"type": "string"},
+    "feeds_research_factory": {"const": false},
+    "execution_enabled": {"const": false},
+    "activation_authority": {"const": false},
+    "strategy_change_allowed": {"const": false},
+    "executed_trade_performance": {"const": false},
+    "promotion_gate_change_allowed": {"const": false},
+    "profitability_claim_allowed": {"const": false},
+    "automatic_promotion_allowed": {"const": false},
+    "broker_access": {"const": "none"},
+    "broker_tool_invoked": {"const": false},
+    "model_invoked": {"const": false},
+    "account_data_allowed": {"const": false},
+    "order_data_allowed": {"const": false},
+    "network_allowed": {"const": false}
+  }
+}

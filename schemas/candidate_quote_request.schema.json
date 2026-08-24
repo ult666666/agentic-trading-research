@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "candidate_quote_request.schema.json",
+  "title": "Candidate quote request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "target_session_date", "generated_utc", "status", "source",
+    "policy_sha256", "discovery_artifact", "candidate_count", "max_symbols",
+    "requested", "requested_symbols", "excluded", "complete_discovery_denominator",
+    "research_only", "strictly_read_only", "contains_account_data",
+    "contains_credentials", "buy_authority_granted", "execution_enabled",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "candidate_quote_request/1.0"},
+    "target_session_date": {"type": "string", "format": "date"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["ready", "empty"]},
+    "source": {"const": "robinhood_readonly"},
+    "policy_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "discovery_artifact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256", "status"],
+      "properties": {
+        "path": {"type": "string"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "status": {"const": "completed"}
+      }
+    },
+    "candidate_count": {"type": "integer", "minimum": 0},
+    "max_symbols": {"type": "integer", "minimum": 1},
+    "requested": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["symbol", "event_date", "discovery_index"],
+        "properties": {
+          "symbol": {"type": "string", "pattern": "^[A-Z][A-Z0-9.-]{0,9}$"},
+          "event_date": {"type": ["string", "null"], "format": "date"},
+          "discovery_index": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "requested_symbols": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "excluded": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["discovery_index", "symbol", "reason"],
+        "properties": {
+          "discovery_index": {"type": "integer", "minimum": 0},
+          "symbol": {"type": ["string", "null"]},
+          "reason": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "complete_discovery_denominator": {"const": true},
+    "research_only": {"const": true},
+    "strictly_read_only": {"const": true},
+    "contains_account_data": {"const": false},
+    "contains_credentials": {"const": false},
+    "buy_authority_granted": {"const": false},
+    "execution_enabled": {"const": false},
+    "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

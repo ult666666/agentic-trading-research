@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_strategy_artifact_stager.schema.json",
+  "title": "Current-Run Strategy Artifact Stager Health",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "tool", "ok", "target_session_date", "post_close_run_id",
+    "generated_utc", "status", "staging_attempted", "grid_health_file_sha256",
+    "factory_health_file_sha256", "grid_status", "factory_status", "bundle_path",
+    "bundle_sha256", "package_path", "export_receipt_sha256",
+    "candidate_result_sha256", "benchmark_result_sha256", "reasons", "blockers",
+    "health_sha256", "actionable", "record_type", "excluded_from_performance",
+    "excluded_from_win_rate", "excluded_from_expectancy",
+    "excluded_from_official_replay_outcomes", "diagnostic_only", "feeds_production",
+    "note", "activation_authority", "strategy_change_allowed", "execution_enabled",
+    "executed_trade_performance", "feeds_research_factory",
+    "promotion_gate_change_allowed", "profitability_claim_allowed",
+    "automatic_promotion_allowed", "broker_access", "broker_tool_invoked",
+    "model_invoked", "account_data_allowed", "order_data_allowed", "network_allowed",
+    "actual_order_simulation", "registry_mutated", "performance_evaluated",
+    "profitability_status"
+  ],
+  "properties": {
+    "schema": {"const": "quant_strategy_artifact_stager/1.0"},
+    "tool": {"const": "quant.strategy_artifact_stager"},
+    "ok": {"const": true},
+    "target_session_date": {"type": "string", "format": "date"},
+    "post_close_run_id": {"type": "string", "pattern": "^postclose-[0-9]{8}T[0-9]{6}Z-[0-9a-f]{12}$"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["not_candidate", "staged", "verified_existing", "blocked"]},
+    "staging_attempted": {"type": "boolean"},
+    "grid_health_file_sha256": {"$ref": "#/$defs/nullableSha"},
+    "factory_health_file_sha256": {"$ref": "#/$defs/nullableSha"},
+    "grid_status": {"type": ["string", "null"], "minLength": 1},
+    "factory_status": {"type": ["string", "null"], "minLength": 1},
+    "bundle_path": {"type": ["string", "null"], "minLength": 1},
+    "bundle_sha256": {"$ref": "#/$defs/nullableSha"},
+    "package_path": {"type": ["string", "null"], "minLength": 1},
+    "export_receipt_sha256": {"$ref": "#/$defs/nullableSha"},
+    "candidate_result_sha256": {"$ref": "#/$defs/nullableSha"},
+    "benchmark_result_sha256": {"$ref": "#/$defs/nullableSha"},
+    "reasons": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "blockers": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "health_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "actionable": {"const": false},
+    "record_type": {"const": "non_actionable_diagnostic"},
+    "excluded_from_performance": {"const": true},
+    "excluded_from_win_rate": {"const": true},
+    "excluded_from_expectancy": {"const": true},
+    "excluded_from_official_replay_outcomes": {"const": true},
+    "diagnostic_only": {"const": true},
+    "feeds_production": {"const": false},
+    "note": {"const": "Offline quant research lab diagnostic. NOT a proposed Buy; NEVER feeds production scoring/gates; excluded from all performance metrics."},
+    "activation_authority": {"const": false},
+    "strategy_change_allowed": {"const": false},
+    "execution_enabled": {"const": false},
+    "executed_trade_performance": {"const": false},
+    "feeds_research_factory": {"const": false},
+    "promotion_gate_change_allowed": {"const": false},
+    "profitability_claim_allowed": {"const": false},
+    "automatic_promotion_allowed": {"const": false},
+    "broker_access": {"const": "none"},
+    "broker_tool_invoked": {"const": false},
+    "model_invoked": {"const": false},
+    "account_data_allowed": {"const": false},
+    "order_data_allowed": {"const": false},
+    "network_allowed": {"const": false},
+    "actual_order_simulation": {"const": false},
+    "registry_mutated": {"const": false},
+    "performance_evaluated": {"const": false},
+    "profitability_status": {"const": "not_established"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "not_candidate"}}},
+      "then": {
+        "properties": {
+          "staging_attempted": {"const": false},
+          "package_path": {"const": null},
+          "export_receipt_sha256": {"const": null},
+          "candidate_result_sha256": {"const": null},
+          "benchmark_result_sha256": {"const": null},
+          "reasons": {"minItems": 1},
+          "blockers": {"const": []}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "blocked"}}},
+      "then": {"properties": {"blockers": {"minItems": 1}}}
+    },
+    {
+      "if": {"properties": {"status": {"enum": ["staged", "verified_existing"]}}},
+      "then": {
+        "properties": {
+          "staging_attempted": {"const": true},
+          "factory_status": {"const": "candidate_for_category_D_governance_review"},
+          "grid_health_file_sha256": {"$ref": "#/$defs/sha"},
+          "factory_health_file_sha256": {"$ref": "#/$defs/sha"},
+          "bundle_path": {"type": "string", "minLength": 1},
+          "bundle_sha256": {"$ref": "#/$defs/sha"},
+          "package_path": {"type": "string", "minLength": 1},
+          "export_receipt_sha256": {"$ref": "#/$defs/sha"},
+          "candidate_result_sha256": {"$ref": "#/$defs/sha"},
+          "benchmark_result_sha256": {"$ref": "#/$defs/sha"},
+          "reasons": {"const": []},
+          "blockers": {"const": []}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "nullableSha": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}
+  }
+}

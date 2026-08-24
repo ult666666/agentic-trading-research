@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "autonomy_service_alert_policy.schema.json",
+  "title": "Autonomy service watchdog alert policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "checkpoints_pt",
+    "state_path",
+    "receipt_path",
+    "alert_on_missed_slo",
+    "alert_on_invalid_slo",
+    "alert_on_scheduler_config_issue",
+    "notify_on_recovery",
+    "repeat_unchanged_alerts",
+    "safety"
+  ],
+  "properties": {
+    "schema": {"const": "autonomy_service_alert_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "checkpoints_pt": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["workflow", "time_pt"],
+        "properties": {
+          "workflow": {
+            "enum": ["intake", "macro_refresh", "morning", "post_open", "post_close"]
+          },
+          "time_pt": {
+            "type": "string",
+            "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+          }
+        }
+      }
+    },
+    "state_path": {
+      "const": "data/runtime/health/autonomy_service_alert_state.json"
+    },
+    "receipt_path": {
+      "const": "data/runtime/health/autonomy_service_alert.json"
+    },
+    "alert_on_missed_slo": {"const": true},
+    "alert_on_invalid_slo": {"const": true},
+    "alert_on_scheduler_config_issue": {"const": true},
+    "notify_on_recovery": {"const": true},
+    "repeat_unchanged_alerts": {"const": false},
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "diagnostic_only",
+        "health_data_read_only",
+        "local_state_write_only",
+        "external_notification_enabled",
+        "retry_authority",
+        "schedule_change_allowed",
+        "report_change_allowed",
+        "strategy_change_allowed",
+        "execution_enabled",
+        "model_invoked",
+        "broker_invoked",
+        "contains_account_data",
+        "contains_credentials"
+      ],
+      "properties": {
+        "diagnostic_only": {"const": true},
+        "health_data_read_only": {"const": true},
+        "local_state_write_only": {"const": true},
+        "external_notification_enabled": {"const": false},
+        "retry_authority": {"const": false},
+        "schedule_change_allowed": {"const": false},
+        "report_change_allowed": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "execution_enabled": {"const": false},
+        "model_invoked": {"const": false},
+        "broker_invoked": {"const": false},
+        "contains_account_data": {"const": false},
+        "contains_credentials": {"const": false}
+      }
+    }
+  }
+}

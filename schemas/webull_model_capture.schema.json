@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "webull_model_capture.schema.json",
+  "title": "Ephemeral privacy-filtered Webull model capture",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "target_session_date",
+    "account_list_status",
+    "collection_warning_codes",
+    "accounts_discovered",
+    "account_scan_truncated",
+    "accounts",
+    "source_tool_names",
+    "no_order_or_mutation_invoked",
+    "raw_payload_persisted",
+    "contains_account_identifiers",
+    "contains_credentials"
+  ],
+  "properties": {
+    "schema": {"type": "string", "const": "webull_model_capture/1.0"},
+    "target_session_date": {"type": "string", "format": "date"},
+    "account_list_status": {"type": "string", "enum": ["success", "unavailable"]},
+    "collection_warning_codes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "account_list_unavailable",
+          "oauth_authorization_required",
+          "connector_tool_unavailable"
+        ]
+      }
+    },
+    "accounts_discovered": {"type": "integer", "minimum": 0},
+    "account_scan_truncated": {"type": "boolean"},
+    "accounts": {
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "account_index",
+          "access_status",
+          "account_type",
+          "currency",
+          "equity_usd",
+          "cash_usd",
+          "buying_power_usd",
+          "market_value_usd",
+          "open_orders_checked",
+          "open_orders_source",
+          "open_order_count",
+          "positions",
+          "omitted_positions_count",
+          "warning_codes"
+        ],
+        "properties": {
+          "account_index": {"type": "integer", "minimum": 1, "maximum": 8},
+          "access_status": {"type": "string", "enum": ["accessible", "partial", "unavailable"]},
+          "account_type": {"type": "string", "enum": ["cash", "margin", "ira", "unknown"]},
+          "currency": {"type": "string", "const": "USD"},
+          "equity_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+          "cash_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+          "buying_power_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+          "market_value_usd": {"$ref": "#/$defs/nullable_nonnegative"},
+          "open_orders_checked": {"type": "boolean"},
+          "open_orders_source": {
+            "type": "string",
+            "enum": ["open_orders_endpoint", "order_history_100d_fallback", "unavailable"]
+          },
+          "open_order_count": {
+            "type": ["integer", "null"],
+            "minimum": 0
+          },
+          "positions": {
+            "type": "array",
+            "maxItems": 500,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["symbol", "instrument_type", "quantity", "market_value_usd"],
+              "properties": {
+                "symbol": {"type": "string", "pattern": "^[A-Z][A-Z0-9.\\-]{0,9}$"},
+                "instrument_type": {"type": "string", "enum": ["EQUITY", "ETF"]},
+                "quantity": {"type": "number", "exclusiveMinimum": 0},
+                "market_value_usd": {"type": "number", "minimum": 0}
+              }
+            }
+          },
+          "omitted_positions_count": {"type": "integer", "minimum": 0},
+          "warning_codes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "balance_unavailable",
+                "positions_unavailable",
+                "open_orders_unavailable",
+                "open_orders_permission_denied",
+                "open_orders_rate_limited",
+                "open_orders_tool_error",
+                "open_orders_malformed_response",
+                "open_orders_pagination_incomplete",
+                "unsupported_instrument_omitted",
+                "short_or_nonpositive_position_omitted",
+                "unsupported_negative_balance",
+                "currency_not_usd",
+                "malformed_numeric_value",
+                "cash_zero_lower_bound",
+                "equity_market_value_lower_bound",
+                "account_permission_denied"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "source_tool_names": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "string",
+        "enum": [
+          "mcp__webull__get_account_list",
+          "mcp__webull__get_account_balance",
+          "mcp__webull__get_account_positions",
+          "mcp__webull__get_open_orders",
+          "mcp__webull__get_order_history"
+        ]
+      }
+    },
+    "no_order_or_mutation_invoked": {"type": "boolean", "const": true},
+    "raw_payload_persisted": {"type": "boolean", "const": false},
+    "contains_account_identifiers": {"type": "boolean", "const": false},
+    "contains_credentials": {"type": "boolean", "const": false}
+  },
+  "$defs": {
+    "nullable_nonnegative": {
+      "type": ["number", "null"],
+      "minimum": 0
+    }
+  }
+}

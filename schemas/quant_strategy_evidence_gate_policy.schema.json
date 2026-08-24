@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_strategy_evidence_gate_policy.schema.json",
+  "title": "Quant Strategy Evidence Gate Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "objective",
+    "strongest_terminal",
+    "allowed_input_roots",
+    "required_stager_statuses",
+    "required_factory_status",
+    "required_factory_gate_codes",
+    "minimum_cost_stress_multiplier",
+    "required_uniqueness_classification",
+    "required_inference_status",
+    "minimum_inference_daily_observations",
+    "minimum_effective_observations",
+    "minimum_effective_observation_fraction",
+    "minimum_hac_lower_confidence_bound",
+    "minimum_bootstrap_lower_confidence_bound",
+    "required_spa_status",
+    "require_spa_family_complete",
+    "require_spa_robust_across_configured_block_lengths",
+    "require_candidate_best_sample_model_in_every_configuration",
+    "minimum_candidate_spa_mean_return_differential",
+    "require_exact_candidate_hash_binding",
+    "require_exact_benchmark_hash_binding",
+    "require_current_run_factory_file_binding",
+    "require_revalidated_staged_package",
+    "classification_order",
+    "safety"
+  ],
+  "properties": {
+    "schema": {"const": "quant_strategy_evidence_gate_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "objective": {"type": "string", "minLength": 1},
+    "strongest_terminal": {"const": "eligible_for_shadow_observation_review"},
+    "allowed_input_roots": {
+      "const": [
+        "data/runtime/experiments",
+        "data/runtime/health",
+        "data/runtime/quant"
+      ]
+    },
+    "required_stager_statuses": {"const": ["staged", "verified_existing"]},
+    "required_factory_status": {"const": "candidate_for_category_D_governance_review"},
+    "required_factory_gate_codes": {
+      "type": "array",
+      "minItems": 13,
+      "maxItems": 13,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "minimum_cost_stress_multiplier": {"type": "number", "minimum": 2},
+    "required_uniqueness_classification": {"const": "incremental_alpha_review_candidate"},
+    "required_inference_status": {"const": "reviewable"},
+    "minimum_inference_daily_observations": {"type": "integer", "minimum": 60},
+    "minimum_effective_observations": {"type": "integer", "minimum": 30},
+    "minimum_effective_observation_fraction": {"type": "number", "minimum": 0.25, "maximum": 1},
+    "minimum_hac_lower_confidence_bound": {"type": "number", "minimum": 0},
+    "minimum_bootstrap_lower_confidence_bound": {"type": "number", "minimum": 0},
+    "required_spa_status": {"const": "reviewable"},
+    "require_spa_family_complete": {"const": true},
+    "require_spa_robust_across_configured_block_lengths": {"const": true},
+    "require_candidate_best_sample_model_in_every_configuration": {"const": true},
+    "minimum_candidate_spa_mean_return_differential": {"type": "number", "minimum": 0},
+    "require_exact_candidate_hash_binding": {"const": true},
+    "require_exact_benchmark_hash_binding": {"const": true},
+    "require_current_run_factory_file_binding": {"const": true},
+    "require_revalidated_staged_package": {"const": true},
+    "classification_order": {
+      "const": [
+        "blocked",
+        "not_eligible",
+        "eligible_for_shadow_observation_review"
+      ]
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "research_only",
+        "diagnostic_only",
+        "execution_enabled",
+        "activation_authority",
+        "strategy_change_allowed",
+        "feeds_production",
+        "profitability_claim_allowed",
+        "automatic_promotion_allowed",
+        "shadow_observation_start_allowed",
+        "registry_mutation_allowed",
+        "broker_access",
+        "account_data_allowed",
+        "order_data_allowed",
+        "network_allowed",
+        "model_invoked"
+      ],
+      "properties": {
+        "research_only": {"const": true},
+        "diagnostic_only": {"const": true},
+        "execution_enabled": {"const": false},
+        "activation_authority": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "feeds_production": {"const": false},
+        "profitability_claim_allowed": {"const": false},
+        "automatic_promotion_allowed": {"const": false},
+        "shadow_observation_start_allowed": {"const": false},
+        "registry_mutation_allowed": {"const": false},
+        "broker_access": {"const": "none"},
+        "account_data_allowed": {"const": false},
+        "order_data_allowed": {"const": false},
+        "network_allowed": {"const": false},
+        "model_invoked": {"const": false}
+      }
+    }
+  }
+}

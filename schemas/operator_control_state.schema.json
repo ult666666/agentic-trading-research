@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://charles.local/schemas/operator_control_state.schema.json",
+  "title": "Operator Control State",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "generated_utc", "session_token", "busy", "active", "catalog",
+    "history", "instructions", "safety"
+  ],
+  "properties": {
+    "schema": {"const": "operator_control_state/1.0"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "session_token": {
+      "type": "string", "minLength": 32, "maxLength": 128,
+      "pattern": "^[A-Za-z0-9_-]+$"
+    },
+    "busy": {"type": "boolean"},
+    "active": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object", "additionalProperties": false,
+          "required": [
+            "command_id", "action_id", "label", "status", "requested_utc",
+            "current_step", "completed_steps", "step_count"
+          ],
+          "properties": {
+            "command_id": {"type": "string", "pattern": "^[0-9a-f]{24}$"},
+            "action_id": {
+              "enum": [
+                "broker_boundary_audit", "console_contract_audit", "full_offline_audit",
+                "model_governance_audit", "readiness_contract_audit", "system_integrity_audit"
+              ]
+            },
+            "label": {"type": "string", "minLength": 1, "maxLength": 64},
+            "status": {"enum": ["queued", "running"]},
+            "requested_utc": {"type": "string", "format": "date-time"},
+            "current_step": {
+              "type": ["string", "null"], "pattern": "^[a-z][a-z0-9_]{0,47}$"
+            },
+            "completed_steps": {"type": "integer", "minimum": 0, "maximum": 6},
+            "step_count": {"type": "integer", "minimum": 1, "maximum": 6}
+          }
+        }
+      ]
+    },
+    "catalog": {
+      "type": "array", "minItems": 6, "maxItems": 6,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": [
+          "id", "label", "description", "icon", "estimated_seconds", "step_count",
+          "external_network", "model_invocation", "broker_invocation", "financial_execution"
+        ],
+        "properties": {
+          "id": {
+            "enum": [
+              "broker_boundary_audit", "console_contract_audit", "full_offline_audit",
+              "model_governance_audit", "readiness_contract_audit", "system_integrity_audit"
+            ]
+          },
+          "label": {"type": "string", "minLength": 1, "maxLength": 64},
+          "description": {"type": "string", "minLength": 1, "maxLength": 180},
+          "icon": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9]{0,47}$"},
+          "estimated_seconds": {"type": "integer", "minimum": 1, "maximum": 120},
+          "step_count": {"type": "integer", "minimum": 1, "maximum": 6},
+          "external_network": {"const": false},
+          "model_invocation": {"const": false},
+          "broker_invocation": {"const": false},
+          "financial_execution": {"const": false}
+        }
+      }
+    },
+    "history": {
+      "type": "array", "maxItems": 20,
+      "items": {"$ref": "operator_command_receipt.schema.json"}
+    },
+    "instructions": {
+      "type": "array", "maxItems": 20,
+      "items": {"$ref": "operator_instruction.schema.json"}
+    },
+    "safety": {"$ref": "operator_control_policy.schema.json#/properties/safety"}
+  }
+}

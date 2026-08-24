@@ -1,0 +1,71 @@
+--- a/scripts/operator_console.py
++++ b/scripts/operator_console.py
+@@ -1040,27 +1040,62 @@
+ 
+ 
+ class SnapshotCache:
++    """Last-good snapshot cache: rebuilds never block readers that already have a value.
++
++    The state lock guards fields only; a separate build lock serializes builders, so a
++    poll arriving during an in-flight rebuild is served the last-good snapshot instead of
++    queueing behind up to ~80s of diagnostics (hardening #5, 2026-07-17). Forced refreshes
++    still wait for a fresh build, the very first build blocks every caller, and builder
++    exceptions propagate unchanged (fail-closed 503 upstream).
++    """
++
+     def __init__(self, builder: Callable[[], dict], *, ttl: int,
+                  minimum_forced_refresh: int):
+         self.builder = builder
+         self.ttl = ttl
+         self.minimum_forced_refresh = minimum_forced_refresh
+         self._lock = threading.Lock()
++        self._build_lock = threading.Lock()
+         self._value: dict | None = None
+         self._built_monotonic = 0.0
+         self._forced_monotonic = 0.0
+ 
++    def _cached_copy(self, now: float, force: bool) -> dict | None:
++        can_force = force and now - self._forced_monotonic >= self.minimum_forced_refresh
++        stale = self._value is None or now - self._built_monotonic >= self.ttl
++        if self._value is not None and not stale and not can_force:
++            return dict(self._value)
++        return None
++
+     def get(self, force: bool = False) -> dict:
++        now = time.monotonic()
+         with self._lock:
+-            now = time.monotonic()
+-            can_force = force and now - self._forced_monotonic >= self.minimum_forced_refresh
+-            stale = self._value is None or now - self._built_monotonic >= self.ttl
+-            if stale or can_force:
+-                self._value = self.builder()
++            cached = self._cached_copy(now, force)
++            if cached is not None:
++                return cached
++            has_last_good = self._value is not None
++        if has_last_good:
++            if not self._build_lock.acquire(blocking=force):
++                # A rebuild is already in flight; serve the last-good snapshot.
++                with self._lock:
++                    return dict(self._value)
++        else:
++            self._build_lock.acquire()
++        try:
++            with self._lock:
++                # A build that finished while we waited satisfies this call.
++                cached = self._cached_copy(now, force)
++                if cached is not None:
++                    return cached
++            value = self.builder()
++            with self._lock:
++                self._value = value
+                 self._built_monotonic = now
+                 if force:
+                     self._forced_monotonic = now
+-            return dict(self._value)
++                return dict(value)
++        finally:
++            self._build_lock.release()
+ 
+ 
+ def _host_allowed(value: str | None) -> bool:

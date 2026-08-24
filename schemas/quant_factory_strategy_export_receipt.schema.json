@@ -1,0 +1,254 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_factory_strategy_export_receipt.schema.json",
+  "title": "Factory Strategy Export Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "account_data_allowed", "actionable", "activation_authority",
+    "actual_order_simulation", "automatic_promotion_allowed", "blockers",
+    "broker_access", "broker_tool_invoked", "bundle_id", "bundle_sha256",
+    "diagnostic_only", "excluded_from_expectancy",
+    "excluded_from_official_replay_outcomes", "excluded_from_performance",
+    "excluded_from_win_rate", "executed_trade_performance", "execution_enabled",
+    "experiment_id", "exported_artifacts", "feeds_production",
+    "feeds_research_factory", "model_invoked", "network_allowed", "note", "ok",
+    "order_data_allowed", "performance_evaluated", "preregistration",
+    "profitability_claim_allowed", "profitability_status",
+    "promotion_gate_change_allowed", "receipt_sha256", "record_type",
+    "registry_mutated", "schema", "source_artifacts", "status",
+    "strategy_change_allowed", "tool"
+  ],
+  "properties": {
+    "schema": {"const": "quant_factory_strategy_export_receipt/1.0"},
+    "tool": {"const": "quant.strategy_artifacts"},
+    "ok": {"const": true},
+    "bundle_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+    },
+    "bundle_sha256": {"$ref": "#/$defs/sha256"},
+    "experiment_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+    },
+    "status": {
+      "enum": [
+        "blocked_missing_preregistered_portfolio_export_contract",
+        "blocked_invalid_preregistered_portfolio_export_contract",
+        "ready",
+        "exported"
+      ]
+    },
+    "blockers": {
+      "type": "array",
+      "maxItems": 256,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 500}
+    },
+    "preregistration": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "#/$defs/preregistration"}
+      ]
+    },
+    "source_artifacts": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "#/$defs/sourceArtifacts"}
+      ]
+    },
+    "exported_artifacts": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "#/$defs/exportedArtifacts"}
+      ]
+    },
+    "registry_mutated": {"const": false},
+    "performance_evaluated": {"const": false},
+    "profitability_status": {"const": "not_established"},
+    "receipt_sha256": {"$ref": "#/$defs/sha256"},
+    "actionable": {"const": false},
+    "record_type": {"const": "non_actionable_diagnostic"},
+    "excluded_from_performance": {"const": true},
+    "excluded_from_win_rate": {"const": true},
+    "excluded_from_expectancy": {"const": true},
+    "excluded_from_official_replay_outcomes": {"const": true},
+    "diagnostic_only": {"const": true},
+    "feeds_production": {"const": false},
+    "note": {
+      "const": "Offline quant research lab diagnostic. NOT a proposed Buy; NEVER feeds production scoring/gates; excluded from all performance metrics."
+    },
+    "activation_authority": {"const": false},
+    "strategy_change_allowed": {"const": false},
+    "execution_enabled": {"const": false},
+    "executed_trade_performance": {"const": false},
+    "feeds_research_factory": {"const": false},
+    "promotion_gate_change_allowed": {"const": false},
+    "profitability_claim_allowed": {"const": false},
+    "automatic_promotion_allowed": {"const": false},
+    "broker_access": {"const": "none"},
+    "broker_tool_invoked": {"const": false},
+    "model_invoked": {"const": false},
+    "account_data_allowed": {"const": false},
+    "order_data_allowed": {"const": false},
+    "network_allowed": {"const": false},
+    "actual_order_simulation": {"const": false}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "blocked_missing_preregistered_portfolio_export_contract"
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "blockers": {"minItems": 1},
+          "preregistration": {"type": "null"},
+          "source_artifacts": {"type": "null"},
+          "exported_artifacts": {"type": "null"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "blocked_invalid_preregistered_portfolio_export_contract"
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "blockers": {"minItems": 1},
+          "exported_artifacts": {"type": "null"}
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "preregistration": {"type": "null"},
+              "source_artifacts": {"type": "null"}
+            }
+          },
+          {
+            "properties": {
+              "preregistration": {"$ref": "#/$defs/preregistration"},
+              "source_artifacts": {"$ref": "#/$defs/sourceArtifacts"}
+            }
+          }
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {"status": {"const": "ready"}},
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "blockers": {"maxItems": 0},
+          "preregistration": {"$ref": "#/$defs/preregistrationReady"},
+          "source_artifacts": {"$ref": "#/$defs/sourceArtifacts"},
+          "exported_artifacts": {"type": "null"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"status": {"const": "exported"}},
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "blockers": {"maxItems": 0},
+          "preregistration": {"$ref": "#/$defs/preregistrationReady"},
+          "source_artifacts": {"$ref": "#/$defs/sourceArtifacts"},
+          "exported_artifacts": {"$ref": "#/$defs/exportedArtifacts"}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "artifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1, "maxLength": 500},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "exportedRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "result_sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1, "maxLength": 500},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "result_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "preregistration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract", "contract_sha256", "specified_at_utc",
+        "holdout_locked_at_utc", "locked_before_or_at_holdout",
+        "contract_manifest_bound", "all_inputs_manifest_bound"
+      ],
+      "properties": {
+        "contract": {"$ref": "#/$defs/artifactRef"},
+        "contract_sha256": {"$ref": "#/$defs/sha256"},
+        "specified_at_utc": {"type": "string", "format": "date-time"},
+        "holdout_locked_at_utc": {"type": "string", "format": "date-time"},
+        "locked_before_or_at_holdout": {"type": "boolean"},
+        "contract_manifest_bound": {"type": "boolean"},
+        "all_inputs_manifest_bound": {"type": "boolean"}
+      }
+    },
+    "preregistrationReady": {
+      "allOf": [
+        {"$ref": "#/$defs/preregistration"},
+        {
+          "properties": {
+            "locked_before_or_at_holdout": {"const": true},
+            "contract_manifest_bound": {"const": true},
+            "all_inputs_manifest_bound": {"const": true}
+          }
+        }
+      ]
+    },
+    "sourceArtifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_portfolio", "source_backtest", "benchmark_adjusted_view",
+        "cost_stress_multiplier"
+      ],
+      "properties": {
+        "candidate_portfolio": {"$ref": "#/$defs/artifactRef"},
+        "source_backtest": {"$ref": "#/$defs/artifactRef"},
+        "benchmark_adjusted_view": {"$ref": "#/$defs/artifactRef"},
+        "cost_stress_multiplier": {"type": "number", "minimum": 1}
+      }
+    },
+    "exportedArtifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidate_portfolio", "benchmark_reference"],
+      "properties": {
+        "candidate_portfolio": {"$ref": "#/$defs/exportedRef"},
+        "benchmark_reference": {"$ref": "#/$defs/exportedRef"}
+      }
+    }
+  }
+}

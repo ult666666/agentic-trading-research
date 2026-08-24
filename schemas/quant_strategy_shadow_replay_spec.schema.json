@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_strategy_shadow_replay_spec.schema.json",
+  "description": "Caller-declared replay specification. created_at_utc is canonical metadata, not a trusted-clock receipt and not proof that the run is prospective or non-backfilled. expected_run_denominator is a caller-frozen self-commitment, not plan or approval proof.",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema", "tool", "algorithm_version", "created_at_utc", "start_session_date", "plan_id", "plan_sha256", "strategy_id", "role", "strategy_mode", "program", "variant_parameters", "simulation_assumptions", "allocation", "decision_rules", "eligibility_rules", "simulation_semantics", "policy_contracts", "historical_anchors", "expected_run_denominator", "supported_instruments", "safety_constants", "replay_spec_sha256"],
+  "properties": {
+    "schema": {"const": "quant_strategy_shadow_replay_spec/1.0"},
+    "tool": {"const": "quant.strategy_shadow_forward"},
+    "algorithm_version": {"const": "catalyst_continuation_shadow_forward/1.0.0"},
+    "created_at_utc": {"$ref": "#/$defs/utc"},
+    "start_session_date": {"$ref": "#/$defs/date"},
+    "plan_id": {"$ref": "#/$defs/id"}, "plan_sha256": {"$ref": "#/$defs/sha"},
+    "strategy_id": {"$ref": "#/$defs/id"}, "role": {"enum": ["candidate", "benchmark", "incumbent"]},
+    "strategy_mode": {"enum": ["catalyst_event_signals", "continuous_spy_reference"]},
+    "program": {"$ref": "#/$defs/program"},
+    "variant_parameters": {"$ref": "#/$defs/parameters"},
+    "simulation_assumptions": {"$ref": "#/$defs/assumptions"},
+    "allocation": {"$ref": "#/$defs/allocation"},
+    "decision_rules": {"$ref": "#/$defs/decisionRules"},
+    "eligibility_rules": {"$ref": "#/$defs/eligibilityRules"},
+    "simulation_semantics": {"$ref": "#/$defs/semantics"},
+    "policy_contracts": {
+      "type": "object", "additionalProperties": false,
+      "required": ["allocation_policy", "cost_policy", "portfolio_policy", "calendar_policy"],
+      "properties": {"allocation_policy": {"$ref": "#/$defs/policyRef"}, "cost_policy": {"$ref": "#/$defs/policyRef"}, "portfolio_policy": {"$ref": "#/$defs/policyRef"}, "calendar_policy": {"$ref": "#/$defs/policyRef"}}
+    },
+    "historical_anchors": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_backtest_plan_sha256", "portfolio_plan_sha256", "historical_result_sha256", "historical_strategy_contract_sha256"],
+      "properties": {"source_backtest_plan_sha256": {"$ref": "#/$defs/sha"}, "portfolio_plan_sha256": {"$ref": "#/$defs/sha"}, "historical_result_sha256": {"$ref": "#/$defs/sha"}, "historical_strategy_contract_sha256": {"$ref": "#/$defs/sha"}}
+    },
+    "expected_run_denominator": {"$ref": "#/$defs/expectedRunDenominator"},
+    "supported_instruments": {"const": ["common_stock", "unleveraged_etf"]},
+    "safety_constants": {"$ref": "#/$defs/safety"},
+    "replay_spec_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "allOf": [
+    {"if": {"properties": {"role": {"const": "benchmark"}}}, "then": {"properties": {"strategy_mode": {"const": "continuous_spy_reference"}}}, "else": {"properties": {"strategy_mode": {"const": "catalyst_event_signals"}}}}
+  ],
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "date": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+    "utc": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},
+    "program": {
+      "type": "object", "additionalProperties": false,
+      "required": ["program_id", "program_version", "decision_clock", "entry_model", "direction", "instrument_types", "variant_parameter_bounds"],
+      "properties": {"program_id": {"const": "catalyst_continuation_baseline_v1"}, "program_version": {"const": "0.2.0"}, "decision_clock": {"const": "prior_close"}, "entry_model": {"const": "next_open"}, "direction": {"const": "long"}, "instrument_types": {"const": ["common_stock", "unleveraged_etf"]}, "variant_parameter_bounds": {"type": "object", "additionalProperties": false, "required": ["max_entry_gap_atr", "stop_atr", "target_r_multiple", "max_hold_sessions"], "properties": {"max_entry_gap_atr": {"$ref": "#/$defs/floatBound"}, "stop_atr": {"$ref": "#/$defs/floatBound"}, "target_r_multiple": {"$ref": "#/$defs/floatBound"}, "max_hold_sessions": {"$ref": "#/$defs/intBound"}}}}
+    },
+    "floatBound": {"type": "object", "additionalProperties": false, "required": ["minimum_exclusive", "maximum_inclusive"], "properties": {"minimum_exclusive": {"type": "number"}, "maximum_inclusive": {"type": "number"}}},
+    "intBound": {"type": "object", "additionalProperties": false, "required": ["minimum_inclusive", "maximum_inclusive"], "properties": {"minimum_inclusive": {"type": "integer"}, "maximum_inclusive": {"type": "integer"}}},
+    "parameters": {"type": "object", "additionalProperties": false, "required": ["max_entry_gap_atr", "stop_atr", "target_r_multiple", "max_hold_sessions"], "properties": {"max_entry_gap_atr": {"type": "number", "exclusiveMinimum": 0, "maximum": 5}, "stop_atr": {"type": "number", "exclusiveMinimum": 0, "maximum": 10}, "target_r_multiple": {"type": "number", "exclusiveMinimum": 0, "maximum": 20}, "max_hold_sessions": {"type": "integer", "minimum": 1, "maximum": 10}}},
+    "assumptions": {"type": "object", "additionalProperties": false, "required": ["entry_slippage_bps", "exit_slippage_bps", "stop_slippage_bps", "transaction_cost_bps_per_side", "cost_stress_multiplier"], "properties": {"entry_slippage_bps": {"type": "number", "minimum": 0, "maximum": 500}, "exit_slippage_bps": {"type": "number", "minimum": 0, "maximum": 500}, "stop_slippage_bps": {"type": "number", "minimum": 0, "maximum": 500}, "transaction_cost_bps_per_side": {"description": "Frozen post-stress per-side floor. It must be at least cost-policy minimum times cost_stress_multiplier.", "type": "number", "minimum": 0, "maximum": 500}, "cost_stress_multiplier": {"type": "number", "minimum": 1}}},
+    "expectedRunDenominator": {"type": "object", "additionalProperties": false, "required": ["schema", "plan_id", "plan_sha256", "candidate_strategy_id", "benchmark_strategy_id", "incumbent_strategy_ids", "expected_strategy_ids", "expected_count", "commitment_sha256"], "properties": {"schema": {"const": "quant_strategy_shadow_expected_run_denominator/1.0"}, "plan_id": {"$ref": "#/$defs/id"}, "plan_sha256": {"$ref": "#/$defs/sha"}, "candidate_strategy_id": {"$ref": "#/$defs/id"}, "benchmark_strategy_id": {"$ref": "#/$defs/id"}, "incumbent_strategy_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}, "expected_strategy_ids": {"type": "array", "minItems": 3, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}, "expected_count": {"type": "integer", "minimum": 3}, "commitment_sha256": {"$ref": "#/$defs/sha"}}},
+    "allocation": {"type": "object", "additionalProperties": false, "required": ["requested_weight", "benchmark_weight", "assumed_fraction_of_adv"], "properties": {"requested_weight": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}, "benchmark_weight": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}, "assumed_fraction_of_adv": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.01}}},
+    "decisionRules": {"type": "object", "additionalProperties": false, "required": ["signal_source", "signal_session_rule", "level_rule", "max_entry_rule", "one_decision_per_source_row", "caller_scalar_return_allowed"], "properties": {"signal_source": {"const": "validated_exact_immutable_quant_session_feature_package_only"}, "signal_session_rule": {"type": "string"}, "level_rule": {"type": "string"}, "max_entry_rule": {"type": "string"}, "one_decision_per_source_row": {"const": true}, "caller_scalar_return_allowed": {"const": false}}},
+    "eligibilityRules": {"type": "object", "additionalProperties": false, "required": ["feature_row_must_be_eligible", "feature_exclusion_reasons_must_be_empty", "instrument_must_be_supported", "prior_close_and_atr_14_must_be_positive", "missing_or_conflicting_session_input"], "properties": {"feature_row_must_be_eligible": {"const": true}, "feature_exclusion_reasons_must_be_empty": {"const": true}, "instrument_must_be_supported": {"const": true}, "prior_close_and_atr_14_must_be_positive": {"const": true}, "missing_or_conflicting_session_input": {"const": "unavailable_never_zero_signal"}}},
+    "semantics": {"type": "object", "additionalProperties": false, "required": ["long_only", "leverage_allowed", "shorting_allowed", "entry_cost_once", "exit_cost_once", "same_bar_stop_target_rule", "gap_through_stop_rule", "target_rule", "time_exit_rule", "mark_rule", "benchmark_rule", "unavailable_state_rule"], "properties": {"long_only": {"const": true}, "leverage_allowed": {"const": false}, "shorting_allowed": {"const": false}, "entry_cost_once": {"const": true}, "exit_cost_once": {"const": true}, "same_bar_stop_target_rule": {"const": "stop_first"}, "gap_through_stop_rule": {"type": "string"}, "target_rule": {"type": "string"}, "time_exit_rule": {"type": "string"}, "mark_rule": {"const": "session_close"}, "benchmark_rule": {"type": "string"}, "unavailable_state_rule": {"type": "string"}}},
+    "policyRef": {"type": "object", "additionalProperties": false, "required": ["name", "path", "schema", "version", "file_sha256", "semantic_sha256"], "properties": {"name": {"enum": ["allocation_policy", "cost_policy", "portfolio_policy", "calendar_policy"]}, "path": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"}, "schema": {"type": "string", "minLength": 1}, "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"}, "file_sha256": {"$ref": "#/$defs/sha"}, "semantic_sha256": {"$ref": "#/$defs/sha"}}},
+    "safety": {"type": "object", "additionalProperties": false, "required": ["research_only", "diagnostic_only", "execution_enabled", "activation_authority", "strategy_change_allowed", "feeds_production", "feeds_buy_gate", "feeds_freeze_gate", "feeds_risk_gate", "profitability_claim_allowed", "broker_access", "broker_tool_invoked", "account_data_allowed", "order_data_allowed", "actual_orders_count", "network_invoked", "model_invoked"], "properties": {"research_only": {"const": true}, "diagnostic_only": {"const": true}, "execution_enabled": {"const": false}, "activation_authority": {"const": false}, "strategy_change_allowed": {"const": false}, "feeds_production": {"const": false}, "feeds_buy_gate": {"const": false}, "feeds_freeze_gate": {"const": false}, "feeds_risk_gate": {"const": false}, "profitability_claim_allowed": {"const": false}, "broker_access": {"const": "none"}, "broker_tool_invoked": {"const": false}, "account_data_allowed": {"const": false}, "order_data_allowed": {"const": false}, "actual_orders_count": {"const": 0}, "network_invoked": {"const": false}, "model_invoked": {"const": false}}}
+  }
+}

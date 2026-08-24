@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_factory_portfolio_export_contract.schema.json",
+  "title": "Preregistered Factory Portfolio Export Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "experiment_id", "program_id", "program_version",
+    "specified_at_utc", "cost_stress_multiplier", "benchmark_symbol",
+    "input_refs", "safety", "contract_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "quant_factory_portfolio_export_contract/1.0"},
+    "version": {"const": "1.0.0"},
+    "experiment_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "program_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "program_version": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "specified_at_utc": {"type": "string", "format": "date-time"},
+    "cost_stress_multiplier": {"type": "number", "minimum": 1},
+    "benchmark_symbol": {"const": "SPY"},
+    "input_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_bars", "source_plans", "portfolio_plan", "cost_policy",
+        "portfolio_policy", "benchmark_adjusted_view"
+      ],
+      "properties": {
+        "source_bars": {"$ref": "#/$defs/ref"},
+        "source_plans": {"$ref": "#/$defs/ref"},
+        "portfolio_plan": {"$ref": "#/$defs/ref"},
+        "cost_policy": {"$ref": "#/$defs/ref"},
+        "portfolio_policy": {"$ref": "#/$defs/ref"},
+        "benchmark_adjusted_view": {"$ref": "#/$defs/ref"}
+      }
+    },
+    "safety": {"$ref": "#/$defs/safety"},
+    "contract_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "research_only", "diagnostic_only", "execution_enabled", "activation_authority",
+        "feeds_production", "feeds_research_factory", "strategy_change_allowed",
+        "promotion_gate_change_allowed", "profitability_claim_allowed",
+        "automatic_promotion_allowed", "broker_access", "broker_tool_invoked",
+        "model_invoked", "account_data_allowed", "order_data_allowed",
+        "network_allowed", "actual_order_simulation"
+      ],
+      "properties": {
+        "research_only": {"const": true},
+        "diagnostic_only": {"const": true},
+        "execution_enabled": {"const": false},
+        "activation_authority": {"const": false},
+        "feeds_production": {"const": false},
+        "feeds_research_factory": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "promotion_gate_change_allowed": {"const": false},
+        "profitability_claim_allowed": {"const": false},
+        "automatic_promotion_allowed": {"const": false},
+        "broker_access": {"const": "none"},
+        "broker_tool_invoked": {"const": false},
+        "model_invoked": {"const": false},
+        "account_data_allowed": {"const": false},
+        "order_data_allowed": {"const": false},
+        "network_allowed": {"const": false},
+        "actual_order_simulation": {"const": false}
+      }
+    }
+  }
+}

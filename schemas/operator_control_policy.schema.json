@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://charles.local/schemas/operator_control_policy.schema.json",
+  "title": "Operator Control Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "runtime_root", "command_timeout_seconds",
+    "maximum_history", "maximum_instructions", "maximum_instruction_chars",
+    "allowed_actions", "safety"
+  ],
+  "properties": {
+    "schema": {"const": "operator_control_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "runtime_root": {"const": "data/runtime/operator_control"},
+    "command_timeout_seconds": {"type": "integer", "minimum": 10, "maximum": 120},
+    "maximum_history": {"type": "integer", "minimum": 5, "maximum": 30},
+    "maximum_instructions": {"type": "integer", "minimum": 5, "maximum": 30},
+    "maximum_instruction_chars": {"type": "integer", "minimum": 100, "maximum": 2000},
+    "allowed_actions": {
+      "const": [
+        "broker_boundary_audit", "console_contract_audit", "full_offline_audit",
+        "model_governance_audit", "readiness_contract_audit", "system_integrity_audit"
+      ]
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "research_only", "local_only", "fixed_actions_only", "arbitrary_shell_allowed",
+        "external_network_allowed", "model_invocation_allowed", "broker_invocation_allowed",
+        "financial_execution_allowed", "strategy_change_allowed", "risk_limit_change_allowed",
+        "credentials_allowed", "account_data_allowed", "local_runtime_writes_only",
+        "automatic_instruction_execution", "execution_enabled"
+      ],
+      "properties": {
+        "research_only": {"const": true},
+        "local_only": {"const": true},
+        "fixed_actions_only": {"const": true},
+        "arbitrary_shell_allowed": {"const": false},
+        "external_network_allowed": {"const": false},
+        "model_invocation_allowed": {"const": false},
+        "broker_invocation_allowed": {"const": false},
+        "financial_execution_allowed": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "risk_limit_change_allowed": {"const": false},
+        "credentials_allowed": {"const": false},
+        "account_data_allowed": {"const": false},
+        "local_runtime_writes_only": {"const": true},
+        "automatic_instruction_execution": {"const": false},
+        "execution_enabled": {"const": false}
+      }
+    }
+  }
+}

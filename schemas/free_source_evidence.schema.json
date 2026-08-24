@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "free_source_evidence.schema.json",
+  "title": "Pre-adjudication free-source evidence references",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "target_session_date", "generated_utc", "claims",
+    "research_only", "execution_enabled", "contains_credentials", "raw_payload_persisted"
+  ],
+  "properties": {
+    "schema": {"const": "free_source_evidence/1.0"},
+    "target_session_date": {"type": "string", "format": "date"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "claims": {
+      "type": "array",
+      "maxItems": 5000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "claim_id", "claim_key", "lane", "source_id", "origin_id",
+          "value_sha256", "record_sha256", "observed_at_utc", "direct_source",
+          "primary_source", "issuer_only", "rumored"
+        ],
+        "properties": {
+          "claim_id": {"type": "string", "minLength": 1, "maxLength": 160},
+          "claim_key": {"type": "string", "minLength": 1, "maxLength": 160},
+          "lane": {"type": "string"},
+          "source_id": {"type": "string"},
+          "origin_id": {"type": "string", "minLength": 1, "maxLength": 192},
+          "value_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "record_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "observed_at_utc": {"type": "string", "format": "date-time"},
+          "direct_source": {"type": "boolean"},
+          "primary_source": {"type": "boolean"},
+          "issuer_only": {"type": "boolean"},
+          "rumored": {"type": "boolean"}
+        }
+      }
+    },
+    "research_only": {"const": true},
+    "execution_enabled": {"const": false},
+    "contains_credentials": {"const": false},
+    "raw_payload_persisted": {"const": false}
+  }
+}

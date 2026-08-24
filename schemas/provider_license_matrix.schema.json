@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "provider_license_matrix.schema.json",
+  "title": "Provider license attestation matrix",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "campaign_id",
+    "generated_utc",
+    "attestations",
+    "production_authority",
+    "execution_enabled",
+    "matrix_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "provider_license_matrix/1.0"},
+    "campaign_id": {"type": "string"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "attestations": {"type": "object"},
+    "production_authority": {"const": false},
+    "execution_enabled": {"const": false},
+    "matrix_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

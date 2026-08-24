@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_strategy_shadow_return_bundle.schema.json",
+  "title": "Quant Strategy Shadow Return Bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "tool", "plan_id", "plan_sha256", "session_date", "generated_at_utc",
+    "data_cutoff_utc", "candidate", "benchmark", "incumbents", "source_results",
+    "derivation_contract", "net_of_modeled_costs", "contains_future_data",
+    "contains_account_data", "actual_orders_count", "bundle_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "quant_strategy_shadow_return_bundle/1.0"},
+    "tool": {"const": "quant.strategy_shadow_monitor"},
+    "plan_id": {"$ref": "#/$defs/id"},
+    "plan_sha256": {"$ref": "#/$defs/sha"},
+    "session_date": {"$ref": "#/$defs/date"},
+    "generated_at_utc": {"$ref": "#/$defs/utc"},
+    "data_cutoff_utc": {"$ref": "#/$defs/utc"},
+    "candidate": {"$ref": "#/$defs/observation"},
+    "benchmark": {"$ref": "#/$defs/observation"},
+    "incumbents": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"$ref": "#/$defs/observation"}},
+    "source_results": {"type": "array", "minItems": 3, "maxItems": 22, "items": {"$ref": "#/$defs/source"}},
+    "derivation_contract": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_schema", "terminal_session_must_match",
+                   "previous_market_session_must_be_present",
+                   "terminal_return_rederived_from_normalized_nav",
+                   "terminal_daily_return_recurrence_must_match",
+                   "strategy_contract_must_match_plan",
+                   "benchmark_semantic_rebuild_required", "caller_supplied_returns_allowed"],
+      "properties": {
+        "source_schema": {"const": "quant_portfolio_backtest/1.0"},
+        "terminal_session_must_match": {"const": true},
+        "previous_market_session_must_be_present": {"const": true},
+        "terminal_return_rederived_from_normalized_nav": {"const": true},
+        "terminal_daily_return_recurrence_must_match": {"const": true},
+        "strategy_contract_must_match_plan": {"const": true},
+        "benchmark_semantic_rebuild_required": {"const": true},
+        "caller_supplied_returns_allowed": {"const": false}
+      }
+    },
+    "net_of_modeled_costs": {"const": true},
+    "contains_future_data": {"const": false},
+    "contains_account_data": {"const": false},
+    "actual_orders_count": {"const": 0},
+    "bundle_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "utc": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"},
+    "runtime_path": {"type": "string", "pattern": "^data/runtime/(experiments|health|quant)/[^\\u0000]+$"},
+    "observation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["strategy_id", "net_return", "active", "gross_exposure"],
+      "properties": {
+        "strategy_id": {"$ref": "#/$defs/id"},
+        "net_return": {"type": "number", "minimum": -0.5, "maximum": 0.5},
+        "active": {"type": "boolean"},
+        "gross_exposure": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["role", "strategy_id", "path", "file_sha256", "result_sha256",
+                   "daily_path_sha256", "strategy_contract_sha256", "previous_row_sha256",
+                   "terminal_row_sha256", "validation_level"],
+      "properties": {
+        "role": {"enum": ["candidate", "benchmark", "incumbent"]},
+        "strategy_id": {"$ref": "#/$defs/id"},
+        "path": {"$ref": "#/$defs/runtime_path"},
+        "file_sha256": {"$ref": "#/$defs/sha"},
+        "result_sha256": {"$ref": "#/$defs/sha"},
+        "daily_path_sha256": {"$ref": "#/$defs/sha"},
+        "strategy_contract_sha256": {"$ref": "#/$defs/sha"},
+        "previous_row_sha256": {"$ref": "#/$defs/sha"},
+        "terminal_row_sha256": {"$ref": "#/$defs/sha"},
+        "validation_level": {"enum": ["portfolio_nav_path_semantic_rederivation", "strategy_artifacts_semantic_rebuild"]}
+      }
+    }
+  }
+}

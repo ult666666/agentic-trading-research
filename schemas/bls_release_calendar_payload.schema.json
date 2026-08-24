@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bls_release_calendar_payload.schema.json",
+  "title": "BLS official scheduled-release calendar event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "calendar_uid",
+    "agency",
+    "release_name",
+    "scheduled_release_time_utc",
+    "scheduled_release_time_et",
+    "timezone_source",
+    "calendar_sequence",
+    "calendar_status",
+    "mapped_series_ids",
+    "series_mapping_scope",
+    "query_from",
+    "query_to",
+    "calendar_observed_at_utc",
+    "schedule_may_change",
+    "scheduled_only",
+    "actual_release_confirmed",
+    "observation_publication_timestamp_granted",
+    "release_time_event_study_eligible"
+  ],
+  "properties": {
+    "event_id": {"type": "string", "pattern": "^bls_release:[0-9a-f]{64}$"},
+    "calendar_uid": {"type": "string", "minLength": 1, "maxLength": 160},
+    "agency": {"const": "U.S. Bureau of Labor Statistics"},
+    "release_name": {"type": "string", "minLength": 1, "maxLength": 256},
+    "scheduled_release_time_utc": {"type": "string", "format": "date-time"},
+    "scheduled_release_time_et": {"type": "string", "format": "date-time"},
+    "timezone_source": {"const": "US-Eastern"},
+    "calendar_sequence": {"type": "integer", "minimum": 0},
+    "calendar_status": {"enum": ["scheduled", "cancelled"]},
+    "mapped_series_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[A-Z0-9_#-]{1,50}$"}
+    },
+    "series_mapping_scope": {"const": "release_family_only_not_observation_period"},
+    "query_from": {"type": "string", "format": "date"},
+    "query_to": {"type": "string", "format": "date"},
+    "calendar_observed_at_utc": {"type": "string", "format": "date-time"},
+    "schedule_may_change": {"const": true},
+    "scheduled_only": {"const": true},
+    "actual_release_confirmed": {"const": false},
+    "observation_publication_timestamp_granted": {"const": false},
+    "release_time_event_study_eligible": {"const": false}
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "corporate_action_notice_payload.schema.json",
+  "title": "Nasdaq ex-date exception notice",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "notice_id", "symbol", "issuer_name", "ex_date", "record_date", "pay_date",
+    "notice_status", "query_from", "query_to", "exception_notice_only",
+    "complete_corporate_action", "action_type_verified", "cash_amount", "currency",
+    "adjustment_eligible", "corporate_action_coverage_granted"
+  ],
+  "properties": {
+    "notice_id": {"type": "string"},
+    "symbol": {"type": "string"},
+    "issuer_name": {"type": ["string", "null"]},
+    "ex_date": {"type": ["string", "null"], "format": "date"},
+    "record_date": {"type": ["string", "null"], "format": "date"},
+    "pay_date": {"type": ["string", "null"], "format": "date"},
+    "notice_status": {"enum": ["pending_ex_date", "published_exception"]},
+    "query_from": {"type": "string", "format": "date"},
+    "query_to": {"type": "string", "format": "date"},
+    "exception_notice_only": {"const": true},
+    "complete_corporate_action": {"const": false},
+    "action_type_verified": {"const": false},
+    "cash_amount": {"const": null},
+    "currency": {"const": null},
+    "adjustment_eligible": {"const": false},
+    "corporate_action_coverage_granted": {"const": false}
+  }
+}

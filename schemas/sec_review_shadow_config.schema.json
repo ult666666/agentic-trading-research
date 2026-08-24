@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sec_review_shadow_config.schema.json",
+  "title": "SEC document-review shadow coordinator configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "data_lake_config_path", "lake_root", "readiness_root",
+    "research_root", "artifact_subdir", "provider", "authority_source", "dataset",
+    "source_manifest_glob", "artifacts", "states", "statuses", "maximums", "rules",
+    "safety"
+  ],
+  "properties": {
+    "schema": {"const": "sec_review_shadow_config/1.0"},
+    "version": {"const": "1.0.0"},
+    "data_lake_config_path": {"const": "config/data_lake.json"},
+    "lake_root": {"const": "data/runtime/data_lake/lake"},
+    "readiness_root": {"const": "data/runtime/data_lake/readiness"},
+    "research_root": {"const": "data/runtime/research"},
+    "artifact_subdir": {"const": "sec_review_shadow"},
+    "provider": {"const": "sec_edgar"},
+    "authority_source": {"const": "sec_edgar"},
+    "dataset": {"const": "filings"},
+    "source_manifest_glob": {"const": "filings/observed_date=*/provider=sec_edgar/batch=*/manifest.json"},
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_batch", "event_bundle", "review_queue", "result_draft", "sealed_result", "status"],
+      "properties": {
+        "source_batch": {"const": "source_batch.json"},
+        "event_bundle": {"const": "events.json"},
+        "review_queue": {"const": "queue.json"},
+        "result_draft": {"const": "result_draft.json"},
+        "sealed_result": {"const": "result.json"},
+        "status": {"const": "status.json"}
+      }
+    },
+    "states": {"const": ["waiting_for_sec_batch", "queue_ready", "waiting_for_review_draft", "review_draft_ready", "result_sealed", "at_issue"]},
+    "statuses": {"const": ["waiting", "ready", "at_issue"]},
+    "maximums": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["future_timestamp_tolerance_seconds", "reason_codes"],
+      "properties": {
+        "future_timestamp_tolerance_seconds": {"type": "integer", "minimum": 0, "maximum": 3600},
+        "reason_codes": {"type": "integer", "minimum": 1, "maximum": 100}
+      }
+    },
+    "rules": {"type": "object"},
+    "safety": {"$ref": "#/$defs/safety"}
+  },
+  "$defs": {
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "research_only", "diagnostic_only", "shadow_only", "execution_enabled",
+        "feeds_production", "feeds_buy_gate", "feeds_production_scoring",
+        "feeds_freeze_gate", "grants_catalyst_confirmation", "grants_source_authority",
+        "strategy_change_allowed", "counts_in_metrics", "model_output_is_untrusted",
+        "network_invoked", "model_invoked", "broker_access", "broker_tool_invoked"
+      ],
+      "properties": {
+        "research_only": {"const": true},
+        "diagnostic_only": {"const": true},
+        "shadow_only": {"const": true},
+        "execution_enabled": {"const": false},
+        "feeds_production": {"const": false},
+        "feeds_buy_gate": {"const": false},
+        "feeds_production_scoring": {"const": false},
+        "feeds_freeze_gate": {"const": false},
+        "grants_catalyst_confirmation": {"const": false},
+        "grants_source_authority": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "counts_in_metrics": {"const": false},
+        "model_output_is_untrusted": {"const": true},
+        "network_invoked": {"const": false},
+        "model_invoked": {"const": false},
+        "broker_access": {"const": "none"},
+        "broker_tool_invoked": {"const": false}
+      }
+    }
+  }
+}

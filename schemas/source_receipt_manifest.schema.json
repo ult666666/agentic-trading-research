@@ -1,0 +1,309 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "source_receipt_manifest.schema.json",
+  "title": "Shadow-only complete source-receipt denominator manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "identity",
+    "policy",
+    "inputs",
+    "controls",
+    "lanes",
+    "totals",
+    "safety",
+    "manifest_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "source_receipt_manifest/1.0"},
+    "version": {"const": "1.0.0"},
+    "identity": {"$ref": "#/$defs/identity"},
+    "policy": {"$ref": "#/$defs/rawBinding"},
+    "inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "preflight",
+        "sec_candidate_seed",
+        "sec_collection_summary",
+        "news_collection_summary"
+      ],
+      "properties": {
+        "preflight": {"$ref": "#/$defs/jsonBinding"},
+        "sec_candidate_seed": {"$ref": "#/$defs/jsonBinding"},
+        "sec_collection_summary": {"$ref": "#/$defs/jsonBinding"},
+        "news_collection_summary": {"$ref": "#/$defs/jsonBinding"}
+      }
+    },
+    "controls": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {"$ref": "#/$defs/rawBinding"}
+    },
+    "lanes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sec", "news"],
+      "properties": {
+        "sec": {"$ref": "#/$defs/secLane"},
+        "news": {"$ref": "#/$defs/newsLane"}
+      }
+    },
+    "totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "denominator_units",
+        "present_unit_mappings",
+        "unique_receipt_files",
+        "orphan_receipt_files",
+        "unexpected_entries",
+        "receipt_coverage_complete"
+      ],
+      "properties": {
+        "denominator_units": {"type": "integer", "minimum": 0, "maximum": 4096},
+        "present_unit_mappings": {"type": "integer", "minimum": 0, "maximum": 4096},
+        "unique_receipt_files": {"type": "integer", "minimum": 0, "maximum": 4096},
+        "orphan_receipt_files": {"type": "integer", "minimum": 0, "maximum": 4096},
+        "unexpected_entries": {"type": "integer", "minimum": 0, "maximum": 512},
+        "receipt_coverage_complete": {"type": "boolean"}
+      }
+    },
+    "safety": {"$ref": "#/$defs/safety"},
+    "manifest_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "date": {"type": "string", "pattern": "^20[0-9]{2}-[0-9]{2}-[0-9]{2}$"},
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "repoPath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)[^\\u0000]+$"
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_session_date",
+        "audited_run_id",
+        "audited_run_id_sha256",
+        "generated_utc",
+        "manifest_path",
+        "producer"
+      ],
+      "properties": {
+        "target_session_date": {"$ref": "#/$defs/date"},
+        "audited_run_id": {"type": "string", "minLength": 1, "maxLength": 512},
+        "audited_run_id_sha256": {"$ref": "#/$defs/sha"},
+        "generated_utc": {"$ref": "#/$defs/timestamp"},
+        "manifest_path": {"$ref": "#/$defs/repoPath"},
+        "producer": {"const": "scripts/source_receipt_manifest.py"}
+      }
+    },
+    "rawBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "raw_sha256", "raw_bytes"],
+      "properties": {
+        "path": {"$ref": "#/$defs/repoPath"},
+        "raw_sha256": {"$ref": "#/$defs/sha"},
+        "raw_bytes": {"type": "integer", "minimum": 1, "maximum": 16777216}
+      }
+    },
+    "innerSelfHash": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field", "claimed_sha256", "derived_sha256", "verdict"],
+      "properties": {
+        "field": {"enum": ["artifact_sha256", null]},
+        "claimed_sha256": {"anyOf": [{"$ref": "#/$defs/sha"}, {"type": "null"}]},
+        "derived_sha256": {"anyOf": [{"$ref": "#/$defs/sha"}, {"type": "null"}]},
+        "verdict": {"enum": ["valid", "invalid", "missing"]}
+      }
+    },
+    "jsonBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "raw_sha256", "raw_bytes", "inner_schema", "inner_self_hash"],
+      "properties": {
+        "path": {"$ref": "#/$defs/repoPath"},
+        "raw_sha256": {"$ref": "#/$defs/sha"},
+        "raw_bytes": {"type": "integer", "minimum": 1, "maximum": 16777216},
+        "inner_schema": {"type": ["string", "null"], "maxLength": 256},
+        "inner_self_hash": {"$ref": "#/$defs/innerSelfHash"}
+      }
+    },
+    "receiptBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path", "raw_sha256", "raw_bytes", "inner_schema", "inner_self_hash",
+        "expected_schema", "schema_matches", "target_matches",
+        "contract_validator", "contract_valid", "json_parse_valid",
+        "json_parse_error"
+      ],
+      "properties": {
+        "path": {"$ref": "#/$defs/repoPath"},
+        "raw_sha256": {"$ref": "#/$defs/sha"},
+        "raw_bytes": {"type": "integer", "minimum": 1, "maximum": 16777216},
+        "inner_schema": {"type": ["string", "null"], "maxLength": 256},
+        "inner_self_hash": {"$ref": "#/$defs/innerSelfHash"},
+        "expected_schema": {"type": "string", "minLength": 1, "maxLength": 256},
+        "schema_matches": {"type": "boolean"},
+        "target_matches": {"type": "boolean"},
+        "contract_validator": {
+          "enum": [
+            "scripts/sec_catalyst_receipt_validator.py:_load_verified_receipt",
+            "scripts/news_corroboration_validator.py:_load_verified_receipt"
+          ]
+        },
+        "contract_valid": {"type": "boolean"},
+        "json_parse_valid": {"type": "boolean"},
+        "json_parse_error": {"type": ["string", "null"], "maxLength": 512}
+      }
+    },
+    "inventoryReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["filename", "binding", "mapped_unit_ids"],
+      "properties": {
+        "filename": {"type": "string", "minLength": 1, "maxLength": 128},
+        "binding": {"$ref": "#/$defs/receiptBinding"},
+        "mapped_unit_ids": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {"type": "string", "pattern": "^(sec|news)-unit:[0-9a-f]{64}$"},
+          "uniqueItems": true
+        }
+      }
+    },
+    "unexpectedEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "kind", "binding"],
+      "properties": {
+        "path": {"$ref": "#/$defs/repoPath"},
+        "kind": {"enum": ["directory", "special", "unexpected_regular_file"]},
+        "binding": {"anyOf": [{"$ref": "#/$defs/rawBinding"}, {"type": "null"}]}
+      }
+    },
+    "secUnit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unit_id", "candidate_index", "filing_index", "source_value_sha256",
+        "source_value_is_object", "symbol", "candidate_status", "accession_number",
+        "form", "expected_receipt_path", "receipt_file_present",
+        "receipt_contract_valid", "receipt_unit_identity_matched", "receipt"
+      ],
+      "properties": {
+        "unit_id": {"type": "string", "pattern": "^sec-unit:[0-9a-f]{64}$"},
+        "candidate_index": {"type": "integer", "minimum": 0, "maximum": 127},
+        "filing_index": {"type": "integer", "minimum": 0, "maximum": 63},
+        "source_value_sha256": {"$ref": "#/$defs/sha"},
+        "source_value_is_object": {"type": "boolean"},
+        "symbol": {"type": ["string", "null"], "maxLength": 32},
+        "candidate_status": {"type": ["string", "null"], "maxLength": 64},
+        "accession_number": {"type": ["string", "null"], "maxLength": 64},
+        "form": {"type": ["string", "null"], "maxLength": 64},
+        "expected_receipt_path": {"anyOf": [{"$ref": "#/$defs/repoPath"}, {"type": "null"}]},
+        "receipt_file_present": {"type": "boolean"},
+        "receipt_contract_valid": {"type": "boolean"},
+        "receipt_unit_identity_matched": {"type": "boolean"},
+        "receipt": {"anyOf": [{"$ref": "#/$defs/receiptBinding"}, {"type": "null"}]}
+      }
+    },
+    "newsUnit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unit_id", "lead_index", "source_value_sha256", "source_value_is_object",
+        "symbol", "url", "publisher_domain", "allowlisted", "expected_receipt_path",
+        "receipt_file_present", "receipt_contract_valid",
+        "receipt_unit_identity_matched", "receipt"
+      ],
+      "properties": {
+        "unit_id": {"type": "string", "pattern": "^news-unit:[0-9a-f]{64}$"},
+        "lead_index": {"type": "integer", "minimum": 0, "maximum": 2047},
+        "source_value_sha256": {"$ref": "#/$defs/sha"},
+        "source_value_is_object": {"type": "boolean"},
+        "symbol": {"type": ["string", "null"], "maxLength": 32},
+        "url": {"type": ["string", "null"], "maxLength": 4096},
+        "publisher_domain": {"type": ["string", "null"], "maxLength": 253},
+        "allowlisted": {"type": "boolean"},
+        "expected_receipt_path": {"anyOf": [{"$ref": "#/$defs/repoPath"}, {"type": "null"}]},
+        "receipt_file_present": {"type": "boolean"},
+        "receipt_contract_valid": {"type": "boolean"},
+        "receipt_unit_identity_matched": {"type": "boolean"},
+        "receipt": {"anyOf": [{"$ref": "#/$defs/receiptBinding"}, {"type": "null"}]}
+      }
+    },
+    "secLane": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "denominator_source", "denominator_enumerated", "denominator_count",
+        "receipt_coverage_complete", "units", "receipt_inventory",
+        "orphan_receipt_paths", "unexpected_entries"
+      ],
+      "properties": {
+        "denominator_source": {"const": "sec_candidate_seed.candidates[*].recent_filings[*]"},
+        "denominator_enumerated": {"const": true},
+        "denominator_count": {"type": "integer", "minimum": 0, "maximum": 2048},
+        "receipt_coverage_complete": {"type": "boolean"},
+        "units": {"type": "array", "maxItems": 2048, "items": {"$ref": "#/$defs/secUnit"}},
+        "receipt_inventory": {"type": "array", "maxItems": 2048, "items": {"$ref": "#/$defs/inventoryReceipt"}},
+        "orphan_receipt_paths": {"type": "array", "maxItems": 2048, "items": {"$ref": "#/$defs/repoPath"}, "uniqueItems": true},
+        "unexpected_entries": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/unexpectedEntry"}}
+      }
+    },
+    "newsLane": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "denominator_source", "denominator_enumerated", "denominator_count",
+        "receipt_coverage_complete", "units", "receipt_inventory",
+        "orphan_receipt_paths", "unexpected_entries"
+      ],
+      "properties": {
+        "denominator_source": {"const": "preflight.catalysts.items[*]"},
+        "denominator_enumerated": {"const": true},
+        "denominator_count": {"type": "integer", "minimum": 0, "maximum": 2048},
+        "receipt_coverage_complete": {"type": "boolean"},
+        "units": {"type": "array", "maxItems": 2048, "items": {"$ref": "#/$defs/newsUnit"}},
+        "receipt_inventory": {"type": "array", "maxItems": 2048, "items": {"$ref": "#/$defs/inventoryReceipt"}},
+        "orphan_receipt_paths": {"type": "array", "maxItems": 2048, "items": {"$ref": "#/$defs/repoPath"}, "uniqueItems": true},
+        "unexpected_entries": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/unexpectedEntry"}}
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shadow_only", "feeds_production", "grants_source_authority",
+        "grants_catalyst_confirmation", "feeds_buy_gate", "grants_official_research",
+        "counts_in_metrics", "execution_enabled", "network_invoked", "broker_invoked"
+      ],
+      "properties": {
+        "shadow_only": {"const": true},
+        "feeds_production": {"const": false},
+        "grants_source_authority": {"const": false},
+        "grants_catalyst_confirmation": {"const": false},
+        "feeds_buy_gate": {"const": false},
+        "grants_official_research": {"const": false},
+        "counts_in_metrics": {"const": false},
+        "execution_enabled": {"const": false},
+        "network_invoked": {"const": false},
+        "broker_invoked": {"const": false}
+      }
+    }
+  }
+}

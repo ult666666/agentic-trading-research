@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://charles.local/schemas/agent_context_policy.schema.json",
+  "title": "Agent Context Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "index_schema", "component_schema", "source_paths", "budgets", "system", "domains", "anchors", "model_domains", "safety"],
+  "properties": {
+    "schema": {"const": "agent_context_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "index_schema": {"const": "agent_context_index/1.0"},
+    "component_schema": {"const": "agent_context_component/1.0"},
+    "source_paths": {
+      "type": "object", "additionalProperties": false,
+      "required": ["constitution", "model_inventory", "workflows"],
+      "properties": {
+        "constitution": {"const": "AGENTS.md"},
+        "model_inventory": {"const": "data/model_inventory.json"},
+        "workflows": {"const": "config/autonomy_workflows.json"}
+      }
+    },
+    "budgets": {
+      "type": "object", "additionalProperties": false,
+      "required": ["brief_max_characters", "index_max_characters", "component_max_characters", "approximation_characters_per_token", "summary_max_characters", "maximum_source_refs_per_component", "maximum_detail_list_items"],
+      "properties": {
+        "brief_max_characters": {"type": "integer", "minimum": 1000, "maximum": 10000},
+        "index_max_characters": {"type": "integer", "minimum": 10000, "maximum": 60000},
+        "component_max_characters": {"type": "integer", "minimum": 2000, "maximum": 15000},
+        "approximation_characters_per_token": {"const": 3},
+        "summary_max_characters": {"type": "integer", "minimum": 120, "maximum": 400},
+        "maximum_source_refs_per_component": {"type": "integer", "minimum": 1, "maximum": 6},
+        "maximum_detail_list_items": {"type": "integer", "minimum": 2, "maximum": 12}
+      }
+    },
+    "system": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "purpose", "current_stage", "profitability_state", "execution_model", "primary_constraint"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1, "maxLength": 80},
+        "purpose": {"type": "string", "minLength": 20, "maxLength": 320},
+        "current_stage": {"type": "string", "minLength": 20, "maxLength": 320},
+        "profitability_state": {"const": "not_established"},
+        "execution_model": {"const": "human_places_every_order_manually"},
+        "primary_constraint": {"type": "string", "minLength": 20, "maxLength": 320}
+      }
+    },
+    "domains": {
+      "type": "array", "minItems": 5, "maxItems": 10,
+      "items": {"$ref": "#/$defs/domain"}
+    },
+    "anchors": {
+      "type": "array", "minItems": 5, "maxItems": 16,
+      "items": {"$ref": "#/$defs/anchor"}
+    },
+    "model_domains": {
+      "type": "object", "minProperties": 1,
+      "additionalProperties": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,47}$"}
+    },
+    "safety": {"$ref": "#/$defs/safety"}
+  },
+  "$defs": {
+    "token": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+    "path": {"type": "string", "minLength": 1, "maxLength": 180, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"},
+    "domain": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "label", "summary"],
+      "properties": {
+        "id": {"$ref": "#/$defs/token"},
+        "label": {"type": "string", "minLength": 1, "maxLength": 48},
+        "summary": {"type": "string", "minLength": 20, "maxLength": 320}
+      }
+    },
+    "anchor": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "domain", "label", "summary", "source_refs", "responsibilities"],
+      "properties": {
+        "id": {"$ref": "#/$defs/token"},
+        "domain": {"$ref": "#/$defs/token"},
+        "label": {"type": "string", "minLength": 1, "maxLength": 64},
+        "summary": {"type": "string", "minLength": 20, "maxLength": 320},
+        "source_refs": {"type": "array", "minItems": 1, "maxItems": 6, "uniqueItems": true, "items": {"$ref": "#/$defs/path"}},
+        "responsibilities": {"type": "array", "minItems": 1, "maxItems": 6, "uniqueItems": true, "items": {"type": "string", "minLength": 2, "maxLength": 80}}
+      }
+    },
+    "safety": {
+      "type": "object", "additionalProperties": false,
+      "required": ["research_only", "read_only", "local_artifact_write_only", "execution_enabled", "activation_authority", "strategy_change_allowed", "profitability_claim_allowed", "account_data_allowed", "market_price_data_allowed", "report_content_allowed", "credentials_allowed", "network_invoked", "model_invoked", "broker_invoked"],
+      "properties": {
+        "research_only": {"const": true}, "read_only": {"const": true},
+        "local_artifact_write_only": {"const": true}, "execution_enabled": {"const": false},
+        "activation_authority": {"const": false}, "strategy_change_allowed": {"const": false},
+        "profitability_claim_allowed": {"const": false}, "account_data_allowed": {"const": false},
+        "market_price_data_allowed": {"const": false}, "report_content_allowed": {"const": false},
+        "credentials_allowed": {"const": false}, "network_invoked": {"const": false},
+        "model_invoked": {"const": false}, "broker_invoked": {"const": false}
+      }
+    }
+  }
+}

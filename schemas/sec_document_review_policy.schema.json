@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sec_document_review_policy.schema.json",
+  "title": "SEC filing document-review policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "input_schema", "queue_schema", "result_draft_schema",
+    "result_schema", "agent_name", "archive_base_url", "source_domain",
+    "request_rate_limit_per_second", "requires_descriptive_user_agent", "priorities",
+    "priority_rank", "priority_rules", "base_fact_fields", "item_fact_fields",
+    "form_family_fact_fields", "mandatory_checks", "prohibited_inferences",
+    "result_dispositions", "value_statuses", "document_kinds", "content_types",
+    "could_not_verify_codes", "maximums", "rules", "safety"
+  ],
+  "properties": {
+    "schema": {"const": "sec_document_review_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "input_schema": {"const": "sec_filing_event_bundle/1.0"},
+    "queue_schema": {"const": "sec_document_review_queue/1.0"},
+    "result_draft_schema": {"const": "sec_document_review_result_draft/1.0"},
+    "result_schema": {"const": "sec_document_review_result/1.0"},
+    "agent_name": {"const": "sec-ir-verification-agent"},
+    "archive_base_url": {"const": "https://www.sec.gov/Archives/edgar/data"},
+    "source_domain": {"const": "www.sec.gov"},
+    "request_rate_limit_per_second": {"type": "integer", "minimum": 1, "maximum": 10},
+    "requires_descriptive_user_agent": {"const": true},
+    "shadow_daily_task_cap": {"type": "integer", "minimum": 1, "maximum": 100000},
+    "priorities": {"const": ["critical", "high", "normal"]},
+    "priority_rank": {
+      "type": "object", "additionalProperties": false,
+      "required": ["critical", "high", "normal"],
+      "properties": {"critical": {"const": 1}, "high": {"const": 2}, "normal": {"const": 3}}
+    },
+    "priority_rules": {"type": "object"},
+    "base_fact_fields": {"$ref": "#/$defs/tokenList"},
+    "item_fact_fields": {
+      "type": "object", "propertyNames": {"pattern": "^[0-9]{1,2}\\.[0-9]{2}$"},
+      "additionalProperties": {"$ref": "#/$defs/tokenList"}
+    },
+    "form_family_fact_fields": {
+      "type": "object", "additionalProperties": {"$ref": "#/$defs/tokenList"}
+    },
+    "mandatory_checks": {"$ref": "#/$defs/tokenList"},
+    "prohibited_inferences": {"$ref": "#/$defs/tokenList"},
+    "result_dispositions": {"const": ["verified", "refuted", "partial", "conflicted", "unavailable"]},
+    "value_statuses": {"const": ["present", "missing", "unavailable", "conflicted"]},
+    "document_kinds": {"const": ["filing_index", "directory_index", "primary_document", "exhibit", "complete_submission"]},
+    "content_types": {"const": ["html", "xml", "text", "json", "pdf"]},
+    "could_not_verify_codes": {"$ref": "#/$defs/tokenList"},
+    "maximums": {
+      "type": "object", "additionalProperties": false,
+      "required": ["receipts_per_task", "facts_per_task", "excerpt_characters", "normalized_string_characters", "tasks_per_queue", "future_timestamp_tolerance_seconds"],
+      "properties": {
+        "receipts_per_task": {"type": "integer", "minimum": 1},
+        "facts_per_task": {"type": "integer", "minimum": 1},
+        "excerpt_characters": {"type": "integer", "minimum": 1, "maximum": 1000},
+        "normalized_string_characters": {"type": "integer", "minimum": 1, "maximum": 1000},
+        "tasks_per_queue": {"type": "integer", "minimum": 1},
+        "future_timestamp_tolerance_seconds": {"type": "integer", "minimum": 0, "maximum": 3600}
+      }
+    },
+    "rules": {"type": "object"},
+    "safety": {"$ref": "#/$defs/safety"}
+  },
+  "$defs": {
+    "token": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_]{0,95}$"},
+    "tokenList": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/token"}},
+    "safety": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "research_only", "diagnostic_only", "execution_enabled", "feeds_production",
+        "feeds_buy_gate", "feeds_production_scoring", "grants_catalyst_confirmation",
+        "grants_source_authority", "strategy_change_allowed", "counts_in_metrics",
+        "raw_source_persisted", "model_output_is_untrusted", "adjudication_required",
+        "builder_network_invoked", "broker_access"
+      ],
+      "properties": {
+        "research_only": {"const": true},
+        "diagnostic_only": {"const": true},
+        "execution_enabled": {"const": false},
+        "feeds_production": {"const": false},
+        "feeds_buy_gate": {"const": false},
+        "feeds_production_scoring": {"const": false},
+        "grants_catalyst_confirmation": {"const": false},
+        "grants_source_authority": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "counts_in_metrics": {"const": false},
+        "raw_source_persisted": {"const": false},
+        "model_output_is_untrusted": {"const": true},
+        "adjudication_required": {"const": true},
+        "builder_network_invoked": {"const": false},
+        "broker_access": {"const": "none"}
+      }
+    }
+  }
+}

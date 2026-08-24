@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "options_capability_receipt.schema.json",
+  "title": "Options research lane capability receipt (v0)",
+  "description": "Deterministic record of what the read-only options lane has actually verified. A missing capability is UNKNOWN and the lane fails closed; nothing is ever inferred as available. Contains booleans/status strings only — NEVER account numbers, balances, tokens, or any private account detail.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "generated_utc", "read_tools_present", "quote_fields_verified",
+    "greek_fields_present", "greek_units_verified", "account_options_approval_verified",
+    "account_type_verified", "settled_cash_field_verified",
+    "regular_hours_live_probe_completed", "mutation_tools_denied", "status", "blockers",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": { "const": "options_capability_receipt/1.0" },
+    "generated_utc": { "type": "string", "format": "date-time" },
+    "read_tools_present": { "enum": [true, false, "UNKNOWN"] },
+    "quote_fields_verified": { "enum": [true, false, "UNKNOWN"] },
+    "greek_fields_present": { "enum": [true, false, "UNKNOWN"] },
+    "greek_units_verified": { "enum": [true, false, "UNKNOWN"] },
+    "account_options_approval_verified": { "enum": [true, false, "UNKNOWN"] },
+    "account_type_verified": { "enum": [true, false, "UNKNOWN"] },
+    "settled_cash_field_verified": { "enum": [true, false, "UNKNOWN"] },
+    "regular_hours_live_probe_completed": { "enum": [true, false, "UNKNOWN"] },
+    "mutation_tools_denied": { "enum": [true, false, "UNKNOWN"] },
+    "status": { "enum": ["READY", "BLOCKED"] },
+    "blockers": { "type": "array", "items": { "type": "string", "maxLength": 120 } },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "inputs"],
+      "properties": {
+        "method": { "type": "string", "maxLength": 256 },
+        "inputs": { "type": "array", "items": { "type": "string", "maxLength": 256 } },
+        "live_probe_note": { "type": ["string", "null"], "maxLength": 512 }
+      }
+    }
+  }
+}

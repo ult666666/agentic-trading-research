@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "autonomy_service_alert_state.schema.json",
+  "title": "Deduplicated autonomy service alert state",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "updated_utc",
+    "active_target_session_date",
+    "active_fingerprint",
+    "active_codes",
+    "active_severity",
+    "last_transition",
+    "last_health_sha256",
+    "notification_count",
+    "last_notification_utc",
+    "diagnostic_only",
+    "health_data_read_only",
+    "local_state_write_only",
+    "external_notification_enabled",
+    "retry_authority",
+    "schedule_change_allowed",
+    "report_change_allowed",
+    "strategy_change_allowed",
+    "execution_enabled",
+    "model_invoked",
+    "broker_invoked",
+    "contains_account_data",
+    "contains_credentials",
+    "state_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "autonomy_service_alert_state/1.0"},
+    "updated_utc": {"type": "string", "format": "date-time"},
+    "active_target_session_date": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "active_fingerprint": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "active_codes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z0-9_.:-]+$"}
+    },
+    "active_severity": {"enum": ["none", "warning", "critical"]},
+    "last_transition": {
+      "enum": [
+        "initialized",
+        "new_alert",
+        "changed_alert",
+        "unchanged",
+        "resolved",
+        "clear"
+      ]
+    },
+    "last_health_sha256": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "notification_count": {"type": "integer", "minimum": 0},
+    "last_notification_utc": {"type": ["string", "null"], "format": "date-time"},
+    "diagnostic_only": {"const": true},
+    "health_data_read_only": {"const": true},
+    "local_state_write_only": {"const": true},
+    "external_notification_enabled": {"const": false},
+    "retry_authority": {"const": false},
+    "schedule_change_allowed": {"const": false},
+    "report_change_allowed": {"const": false},
+    "strategy_change_allowed": {"const": false},
+    "execution_enabled": {"const": false},
+    "model_invoked": {"const": false},
+    "broker_invoked": {"const": false},
+    "contains_account_data": {"const": false},
+    "contains_credentials": {"const": false},
+    "state_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

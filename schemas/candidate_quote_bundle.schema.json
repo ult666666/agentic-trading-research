@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "candidate_quote_bundle.schema.json",
+  "title": "Validated candidate quote bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "target_session_date", "validated_utc", "status", "source",
+    "policy_sha256", "request_artifact", "discovery_artifact", "collector_status",
+    "collector_audit", "complete_request_denominator", "all_requested_returned", "quotes", "counts",
+    "validation_reason_codes", "authority", "safety", "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "candidate_quote_bundle/1.0"},
+    "target_session_date": {"type": "string", "format": "date"},
+    "validated_utc": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["ready", "partial", "unavailable", "empty", "at_issue"]},
+    "source": {"const": "robinhood_readonly"},
+    "policy_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "request_artifact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "discovery_artifact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256", "status"],
+      "properties": {
+        "path": {"type": "string"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "status": {"const": "completed"}
+      }
+    },
+    "collector_status": {"enum": ["ok", "partial", "unavailable", "timeout", "auth_failed", "error"]},
+    "collector_audit": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "status", "receipt_path", "receipt_file_sha256", "receipt_sha256",
+        "run_id_sha256", "invocation_id_sha256", "expected_lane", "not_before_utc",
+        "receipt_started_utc", "instrumentation_coverage", "broker_read_attempt_total",
+        "quote_tool_attempt_total", "tradability_tool_attempt_total",
+        "zero_preview_write_verified", "violation_detected", "child_exit_code", "reason_codes"
+      ],
+      "properties": {
+        "status": {"enum": ["not_required", "not_invoked", "observed", "verified", "invalid"]},
+        "receipt_path": {"type": ["string", "null"]},
+        "receipt_file_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "receipt_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "run_id_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "invocation_id_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "expected_lane": {"type": ["string", "null"], "enum": ["candidate-quotes", null]},
+        "not_before_utc": {"type": ["string", "null"], "format": "date-time"},
+        "receipt_started_utc": {"type": ["string", "null"], "format": "date-time"},
+        "instrumentation_coverage": {"type": ["string", "null"], "enum": ["complete", "unobservable", null]},
+        "broker_read_attempt_total": {"type": "integer", "minimum": 0},
+        "quote_tool_attempt_total": {"type": "integer", "minimum": 0},
+        "tradability_tool_attempt_total": {"type": "integer", "minimum": 0},
+        "zero_preview_write_verified": {"type": "boolean"},
+        "violation_detected": {"type": "boolean"},
+        "child_exit_code": {"type": ["integer", "null"], "minimum": 0},
+        "reason_codes": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "complete_request_denominator": {"const": true},
+    "all_requested_returned": {"type": "boolean"},
+    "quotes": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": [
+          "symbol", "status", "last", "bid", "ask", "spread_bps",
+          "market_timestamp_utc", "market_timestamp_et", "age_minutes_at_validation",
+          "session", "session_reported", "tradeable", "fractional", "source_returned",
+          "source_error_present", "candidate_research_price_eligible",
+          "candidate_actionability_eligible", "buy_authority_granted", "reason_codes"
+        ],
+        "properties": {
+          "symbol": {"type": "string", "pattern": "^[A-Z][A-Z0-9.-]{0,9}$"},
+          "status": {"enum": ["fresh", "stale", "invalid", "unavailable"]},
+          "last": {"type": ["number", "null"]},
+          "bid": {"type": ["number", "null"]},
+          "ask": {"type": ["number", "null"]},
+          "spread_bps": {"type": ["number", "null"]},
+          "market_timestamp_utc": {"type": ["string", "null"]},
+          "market_timestamp_et": {"type": ["string", "null"]},
+          "age_minutes_at_validation": {"type": ["number", "null"]},
+          "session": {"type": ["string", "null"]},
+          "session_reported": {"type": ["string", "null"]},
+          "tradeable": {"type": ["boolean", "null"]},
+          "fractional": {"type": ["boolean", "null"]},
+          "source_returned": {"type": "boolean"},
+          "source_error_present": {"type": "boolean"},
+          "candidate_research_price_eligible": {"type": "boolean"},
+          "candidate_actionability_eligible": {"type": "boolean"},
+          "buy_authority_granted": {"const": false},
+          "reason_codes": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "counts": {
+      "type": "object", "additionalProperties": false,
+      "required": ["requested", "returned", "fresh", "actionable", "stale", "invalid", "unavailable"],
+      "properties": {
+        "requested": {"type": "integer", "minimum": 0},
+        "returned": {"type": "integer", "minimum": 0},
+        "fresh": {"type": "integer", "minimum": 0},
+        "actionable": {"type": "integer", "minimum": 0},
+        "stale": {"type": "integer", "minimum": 0},
+        "invalid": {"type": "integer", "minimum": 0},
+        "unavailable": {"type": "integer", "minimum": 0}
+      }
+    },
+    "validation_reason_codes": {"type": "array", "items": {"type": "string"}},
+    "authority": {
+      "type": "object", "additionalProperties": false,
+      "required": ["candidate_specific_research_price", "market_anchor_authority", "second_independent_live_source_for_buy", "buy_authority_granted", "execution_authority_granted"],
+      "properties": {
+        "candidate_specific_research_price": {"const": true},
+        "market_anchor_authority": {"const": false},
+        "second_independent_live_source_for_buy": {"const": false},
+        "buy_authority_granted": {"const": false},
+        "execution_authority_granted": {"const": false}
+      }
+    },
+    "safety": {
+      "type": "object", "additionalProperties": false,
+      "required": ["research_only", "research_input_only", "strictly_read_only", "contains_account_data", "contains_credentials", "raw_payload_persisted", "order_preview_allowed", "order_mutation_allowed", "execution_enabled", "strategy_change_allowed", "counts_in_performance"],
+      "properties": {
+        "research_only": {"const": true},
+        "research_input_only": {"const": true},
+        "strictly_read_only": {"const": true},
+        "contains_account_data": {"const": false},
+        "contains_credentials": {"const": false},
+        "raw_payload_persisted": {"const": false},
+        "order_preview_allowed": {"const": false},
+        "order_mutation_allowed": {"const": false},
+        "execution_enabled": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "counts_in_performance": {"const": false}
+      }
+    },
+    "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "free_source_fusion.schema.json",
+  "title": "Deterministic free-source fusion receipt",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema", "target_session_date", "generated_utc", "status", "claim_receipts",
+    "evidence_gate_passed", "official_research_eligible", "buy_authorized",
+    "execution_enabled", "receipt_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "free_source_fusion_receipt/1.0"},
+    "target_session_date": {"type": "string", "format": "date"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["complete", "degraded", "blocked"]},
+    "claim_receipts": {"type": "array"},
+    "evidence_gate_passed": {"const": false},
+    "official_research_eligible": {"const": false},
+    "buy_authorized": {"const": false},
+    "execution_enabled": {"const": false},
+    "receipt_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

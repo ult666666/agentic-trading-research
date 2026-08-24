@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://charles.local/schemas/next_session_readiness_policy.schema.json",
+  "title": "Next-session readiness policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "operating_timezone", "target_lookahead_days",
+    "minimum_disk_free_gb", "readiness_output_template", "release_snapshot_root",
+    "core_scheduler_labels", "fmp_transport_health", "continuity", "timing", "claude",
+    "required_mcp_servers", "advisory_credentials", "limitations", "safety"
+  ],
+  "properties": {
+    "schema": {"const": "next_session_readiness_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "operating_timezone": {"const": "America/Los_Angeles"},
+    "target_lookahead_days": {"type": "integer", "minimum": 1, "maximum": 30},
+    "minimum_disk_free_gb": {"type": "number", "minimum": 1},
+    "readiness_output_template": {"const": "data/runtime/readiness/next_session_{target}.json"},
+    "release_snapshot_root": {"const": "~/.local/share/trading-system/release_snapshots"},
+    "core_scheduler_labels": {
+      "type": "array", "minItems": 6, "maxItems": 6, "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^com\\.charles\\.trading\\.[a-z-]+$"}
+    },
+    "fmp_transport_health": {
+      "type": "object", "additionalProperties": false,
+      "required": ["receipt", "max_age_minutes", "required_schema_version"],
+      "properties": {
+        "receipt": {"const": "data/runtime/fmp_connection_health.json"},
+        "max_age_minutes": {"type": "integer", "minimum": 5, "maximum": 120},
+        "required_schema_version": {"const": "1.1"}
+      }
+    },
+    "continuity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["label", "repository_plist", "installed_plist", "runner", "start_pt", "end_pt", "duration_seconds", "launchd_weekdays"],
+      "properties": {
+        "label": {"const": "com.charles.trading.continuity"},
+        "repository_plist": {"const": "launchd/com.charles.trading.continuity.plist"},
+        "installed_plist": {"const": "~/Library/LaunchAgents/com.charles.trading.continuity.plist"},
+        "runner": {"const": "scripts/run_morning_continuity.sh"},
+        "start_pt": {"const": "04:56:00"},
+        "end_pt": {"const": "07:10:00"},
+        "duration_seconds": {"const": 8040},
+        "launchd_weekdays": {"const": [1, 2, 3, 4, 5]}
+      }
+    },
+    "timing": {
+      "type": "object", "additionalProperties": false,
+      "required": ["wake_by_pt", "intake_start_pt", "morning_start_pt", "planned_model_completion_pt", "internal_deadline_pt", "outer_model_stop_pt", "service_terminal_pt", "latest_legal_freeze_pt", "post_open_start_pt", "stage_budget_total_seconds"],
+      "properties": {
+        "wake_by_pt": {"const": "04:55:00"},
+        "intake_start_pt": {"const": "05:00:00"},
+        "morning_start_pt": {"const": "05:38:00"},
+        "planned_model_completion_pt": {"const": "06:10:00"},
+        "internal_deadline_pt": {"const": "06:10:00"},
+        "outer_model_stop_pt": {"const": "06:12:00"},
+        "service_terminal_pt": {"const": "06:15:00"},
+        "latest_legal_freeze_pt": {"const": "06:20:00"},
+        "post_open_start_pt": {"const": "06:45:00"},
+        "stage_budget_total_seconds": {"const": 1920}
+      }
+    },
+    "claude": {
+      "type": "object", "additionalProperties": false,
+      "required": ["executable", "probe_timeout_seconds", "exact_response", "models"],
+      "properties": {
+        "executable": {"type": "string", "pattern": "^/"},
+        "probe_timeout_seconds": {"type": "integer", "minimum": 5, "maximum": 60},
+        "exact_response": {"const": "READY"},
+        "models": {
+          "type": "array", "minItems": 3, "maxItems": 3,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["id", "role", "required"],
+            "properties": {
+              "id": {"type": "string", "minLength": 1},
+              "role": {"enum": ["production_primary", "research_worker", "startup_fallback"]},
+              "required": {"type": "boolean"}
+            }
+          }
+        }
+      }
+    },
+    "required_mcp_servers": {
+      "type": "array", "minItems": 3, "maxItems": 3, "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "advisory_credentials": {
+      "type": "array", "minItems": 3, "maxItems": 3,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["name", "reason"],
+        "properties": {
+          "name": {"enum": ["FMP_API_KEY", "SEC_USER_AGENT", "SEC_USER_AGENT_APPROVED"]},
+          "reason": {"enum": ["direct_fmp_buy_gate", "direct_sec_primary_source_lane"]}
+        }
+      }
+    },
+    "limitations": {
+      "type": "array", "minItems": 4, "maxItems": 4,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "safety": {"$ref": "#/$defs/safety"}
+  },
+  "$defs": {
+    "safety": {
+      "type": "object", "additionalProperties": false,
+      "required": ["diagnostic_only", "local_artifact_write_only", "external_network_health_checks_only", "model_probe_enabled", "model_response_persisted", "broker_configuration_inspected", "broker_tool_invoked", "market_data_requested", "account_data_requested", "credentials_values_read_into_receipt", "external_communications_enabled", "strategy_change_allowed", "execution_enabled"],
+      "properties": {
+        "diagnostic_only": {"const": true},
+        "local_artifact_write_only": {"const": true},
+        "external_network_health_checks_only": {"const": true},
+        "model_probe_enabled": {"const": true},
+        "model_response_persisted": {"const": false},
+        "broker_configuration_inspected": {"const": true},
+        "broker_tool_invoked": {"const": false},
+        "market_data_requested": {"const": false},
+        "account_data_requested": {"const": false},
+        "credentials_values_read_into_receipt": {"const": false},
+        "external_communications_enabled": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "execution_enabled": {"const": false}
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "morning_engineering_audit_policy.schema.json",
+  "title": "Post-Morning engineering audit policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "operating_timezone", "fallback_not_before_pt",
+    "active_deferral_seconds", "maximum_evidence_bytes", "future_tolerance_seconds",
+    "validation_successful_natural_runs", "history_windows", "score_components",
+    "health_thresholds", "runtime_remediation_allowlist", "protected_observation_paths", "safety"
+  ],
+  "properties": {
+    "schema": {"const": "morning_engineering_audit_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "operating_timezone": {"const": "America/Los_Angeles"},
+    "fallback_not_before_pt": {"const": "06:16"},
+    "active_deferral_seconds": {"const": 3000},
+    "maximum_evidence_bytes": {"type": "integer", "minimum": 65536, "maximum": 4194304},
+    "future_tolerance_seconds": {"const": 0},
+    "validation_successful_natural_runs": {"type": "integer", "minimum": 1, "maximum": 20},
+    "history_windows": {"const": [5, 20]},
+    "score_components": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["terminal_finality", "stage_evidence", "timing_and_budget", "provider_health", "evidence_integrity", "safety"],
+      "properties": {
+        "terminal_finality": {"const": 30},
+        "stage_evidence": {"const": 20},
+        "timing_and_budget": {"const": 15},
+        "provider_health": {"const": 15},
+        "evidence_integrity": {"const": 10},
+        "safety": {"const": 10}
+      }
+    },
+    "health_thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["green_minimum", "amber_minimum"],
+      "properties": {"green_minimum": {"const": 85}, "amber_minimum": {"const": 60}}
+    },
+    "runtime_remediation_allowlist": {"const": ["rebuild_history_index"]},
+    "protected_observation_paths": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["research_rerun_allowed", "model_allowed", "network_allowed", "broker_allowed", "trading_action_allowed", "source_or_config_mutation_allowed", "git_mutation_allowed", "execution_enabled", "options_execution_enabled"],
+      "properties": {
+        "research_rerun_allowed": {"const": false}, "model_allowed": {"const": false},
+        "network_allowed": {"const": false}, "broker_allowed": {"const": false},
+        "trading_action_allowed": {"const": false}, "source_or_config_mutation_allowed": {"const": false},
+        "git_mutation_allowed": {"const": false}, "execution_enabled": {"const": false},
+        "options_execution_enabled": {"const": false}
+      }
+    }
+  }
+}

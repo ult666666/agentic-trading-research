@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "free_source_ensemble.schema.json",
+  "title": "Zero-dollar heterogeneous source ensemble",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "procurement_policy", "mode", "safety", "lanes", "sources"],
+  "properties": {
+    "schema": {"const": "free_source_ensemble_config/1.0"},
+    "version": {"const": "1.0.0"},
+    "procurement_policy": {"const": "config/data_procurement_policy.json"},
+    "mode": {"const": "shadow_research_only"},
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "research_only", "shadow_only", "maximum_external_spend_usd",
+        "execution_enabled", "broker_write_allowed", "source_authority_granted",
+        "buy_authority_granted", "feeds_production_scoring",
+        "strategy_activation_allowed", "raw_payload_persistence_allowed"
+      ],
+      "properties": {
+        "research_only": {"const": true},
+        "shadow_only": {"const": true},
+        "maximum_external_spend_usd": {"const": "0.00"},
+        "execution_enabled": {"const": false},
+        "broker_write_allowed": {"const": false},
+        "source_authority_granted": {"const": false},
+        "buy_authority_granted": {"const": false},
+        "feeds_production_scoring": {"const": false},
+        "strategy_activation_allowed": {"const": false},
+        "raw_payload_persistence_allowed": {"const": false}
+      }
+    },
+    "lanes": {"type": "object", "minProperties": 1},
+    "sources": {"type": "object", "minProperties": 1}
+  }
+}

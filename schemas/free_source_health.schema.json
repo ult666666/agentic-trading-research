@@ -1,0 +1,232 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "free_source_health.schema.json",
+  "title": "Cross-session health for deterministic zero-dollar source collection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "generated_utc",
+    "status",
+    "ok",
+    "errors",
+    "window",
+    "sessions",
+    "providers",
+    "lanes",
+    "manual_actions",
+    "recommendations",
+    "read_only",
+    "diagnostic_only",
+    "maximum_external_spend_usd",
+    "execution_enabled",
+    "source_authority_granted",
+    "buy_authority_granted",
+    "feeds_production_scoring",
+    "strategy_activation_allowed",
+    "model_invoked",
+    "broker_invoked",
+    "contains_account_data",
+    "contains_credentials",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "free_source_health/1.0"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["collecting", "healthy", "degraded", "blocked"]},
+    "ok": {"type": "boolean"},
+    "errors": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "limit",
+        "minimum_sessions_for_rate",
+        "window_start",
+        "window_end",
+        "sessions_seen",
+        "valid_session_count",
+        "invalid_session_count"
+      ],
+      "properties": {
+        "limit": {"type": "integer", "minimum": 1},
+        "minimum_sessions_for_rate": {"type": "integer", "minimum": 1},
+        "window_start": {"type": ["string", "null"], "format": "date"},
+        "window_end": {"type": ["string", "null"], "format": "date"},
+        "sessions_seen": {"type": "integer", "minimum": 0},
+        "valid_session_count": {"type": "integer", "minimum": 0},
+        "invalid_session_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "sessions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "target_session_date",
+          "valid",
+          "intake_status",
+          "errors",
+          "intake_receipt_sha256",
+          "plan_sha256"
+        ],
+        "properties": {
+          "target_session_date": {"type": "string", "format": "date"},
+          "valid": {"type": "boolean"},
+          "intake_status": {
+            "type": ["string", "null"],
+            "enum": ["ready", "degraded", "blocked", null]
+          },
+          "errors": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "intake_receipt_sha256": {
+            "type": ["string", "null"],
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "plan_sha256": {
+            "type": ["string", "null"],
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "providers": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/provider"}
+    },
+    "lanes": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/lane"}
+    },
+    "manual_actions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "recommendations": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "read_only": {"const": true},
+    "diagnostic_only": {"const": true},
+    "maximum_external_spend_usd": {"const": "0.00"},
+    "execution_enabled": {"const": false},
+    "source_authority_granted": {"const": false},
+    "buy_authority_granted": {"const": false},
+    "feeds_production_scoring": {"const": false},
+    "strategy_activation_allowed": {"const": false},
+    "model_invoked": {"const": false},
+    "broker_invoked": {"const": false},
+    "contains_account_data": {"const": false},
+    "contains_credentials": {"const": false},
+    "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "provider_id",
+        "expected_class",
+        "lanes",
+        "observation_count",
+        "success_count",
+        "failure_count",
+        "missing_identity_count",
+        "pending_local_count",
+        "partial_error_count",
+        "total_record_count",
+        "success_rate",
+        "latest_target",
+        "latest_collection_status",
+        "latest_record_count",
+        "consecutive_failure_count",
+        "health_label"
+      ],
+      "properties": {
+        "source_id": {"type": "string"},
+        "provider_id": {"type": "string"},
+        "expected_class": {
+          "enum": ["public_zero_key", "conditional_identity", "local_archive"]
+        },
+        "lanes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string"}
+        },
+        "observation_count": {"type": "integer", "minimum": 0},
+        "success_count": {"type": "integer", "minimum": 0},
+        "failure_count": {"type": "integer", "minimum": 0},
+        "missing_identity_count": {"type": "integer", "minimum": 0},
+        "pending_local_count": {"type": "integer", "minimum": 0},
+        "partial_error_count": {"type": "integer", "minimum": 0},
+        "total_record_count": {"type": "integer", "minimum": 0},
+        "success_rate": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "latest_target": {"type": ["string", "null"], "format": "date"},
+        "latest_collection_status": {"type": ["string", "null"]},
+        "latest_record_count": {"type": ["integer", "null"], "minimum": 0},
+        "consecutive_failure_count": {"type": "integer", "minimum": 0},
+        "health_label": {
+          "enum": [
+            "unobserved",
+            "collecting",
+            "healthy",
+            "degraded",
+            "manual_identity_required",
+            "local_history_pending",
+            "partial"
+          ]
+        }
+      }
+    },
+    "lane": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "monitored_source_ids",
+        "latest_operational_source_ids",
+        "latest_unavailable_source_ids",
+        "status",
+        "authority_granted"
+      ],
+      "properties": {
+        "monitored_source_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string"}
+        },
+        "latest_operational_source_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string"}
+        },
+        "latest_unavailable_source_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string"}
+        },
+        "status": {
+          "enum": [
+            "unobserved",
+            "available",
+            "partially_available",
+            "manual_action_required",
+            "accumulating",
+            "unavailable"
+          ]
+        },
+        "authority_granted": {"const": false}
+      }
+    }
+  }
+}

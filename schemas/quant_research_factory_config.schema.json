@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_research_factory_config.schema.json",
+  "title": "Quant Research Factory Configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "operating_timezone", "objective", "safety",
+    "paths", "scheduler", "evidence_gates", "programs", "governance"
+  ],
+  "properties": {
+    "schema": {"const": "quant_research_factory_config/1.0"},
+    "version": {"const": "1.1.0"},
+    "operating_timezone": {"const": "America/Los_Angeles"},
+    "objective": {"type": "string", "minLength": 1},
+    "safety": {"$ref": "#/$defs/configSafety"},
+    "paths": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "readiness_root", "experiment_root", "session_feature_root",
+        "feature_corpus", "output_root"
+      ],
+      "properties": {
+        "readiness_root": {"$ref": "#/$defs/safeRelativePath"},
+        "experiment_root": {"$ref": "#/$defs/safeRelativePath"},
+        "session_feature_root": {"$ref": "#/$defs/safeRelativePath"},
+        "feature_corpus": {"$ref": "#/$defs/safeRelativePath"},
+        "output_root": {"$ref": "#/$defs/safeRelativePath"}
+      }
+    },
+    "scheduler": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workflow", "fail_soft_for_narrative", "one_artifact_per_target",
+        "replace_current_health_artifact"
+      ],
+      "properties": {
+        "workflow": {"const": "post_close"},
+        "fail_soft_for_narrative": {"const": true},
+        "one_artifact_per_target": {"const": true},
+        "replace_current_health_artifact": {"const": true}
+      }
+    },
+    "evidence_gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minimum_completed_oos", "minimum_holdout_completed",
+        "minimum_walk_forward_folds", "minimum_positive_fold_fraction",
+        "minimum_fold_expectancy", "minimum_holdout_net_expectancy",
+        "minimum_stressed_net_expectancy", "minimum_holdout_profit_factor",
+        "maximum_holdout_drawdown_abs", "minimum_deflated_sharpe_probability",
+        "maximum_probability_backtest_overfitting", "minimum_cost_stress_multiplier",
+        "require_complete_trial_matrix", "require_locked_chronological_holdout",
+        "require_selection_bias_diagnostics", "require_all_artifact_hashes"
+      ],
+      "properties": {
+        "minimum_completed_oos": {"type": "integer", "minimum": 1},
+        "minimum_holdout_completed": {"type": "integer", "minimum": 1},
+        "minimum_walk_forward_folds": {"type": "integer", "minimum": 1},
+        "minimum_positive_fold_fraction": {"type": "number", "minimum": 0, "maximum": 1},
+        "minimum_fold_expectancy": {"type": "number"},
+        "minimum_holdout_net_expectancy": {"type": "number"},
+        "minimum_stressed_net_expectancy": {"type": "number"},
+        "minimum_holdout_profit_factor": {"type": "number"},
+        "maximum_holdout_drawdown_abs": {"type": "number", "minimum": 0},
+        "minimum_deflated_sharpe_probability": {"type": "number", "minimum": 0, "maximum": 1},
+        "maximum_probability_backtest_overfitting": {"type": "number", "minimum": 0, "maximum": 1},
+        "minimum_cost_stress_multiplier": {"type": "number", "minimum": 1},
+        "require_complete_trial_matrix": {"const": true},
+        "require_locked_chronological_holdout": {"const": true},
+        "require_selection_bias_diagnostics": {"const": true},
+        "require_all_artifact_hashes": {"const": true}
+      }
+    },
+    "programs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/program"}
+    },
+    "governance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "best_possible_terminal", "human_approval_required_before_activation",
+        "production_change_requires_separate_patch", "protected_risk_limits_unchanged",
+        "buy_gate_unchanged", "execution_remains_disabled"
+      ],
+      "properties": {
+        "best_possible_terminal": {"const": "candidate_for_category_D_governance_review"},
+        "human_approval_required_before_activation": {"const": true},
+        "production_change_requires_separate_patch": {"const": true},
+        "protected_risk_limits_unchanged": {"const": true},
+        "buy_gate_unchanged": {"const": true},
+        "execution_remains_disabled": {"const": true}
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+    },
+    "safeRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\u0000]+$"
+    },
+    "positiveInteger": {"type": "integer", "minimum": 1},
+    "configSafety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "research_only", "diagnostic_only", "execution_enabled",
+        "activation_authority", "strategy_change_allowed", "feeds_production",
+        "profitability_claim_allowed", "automatic_promotion_allowed",
+        "broker_access", "allow_dynamic_commands", "allow_network"
+      ],
+      "properties": {
+        "research_only": {"const": true},
+        "diagnostic_only": {"const": true},
+        "execution_enabled": {"const": false},
+        "activation_authority": {"const": false},
+        "strategy_change_allowed": {"const": false},
+        "feeds_production": {"const": false},
+        "profitability_claim_allowed": {"const": false},
+        "automatic_promotion_allowed": {"const": false},
+        "broker_access": {"const": "none"},
+        "allow_dynamic_commands": {"const": false},
+        "allow_network": {"const": false}
+      }
+    },
+    "program": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "program_id", "program_version", "status", "hypothesis", "decision_clock",
+        "direction", "instrument_types", "entry_model", "feature_allowlist",
+        "required_datasets", "parameter_grid", "expected_trial_count",
+        "modeled_costs_bps_per_side", "simulation_assumptions", "selection_policy",
+        "selection_bias_policy", "portfolio_export_policy", "walk_forward",
+        "holdout_policy", "excluded_thesis_inputs"
+      ],
+      "properties": {
+        "program_id": {"$ref": "#/$defs/identifier"},
+        "program_version": {"$ref": "#/$defs/identifier"},
+        "status": {"const": "preregistered_data_waiting"},
+        "hypothesis": {"type": "string", "minLength": 1},
+        "decision_clock": {"const": "prior_close"},
+        "direction": {"const": "long"},
+        "instrument_types": {"const": ["common_stock", "unleveraged_etf"]},
+        "entry_model": {"enum": ["next_open", "event_open"]},
+        "feature_allowlist": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "required_datasets": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "parameter_grid": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["max_entry_gap_atr", "stop_atr", "target_r_multiple", "max_hold_sessions"],
+          "properties": {
+            "max_entry_gap_atr": {"$ref": "#/$defs/positiveNumberGrid"},
+            "stop_atr": {"$ref": "#/$defs/positiveNumberGrid"},
+            "target_r_multiple": {"$ref": "#/$defs/positiveNumberGrid"},
+            "max_hold_sessions": {
+              "type": "array", "minItems": 1, "uniqueItems": true,
+              "items": {"type": "integer", "minimum": 1}
+            }
+          }
+        },
+        "expected_trial_count": {"type": "integer", "minimum": 1},
+        "modeled_costs_bps_per_side": {
+          "type": "array", "minItems": 2, "uniqueItems": true,
+          "items": {"type": "integer", "minimum": 0}
+        },
+        "simulation_assumptions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "entry_slippage_bps", "exit_slippage_bps", "stop_slippage_bps",
+            "base_transaction_cost_bps_per_side"
+          ],
+          "properties": {
+            "entry_slippage_bps": {"type": "integer", "minimum": 0, "maximum": 500},
+            "exit_slippage_bps": {"type": "integer", "minimum": 0, "maximum": 500},
+            "stop_slippage_bps": {"type": "integer", "minimum": 0, "maximum": 500},
+            "base_transaction_cost_bps_per_side": {"type": "integer", "minimum": 0, "maximum": 500}
+          }
+        },
+        "selection_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["objective", "train_shortlist_size", "final_variant_rule", "tie_break"],
+          "properties": {
+            "objective": {"const": "sharpe_per_observation_not_annualized_then_mean_return"},
+            "train_shortlist_size": {"type": "integer", "minimum": 1},
+            "final_variant_rule": {"const": "plurality_of_fold_selections_then_mean_fold_test_return"},
+            "tie_break": {"const": "lexicographically_smallest_variant_id"}
+          }
+        },
+        "selection_bias_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["cscv_slices", "remainder_policy", "minimum_observations"],
+          "properties": {
+            "cscv_slices": {"type": "integer", "minimum": 4, "multipleOf": 2},
+            "remainder_policy": {"const": "drop_oldest_pre_holdout_observations"},
+            "minimum_observations": {"type": "integer", "minimum": 1}
+          }
+        },
+        "portfolio_export_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled", "version", "benchmark_symbol", "benchmark_adjustment_view",
+            "cost_stress_multiplier", "requested_weight", "assumed_fraction_of_adv",
+            "priority_rule", "sector_bucket_rule", "daily_volatility_rule",
+            "missing_microstructure_rule"
+          ],
+          "properties": {
+            "enabled": {"const": true},
+            "version": {"const": "1.0.0"},
+            "benchmark_symbol": {"const": "SPY"},
+            "benchmark_adjustment_view": {"const": "total_return"},
+            "cost_stress_multiplier": {"const": 1.0},
+            "requested_weight": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+            "assumed_fraction_of_adv": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.01},
+            "priority_rule": {"const": "event_date_then_event_id_then_scenario_id"},
+            "sector_bucket_rule": {"const": "unknown_sector_single_concentration_bucket"},
+            "daily_volatility_rule": {"const": "annualized_feature_div_sqrt_252_to_bps"},
+            "missing_microstructure_rule": {"const": "retain_null_then_cost_gate_not_allocated"}
+          }
+        },
+        "walk_forward": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "train_calendar_days", "validate_calendar_days", "test_calendar_days",
+            "embargo_calendar_days", "step_calendar_days"
+          ],
+          "properties": {
+            "train_calendar_days": {"$ref": "#/$defs/positiveInteger"},
+            "validate_calendar_days": {"$ref": "#/$defs/positiveInteger"},
+            "test_calendar_days": {"$ref": "#/$defs/positiveInteger"},
+            "embargo_calendar_days": {"type": "integer", "minimum": 0},
+            "step_calendar_days": {"$ref": "#/$defs/positiveInteger"}
+          }
+        },
+        "holdout_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "locked_before_variant_selection", "holdout_calendar_days",
+            "minimum_completed_observations", "never_reused_for_parameter_selection"
+          ],
+          "properties": {
+            "locked_before_variant_selection": {"const": true},
+            "holdout_calendar_days": {"$ref": "#/$defs/positiveInteger"},
+            "minimum_completed_observations": {"$ref": "#/$defs/positiveInteger"},
+            "never_reused_for_parameter_selection": {"const": true}
+          }
+        },
+        "excluded_thesis_inputs": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "positiveNumberGrid": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": {"type": "number", "exclusiveMinimum": 0}
+    }
+  }
+}

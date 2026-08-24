@@ -1,0 +1,987 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://charles.local/schemas/operator_console_overview.schema.json",
+  "title": "Operator Console Overview",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "generated_utc",
+    "target_session_date",
+    "clocks",
+    "market_day",
+    "overall",
+    "next_session",
+    "natural_runs",
+    "scheduler",
+    "power",
+    "documentation",
+    "release",
+    "broker_safety",
+    "workflows",
+    "sources",
+    "research",
+    "reports",
+    "incidents",
+    "activity",
+    "safety",
+    "artifact_sha256"
+  ],
+  "$defs": {
+    "nullableTimestamp": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{0,47}$"
+    }
+  },
+  "properties": {
+    "schema": {
+      "const": "operator_console_overview/1.2"
+    },
+    "attention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "present",
+        "reasons",
+        "count",
+        "primary_reason",
+        "last_raised_utc",
+        "morning_failure_detail",
+        "candidate_quote_status"
+      ],
+      "properties": {
+        "present": {
+          "type": "boolean"
+        },
+        "reasons": {
+          "type": "array",
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/status"
+          }
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8
+        },
+        "primary_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "last_raised_utc": {
+          "$ref": "#/$defs/nullableTimestamp"
+        },
+        "morning_failure_detail": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "candidate_quote_status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "generated_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "target_session_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "clocks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pt",
+        "et",
+        "utc"
+      ],
+      "properties": {
+        "pt": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "et": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "utc": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        }
+      }
+    },
+    "market_day": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "reason"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "trading_day",
+            "non_trading_day",
+            "unknown"
+          ]
+        },
+        "reason": {
+          "$ref": "#/$defs/status"
+        }
+      }
+    },
+    "overall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "headline",
+        "research_only",
+        "manual_execution_only",
+        "execution_enabled"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "healthy",
+            "attention",
+            "critical"
+          ]
+        },
+        "headline": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 96
+        },
+        "research_only": {
+          "const": true
+        },
+        "manual_execution_only": {
+          "const": true
+        },
+        "execution_enabled": {
+          "const": false
+        }
+      }
+    },
+    "next_session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "target_session_date",
+        "generated_utc",
+        "official_research_path_ready",
+        "actionable_buy_path_ready",
+        "perfect_execution_guaranteed",
+        "manual_action_required",
+        "blocker_count",
+        "warning_count",
+        "blockers",
+        "warnings",
+        "continuity_ready",
+        "required_models_ready",
+        "required_models_expected",
+        "required_connectors_ready",
+        "required_connectors_expected",
+        "timing_contract_locked",
+        "source_artifact_sha256"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "ready",
+            "ready_with_advisories",
+            "blocked",
+            "unavailable"
+          ]
+        },
+        "target_session_date": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "generated_utc": {
+          "$ref": "#/$defs/nullableTimestamp"
+        },
+        "official_research_path_ready": {
+          "type": "boolean"
+        },
+        "actionable_buy_path_ready": {
+          "type": "boolean"
+        },
+        "perfect_execution_guaranteed": {
+          "const": false
+        },
+        "manual_action_required": {
+          "type": "boolean"
+        },
+        "blocker_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 16
+        },
+        "warning_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 16
+        },
+        "blockers": {
+          "type": "array",
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/status"
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/status"
+          }
+        },
+        "continuity_ready": {
+          "type": "boolean"
+        },
+        "required_models_ready": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "required_models_expected": {
+          "const": 2
+        },
+        "required_connectors_ready": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "required_connectors_expected": {
+          "const": 3
+        },
+        "timing_contract_locked": {
+          "type": "boolean"
+        },
+        "source_artifact_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "natural_runs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "target_session_date",
+        "generated_utc",
+        "observation_eligible",
+        "operational_acceptance",
+        "research_output_acceptance",
+        "broker_audit_canary_eligible",
+        "profitability_evidence_established",
+        "reason_count",
+        "reasons",
+        "source_artifact_sha256",
+        "rollup_status",
+        "valid_receipt_count",
+        "operational_acceptance_count",
+        "research_output_acceptance_count",
+        "broker_canary_eligible_count",
+        "minimum_broker_canary_sessions",
+        "ready_for_human_review",
+        "promotion_authorized",
+        "production_gate_enforced",
+        "rollup_artifact_sha256"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "waiting",
+            "pending",
+            "accepted",
+            "observed_not_accepted",
+            "blocked",
+            "not_applicable"
+          ]
+        },
+        "target_session_date": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "generated_utc": {
+          "$ref": "#/$defs/nullableTimestamp"
+        },
+        "observation_eligible": {
+          "type": "boolean"
+        },
+        "operational_acceptance": {
+          "type": "boolean"
+        },
+        "research_output_acceptance": {
+          "type": "boolean"
+        },
+        "broker_audit_canary_eligible": {
+          "type": "boolean"
+        },
+        "profitability_evidence_established": {
+          "const": false
+        },
+        "reason_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 16
+        },
+        "reasons": {
+          "type": "array",
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_.:-]{0,159}$"
+          }
+        },
+        "source_artifact_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "rollup_status": {
+          "enum": [
+            "waiting",
+            "collecting",
+            "ready_for_review",
+            "blocked"
+          ]
+        },
+        "valid_receipt_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "operational_acceptance_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "research_output_acceptance_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "broker_canary_eligible_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "minimum_broker_canary_sessions": {
+          "type": "integer",
+          "minimum": 5,
+          "maximum": 100
+        },
+        "ready_for_human_review": {
+          "type": "boolean"
+        },
+        "promotion_authorized": {
+          "const": false
+        },
+        "production_gate_enforced": {
+          "const": false
+        },
+        "rollup_artifact_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "scheduler": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "healthy_labels",
+        "expected_labels"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "healthy",
+            "at_issue",
+            "unavailable"
+          ]
+        },
+        "healthy_labels": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 6
+        },
+        "expected_labels": {
+          "const": 6
+        }
+      }
+    },
+    "power": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "required_wake_by_pt",
+        "observed_wake_pt",
+        "minutes_after_required",
+        "manual_admin_required"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "ready",
+            "at_issue",
+            "unavailable"
+          ]
+        },
+        "required_wake_by_pt": {
+          "type": "string",
+          "pattern": "^[0-2][0-9]:[0-5][0-9]$"
+        },
+        "observed_wake_pt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-2][0-9]:[0-5][0-9]$"
+        },
+        "minutes_after_required": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "manual_admin_required": {
+          "type": "boolean"
+        }
+      }
+    },
+    "documentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "files_scanned",
+        "errors_count"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "healthy",
+            "at_issue",
+            "unavailable"
+          ]
+        },
+        "files_scanned": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "errors_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "release": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "snapshot_id",
+        "reproducible",
+        "drift_count",
+        "runtime_binding_status",
+        "runtime_binding_ok",
+        "validated_generated_output_count"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "match",
+            "drift",
+            "invalid_snapshot",
+            "unverified",
+            "unavailable"
+          ]
+        },
+        "snapshot_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 120
+        },
+        "reproducible": {
+          "type": "boolean"
+        },
+        "drift_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "runtime_binding_status": {
+          "enum": [
+            "match",
+            "expected_output_drift",
+            "blocked",
+            "unavailable"
+          ]
+        },
+        "runtime_binding_ok": {
+          "type": "boolean"
+        },
+        "validated_generated_output_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "broker_safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "preview_write_attempts",
+        "unknown_attempts",
+        "zero_preview_write_verified"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "zero_verified",
+            "unobservable",
+            "violation",
+            "unavailable"
+          ]
+        },
+        "preview_write_attempts": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "unknown_attempts": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "zero_preview_write_verified": {
+          "type": "boolean"
+        }
+      }
+    },
+    "workflows": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label",
+          "scheduled_pt",
+          "start_deadline_pt",
+          "terminal_deadline_pt",
+          "workflow_status",
+          "workflow_reason",
+          "start_status",
+          "terminal_status",
+          "started_utc",
+          "finished_utc"
+        ],
+        "properties": {
+          "id": {
+            "enum": [
+              "intake",
+              "macro_refresh",
+              "morning",
+              "post_open",
+              "post_close"
+            ]
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32
+          },
+          "scheduled_pt": {
+            "type": "string",
+            "pattern": "^[0-2][0-9]:[0-5][0-9]$"
+          },
+          "start_deadline_pt": {
+            "type": "string",
+            "pattern": "^[0-2][0-9]:[0-5][0-9]$"
+          },
+          "terminal_deadline_pt": {
+            "type": "string",
+            "pattern": "^[0-2][0-9]:[0-5][0-9]$"
+          },
+          "workflow_status": {
+            "$ref": "#/$defs/status"
+          },
+          "workflow_reason": {
+            "$ref": "#/$defs/status"
+          },
+          "start_status": {
+            "$ref": "#/$defs/status"
+          },
+          "terminal_status": {
+            "$ref": "#/$defs/status"
+          },
+          "started_utc": {
+            "$ref": "#/$defs/nullableTimestamp"
+          },
+          "finished_utc": {
+            "$ref": "#/$defs/nullableTimestamp"
+          }
+        }
+      }
+    },
+    "sources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "sessions_seen",
+        "valid_sessions",
+        "provider_health_counts",
+        "lanes"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "healthy",
+            "collecting",
+            "degraded",
+            "at_issue",
+            "unavailable"
+          ]
+        },
+        "sessions_seen": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "valid_sessions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "provider_health_counts": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "lanes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "status",
+              "monitored_sources",
+              "operational_sources"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/status"
+              },
+              "status": {
+                "$ref": "#/$defs/status"
+              },
+              "monitored_sources": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "operational_sources": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    "research": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shadow_observations",
+        "official_metric_observations",
+        "model_components",
+        "model_status_counts",
+        "strategy_registry_events",
+        "executed_trades",
+        "profitability_evidence",
+        "evidence_reason"
+      ],
+      "properties": {
+        "shadow_observations": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "official_metric_observations": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "model_components": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "model_status_counts": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "strategy_registry_events": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "executed_trades": {
+          "const": 0
+        },
+        "profitability_evidence": {
+          "const": "not_established"
+        },
+        "evidence_reason": {
+          "enum": [
+            "insufficient_locked_shadow_evidence",
+            "research_ledger_unavailable"
+          ]
+        }
+      }
+    },
+    "reports": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "category",
+          "date",
+          "label",
+          "modified_utc"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{16}$"
+          },
+          "category": {
+            "enum": [
+              "preliminary",
+              "post_close",
+              "postmortem",
+              "readiness",
+              "replay"
+            ]
+          },
+          "date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 48
+          },
+          "modified_utc": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "incidents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "severity",
+          "scope"
+        ],
+        "properties": {
+          "code": {
+            "$ref": "#/$defs/status"
+          },
+          "severity": {
+            "enum": [
+              "info",
+              "warning",
+              "critical"
+            ]
+          },
+          "scope": {
+            "enum": [
+              "attention",
+              "system",
+              "readiness",
+              "natural_run",
+              "scheduler",
+              "power",
+              "workflow",
+              "source",
+              "release",
+              "broker",
+              "documentation"
+            ]
+          }
+        }
+      }
+    },
+    "activity": {
+      "type": "array",
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "workflow",
+          "event",
+          "utc"
+        ],
+        "properties": {
+          "workflow": {
+            "enum": [
+              "intake",
+              "morning",
+              "post_open",
+              "post_close"
+            ]
+          },
+          "event": {
+            "enum": [
+              "attempt_started",
+              "attempt_finished"
+            ]
+          },
+          "utc": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "diagnostic_only",
+        "loopback_only",
+        "read_only",
+        "mutation_endpoints_enabled",
+        "external_network_enabled",
+        "external_communications_enabled",
+        "account_data_allowed",
+        "market_price_data_allowed",
+        "report_content_allowed",
+        "credentials_allowed",
+        "model_invoked",
+        "broker_invoked",
+        "strategy_change_allowed",
+        "execution_enabled"
+      ],
+      "properties": {
+        "diagnostic_only": {
+          "const": true
+        },
+        "loopback_only": {
+          "const": true
+        },
+        "read_only": {
+          "const": true
+        },
+        "mutation_endpoints_enabled": {
+          "const": false
+        },
+        "external_network_enabled": {
+          "const": false
+        },
+        "external_communications_enabled": {
+          "const": false
+        },
+        "account_data_allowed": {
+          "const": false
+        },
+        "market_price_data_allowed": {
+          "const": false
+        },
+        "report_content_allowed": {
+          "const": false
+        },
+        "credentials_allowed": {
+          "const": false
+        },
+        "model_invoked": {
+          "const": false
+        },
+        "broker_invoked": {
+          "const": false
+        },
+        "strategy_change_allowed": {
+          "const": false
+        },
+        "execution_enabled": {
+          "const": false
+        }
+      }
+    },
+    "artifact_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

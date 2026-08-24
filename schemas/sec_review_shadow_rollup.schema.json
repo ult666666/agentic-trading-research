@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sec_review_shadow_rollup.schema.json",
+  "title": "SEC shadow adoption and review-quality rollup",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "generated_utc", "window", "sessions", "volume",
+    "review_quality", "adoption", "checkpoint", "operational_status",
+    "recommendation_label", "action_hints", "ok", "safety", "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "sec_review_shadow_rollup/1.0"},
+    "version": {"const": "1.0.0"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "window": {"$ref": "#/$defs/window"},
+    "sessions": {"$ref": "#/$defs/sessions"},
+    "volume": {"$ref": "#/$defs/volume"},
+    "review_quality": {"$ref": "#/$defs/reviewQuality"},
+    "adoption": {"$ref": "#/$defs/adoption"},
+    "checkpoint": {"$ref": "#/$defs/checkpoint"},
+    "operational_status": {"enum": ["at_issue", "waiting_for_sec_input", "collecting", "checkpoint_reached"]},
+    "recommendation_label": {"enum": ["investigate", "restore_sec_input", "collect_evidence", "human_quality_review"]},
+    "action_hints": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "maxLength": 300}},
+    "ok": {"type": "boolean"},
+    "safety": {"$ref": "sec_review_shadow_rollup_policy.schema.json#/$defs/safety"},
+    "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "dateOrNull": {"type": ["string", "null"], "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+    "rateOrNull": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "countMap": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "window": {
+      "type": "object", "additionalProperties": false,
+      "required": ["date_from", "date_to", "limit", "expected_target", "window_start", "window_end"],
+      "properties": {
+        "date_from": {"$ref": "#/$defs/dateOrNull"},
+        "date_to": {"$ref": "#/$defs/dateOrNull"},
+        "limit": {"type": "integer", "minimum": 1},
+        "expected_target": {"$ref": "#/$defs/dateOrNull"},
+        "window_start": {"$ref": "#/$defs/dateOrNull"},
+        "window_end": {"$ref": "#/$defs/dateOrNull"}
+      }
+    },
+    "sessions": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "discovered_count", "valid_receipt_count", "waiting_count", "queue_session_count",
+        "draft_session_count", "sealed_session_count", "at_issue_count", "invalid_count",
+        "latest_target", "latest_state", "state_counts", "status_counts", "reason_code_counts"
+      ],
+      "properties": {
+        "discovered_count": {"type": "integer", "minimum": 0},
+        "valid_receipt_count": {"type": "integer", "minimum": 0},
+        "waiting_count": {"type": "integer", "minimum": 0},
+        "queue_session_count": {"type": "integer", "minimum": 0},
+        "draft_session_count": {"type": "integer", "minimum": 0},
+        "sealed_session_count": {"type": "integer", "minimum": 0},
+        "at_issue_count": {"type": "integer", "minimum": 0},
+        "invalid_count": {"type": "integer", "minimum": 0},
+        "latest_target": {"$ref": "#/$defs/dateOrNull"},
+        "latest_state": {"type": ["string", "null"]},
+        "state_counts": {"$ref": "#/$defs/countMap"},
+        "status_counts": {"$ref": "#/$defs/countMap"},
+        "reason_code_counts": {"$ref": "#/$defs/countMap"}
+      }
+    },
+    "volume": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_records", "eligible_filings", "excluded_filings", "review_tasks", "sealed_reviews", "receipt_count", "fact_count", "prompt_injection_count"],
+      "properties": {
+        "source_records": {"type": "integer", "minimum": 0},
+        "eligible_filings": {"type": "integer", "minimum": 0},
+        "excluded_filings": {"type": "integer", "minimum": 0},
+        "review_tasks": {"type": "integer", "minimum": 0},
+        "sealed_reviews": {"type": "integer", "minimum": 0},
+        "receipt_count": {"type": "integer", "minimum": 0},
+        "fact_count": {"type": "integer", "minimum": 0},
+        "prompt_injection_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "reviewQuality": {
+      "type": "object", "additionalProperties": false,
+      "required": ["result_status_counts", "disposition_counts", "receipt_backed_review_count", "unavailable_review_count", "receipt_backed_review_rate", "unavailable_review_rate"],
+      "properties": {
+        "result_status_counts": {"$ref": "#/$defs/countMap"},
+        "disposition_counts": {"$ref": "#/$defs/countMap"},
+        "receipt_backed_review_count": {"type": "integer", "minimum": 0},
+        "unavailable_review_count": {"type": "integer", "minimum": 0},
+        "receipt_backed_review_rate": {"$ref": "#/$defs/rateOrNull"},
+        "unavailable_review_rate": {"$ref": "#/$defs/rateOrNull"}
+      }
+    },
+    "adoption": {
+      "type": "object", "additionalProperties": false,
+      "required": ["queue_session_rate", "draft_session_rate", "sealed_session_rate"],
+      "properties": {
+        "queue_session_rate": {"$ref": "#/$defs/rateOrNull"},
+        "draft_session_rate": {"$ref": "#/$defs/rateOrNull"},
+        "sealed_session_rate": {"$ref": "#/$defs/rateOrNull"}
+      }
+    },
+    "checkpoint": {
+      "type": "object", "additionalProperties": false,
+      "required": ["minimum_queue_sessions", "minimum_sealed_reviews", "queue_sessions_met", "sealed_reviews_met", "count_checkpoint_reached", "semantic_quality_review_required", "bridge_activation_allowed"],
+      "properties": {
+        "minimum_queue_sessions": {"const": 20},
+        "minimum_sealed_reviews": {"const": 100},
+        "queue_sessions_met": {"type": "boolean"},
+        "sealed_reviews_met": {"type": "boolean"},
+        "count_checkpoint_reached": {"type": "boolean"},
+        "semantic_quality_review_required": {"const": true},
+        "bridge_activation_allowed": {"const": false}
+      }
+    }
+  }
+}

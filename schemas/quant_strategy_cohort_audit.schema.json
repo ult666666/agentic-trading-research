@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_strategy_cohort_audit.schema.json",
+  "title": "Quant Strategy Cohort Audit",
+  "type": "object",
+  "required": [
+    "schema", "cohort_id", "cohort_sha256", "candidate_strategy_id",
+    "registry_lock_head_sha256", "classification", "uniqueness_result",
+    "uniqueness_result_sha256", "audit_sha256", "diagnostic_only",
+    "feeds_production", "feeds_research_factory", "execution_enabled",
+    "activation_authority", "automatic_promotion_allowed", "actual_orders_count"
+  ],
+  "properties": {
+    "schema": {"const": "quant_strategy_cohort_audit/1.0"},
+    "cohort_id": {"type": "string"},
+    "cohort_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "candidate_strategy_id": {"type": "string"},
+    "registry_lock_head_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "classification": {
+      "enum": [
+        "insufficient_data",
+        "redundant",
+        "distinct_but_unproven",
+        "incremental_alpha_review_candidate"
+      ]
+    },
+    "uniqueness_result": {"type": "object"},
+    "uniqueness_result_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "audit_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "diagnostic_only": {"const": true},
+    "feeds_production": {"const": false},
+    "feeds_research_factory": {"const": false},
+    "execution_enabled": {"const": false},
+    "activation_authority": {"const": false},
+    "automatic_promotion_allowed": {"const": false},
+    "actual_orders_count": {"const": 0}
+  }
+}

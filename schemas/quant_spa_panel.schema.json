@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://charles.local/schemas/quant_spa_panel.schema.json",
+  "title": "Aligned Quant SPA Portfolio Panel",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "actionable", "diagnostic_only", "feeds_production", "excluded_from_expectancy",
+    "excluded_from_official_replay_outcomes", "excluded_from_performance",
+    "excluded_from_win_rate", "note", "record_type", "activation_authority",
+    "strategy_change_allowed", "execution_enabled", "executed_trade_performance",
+    "broker_access", "account_data_allowed", "network_invoked", "model_invoked",
+    "promotion_allowed", "profitability_claim_allowed", "feeds_research_factory",
+    "feeds_buy_gate", "counts_in_metrics", "tool", "ok", "schema", "builder_version",
+    "generated_utc", "comparison_id", "declared_model_count", "family_complete",
+    "observation_dates", "benchmark", "models", "benchmark_returns", "model_returns",
+    "return_semantics", "source_contract_compatible", "cost_stress_multiplier",
+    "policy_versions", "panel_sha256"
+  ],
+  "properties": {
+    "actionable": {"const": false}, "diagnostic_only": {"const": true},
+    "feeds_production": {"const": false}, "excluded_from_expectancy": {"const": true},
+    "excluded_from_official_replay_outcomes": {"const": true},
+    "excluded_from_performance": {"const": true}, "excluded_from_win_rate": {"const": true},
+    "note": {"const": "Offline quant research lab diagnostic. NOT a proposed Buy; NEVER feeds production scoring/gates; excluded from all performance metrics."},
+    "record_type": {"const": "non_actionable_diagnostic"},
+    "activation_authority": {"const": false}, "strategy_change_allowed": {"const": false},
+    "execution_enabled": {"const": false}, "executed_trade_performance": {"const": false},
+    "broker_access": {"const": "none"}, "account_data_allowed": {"const": false},
+    "network_invoked": {"const": false}, "model_invoked": {"const": false},
+    "promotion_allowed": {"const": false}, "profitability_claim_allowed": {"const": false},
+    "feeds_research_factory": {"const": false}, "feeds_buy_gate": {"const": false},
+    "counts_in_metrics": {"const": false}, "tool": {"const": "quant.spa_audit"},
+    "ok": {"const": true}, "schema": {"const": "quant_spa_panel/1.0"},
+    "builder_version": {"const": "1.1.0"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "comparison_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "declared_model_count": {"type": "integer", "minimum": 2, "maximum": 500},
+    "family_complete": {"type": "boolean"},
+    "observation_dates": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": {"type": "string", "format": "date"}
+    },
+    "benchmark": {"$ref": "#/$defs/source"},
+    "models": {"type": "array", "minItems": 2, "maxItems": 500, "items": {"$ref": "#/$defs/source"}},
+    "benchmark_returns": {"type": "array", "minItems": 1, "items": {"type": "number", "minimum": -1, "maximum": 10}},
+    "model_returns": {
+      "type": "array", "minItems": 2, "maxItems": 500,
+      "items": {"type": "array", "minItems": 1, "items": {"type": "number", "minimum": -1, "maximum": 10}}
+    },
+    "return_semantics": {"const": "daily_normalized_capital_net_of_modeled_costs_not_executed"},
+    "source_contract_compatible": {"const": true},
+    "cost_stress_multiplier": {"type": "number", "minimum": 1},
+    "policy_versions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shared_cost", "shared_portfolio", "benchmark_plan", "model_plans"],
+      "properties": {
+        "shared_cost": {"type": "string", "minLength": 1},
+        "shared_portfolio": {"type": "string", "minLength": 1},
+        "benchmark_plan": {"type": "string", "minLength": 1},
+        "model_plans": {
+          "type": "object",
+          "minProperties": 2,
+          "additionalProperties": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "panel_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["portfolio_id", "source_path", "source_file_sha256", "source_result_sha256", "source_daily_path_sha256"],
+      "properties": {
+        "portfolio_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+        "source_path": {"type": "string", "minLength": 1},
+        "source_file_sha256": {"$ref": "#/$defs/sha"},
+        "source_result_sha256": {"$ref": "#/$defs/sha"},
+        "source_daily_path_sha256": {"$ref": "#/$defs/sha"}
+      }
+    }
+  }
+}

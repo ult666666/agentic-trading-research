@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://charles.local/schemas/next_session_readiness_receipt.schema.json",
+  "title": "Next-session readiness receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "generated_utc", "target_session_date", "target_weekday", "status", "ok",
+    "official_research_path_ready", "actionable_buy_path_ready", "perfect_execution_guaranteed",
+    "manual_action_required", "blockers", "warnings", "checks", "evidence", "limitations",
+    "safety", "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "next_session_readiness/1.0"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "target_session_date": {"type": "string", "format": "date"},
+    "target_weekday": {"enum": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]},
+    "status": {"enum": ["ready", "ready_with_advisories", "blocked"]},
+    "ok": {"type": "boolean"},
+    "official_research_path_ready": {"type": "boolean"},
+    "actionable_buy_path_ready": {"type": "boolean"},
+    "perfect_execution_guaranteed": {"const": false},
+    "manual_action_required": {"type": "boolean"},
+    "blockers": {"$ref": "#/$defs/tokenList"},
+    "warnings": {"$ref": "#/$defs/tokenList"},
+    "checks": {
+      "type": "array", "minItems": 1,
+      "items": {"$ref": "#/$defs/check"}
+    },
+    "evidence": {"type": "object"},
+    "limitations": {"type": "array", "minItems": 4, "items": {"type": "string", "minLength": 1}},
+    "safety": {"$ref": "next_session_readiness_policy.schema.json#/$defs/safety"},
+    "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "tokenList": {
+      "type": "array", "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,79}$"}
+    },
+    "check": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "required", "status", "reason_codes"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,79}$"},
+        "required": {"type": "boolean"},
+        "status": {"enum": ["pass", "warn", "fail"]},
+        "reason_codes": {"$ref": "#/$defs/tokenList"}
+      }
+    }
+  }
+}

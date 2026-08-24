@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sec_filing_event_bundle.schema.json",
+  "title": "Cutoff-aware SEC filing metadata event bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "parser_version", "policy_version", "policy_path", "policy_sha256",
+    "taxonomy_path", "taxonomy_sha256", "source_batch_path",
+    "source_batch_file_sha256", "source_batch_sha256", "source_batch_retrieved_at_utc",
+    "source_batch_record_count", "source_batch_collection_error_count",
+    "source_batch_collection_errors_sha256", "knowledge_cutoff_utc", "generated_utc",
+    "coverage_scope", "complete_sec_universe_coverage", "complete_input_denominator",
+    "eligible_record_count", "excluded_record_count", "filings", "exclusions",
+    "summary", "limitations", "safety", "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "sec_filing_event_bundle/1.0"},
+    "parser_version": {"const": "1.0.0"},
+    "policy_version": {"const": "1.0.0"},
+    "policy_path": {"type": "string", "minLength": 1},
+    "policy_sha256": {"$ref": "#/$defs/sha"},
+    "taxonomy_path": {"type": "string", "minLength": 1},
+    "taxonomy_sha256": {"$ref": "#/$defs/sha"},
+    "source_batch_path": {"type": "string", "minLength": 1},
+    "source_batch_file_sha256": {"$ref": "#/$defs/sha"},
+    "source_batch_sha256": {"$ref": "#/$defs/sha"},
+    "source_batch_retrieved_at_utc": {"type": "string", "format": "date-time"},
+    "source_batch_record_count": {"type": "integer", "minimum": 0},
+    "source_batch_collection_error_count": {"type": "integer", "minimum": 0},
+    "source_batch_collection_errors_sha256": {"$ref": "#/$defs/sha"},
+    "knowledge_cutoff_utc": {"type": "string", "format": "date-time"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "coverage_scope": {"const": "validated_input_batch_records_only"},
+    "complete_sec_universe_coverage": {"const": false},
+    "complete_input_denominator": {"const": true},
+    "eligible_record_count": {"type": "integer", "minimum": 0},
+    "excluded_record_count": {"type": "integer", "minimum": 0},
+    "filings": {"type": "array", "items": {"$ref": "#/$defs/filing"}},
+    "exclusions": {"type": "array", "items": {"$ref": "#/$defs/exclusion"}},
+    "summary": {"$ref": "#/$defs/summary"},
+    "limitations": {
+      "type": "array", "minItems": 3, "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "safety": {"$ref": "sec_event_parser_policy.schema.json#/$defs/safety"},
+    "artifact_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "token": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_]{0,95}$"},
+    "stringCounts": {
+      "type": "object", "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "formClass": {
+      "type": "object", "additionalProperties": false,
+      "required": ["filing_family", "catalyst_category", "risk_flags", "metadata_claim"],
+      "properties": {
+        "filing_family": {"$ref": "#/$defs/token"},
+        "catalyst_category": {"$ref": "#/$defs/token"},
+        "risk_flags": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/token"}},
+        "metadata_claim": {"$ref": "#/$defs/token"}
+      }
+    },
+    "itemEvent": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "item_code", "known_item", "title", "event_family", "catalyst_category",
+        "risk_flags", "standalone_event", "metadata_verification_status",
+        "filing_content_reviewed", "substance_confirmed", "directional_signal",
+        "actionability", "grants_catalyst_confirmation", "event_sha256"
+      ],
+      "properties": {
+        "item_code": {"type": "string", "pattern": "^[0-9]{1,2}\\.[0-9]{2}$"},
+        "known_item": {"type": "boolean"},
+        "title": {"type": "string", "minLength": 1, "maxLength": 240},
+        "event_family": {"$ref": "#/$defs/token"},
+        "catalyst_category": {"$ref": "#/$defs/token"},
+        "risk_flags": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/token"}},
+        "standalone_event": {"type": "boolean"},
+        "metadata_verification_status": {"const": "sec_primary_metadata_only"},
+        "filing_content_reviewed": {"const": false},
+        "substance_confirmed": {"const": false},
+        "directional_signal": {"type": "null"},
+        "actionability": {"const": false},
+        "grants_catalyst_confirmation": {"const": false},
+        "event_sha256": {"$ref": "#/$defs/sha"}
+      }
+    },
+    "filing": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "accession_number", "entity_id", "symbol", "source_record_sha256",
+        "accepted_at_utc", "observed_at_utc", "filing_date", "report_date", "form",
+        "form_recognized", "is_amendment", "form_classification", "primary_document",
+        "primary_document_description_sha256", "items_source_sha256", "item_events",
+        "unknown_item_codes", "malformed_item_token_count", "metadata_warnings",
+        "standalone_item_event_count", "supplemental_item_count",
+        "metadata_verification_status", "filing_content_reviewed", "substance_confirmed",
+        "directional_signal", "actionability", "grants_catalyst_confirmation",
+        "filing_sha256"
+      ],
+      "properties": {
+        "accession_number": {"type": "string", "pattern": "^[0-9]{10}-[0-9]{2}-[0-9]{6}$"},
+        "entity_id": {"type": "string", "pattern": "^cik:[0-9]{10}$"},
+        "symbol": {"type": ["string", "null"], "pattern": "^[A-Z][A-Z0-9.\\-]{0,9}$"},
+        "source_record_sha256": {"$ref": "#/$defs/sha"},
+        "accepted_at_utc": {"type": "string", "format": "date-time"},
+        "observed_at_utc": {"type": "string", "format": "date-time"},
+        "filing_date": {"type": ["string", "null"], "format": "date"},
+        "report_date": {"type": ["string", "null"], "format": "date"},
+        "form": {"type": "string", "minLength": 1, "maxLength": 32},
+        "form_recognized": {"type": "boolean"},
+        "is_amendment": {"type": "boolean"},
+        "form_classification": {"$ref": "#/$defs/formClass"},
+        "primary_document": {"type": ["string", "null"], "maxLength": 128},
+        "primary_document_description_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "items_source_sha256": {"$ref": "#/$defs/sha"},
+        "item_events": {"type": "array", "items": {"$ref": "#/$defs/itemEvent"}},
+        "unknown_item_codes": {
+          "type": "array", "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[0-9]{1,2}\\.[0-9]{2}$"}
+        },
+        "malformed_item_token_count": {"type": "integer", "minimum": 0},
+        "metadata_warnings": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/token"}},
+        "standalone_item_event_count": {"type": "integer", "minimum": 0},
+        "supplemental_item_count": {"type": "integer", "minimum": 0},
+        "metadata_verification_status": {"const": "sec_primary_metadata_only"},
+        "filing_content_reviewed": {"const": false},
+        "substance_confirmed": {"const": false},
+        "directional_signal": {"type": "null"},
+        "actionability": {"const": false},
+        "grants_catalyst_confirmation": {"const": false},
+        "filing_sha256": {"$ref": "#/$defs/sha"}
+      }
+    },
+    "exclusion": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "record_id", "accession_number", "reason", "publication_time_utc",
+        "observed_at_utc", "source_record_sha256", "exclusion_sha256"
+      ],
+      "properties": {
+        "record_id": {"type": "string", "minLength": 1},
+        "accession_number": {"type": ["string", "null"]},
+        "reason": {
+          "enum": [
+            "acceptance_timestamp_missing", "accepted_after_knowledge_cutoff",
+            "observed_after_knowledge_cutoff"
+          ]
+        },
+        "publication_time_utc": {"type": ["string", "null"], "format": "date-time"},
+        "observed_at_utc": {"type": "string", "format": "date-time"},
+        "source_record_sha256": {"$ref": "#/$defs/sha"},
+        "exclusion_sha256": {"$ref": "#/$defs/sha"}
+      }
+    },
+    "summary": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "filing_count", "amendment_count", "standalone_item_event_count",
+        "supplemental_item_count", "unknown_form_count", "unknown_item_count",
+        "malformed_item_token_count", "form_counts", "filing_family_counts",
+        "form_category_counts", "item_code_counts", "item_category_counts",
+        "risk_flag_counts", "exclusion_reason_counts"
+      ],
+      "properties": {
+        "filing_count": {"type": "integer", "minimum": 0},
+        "amendment_count": {"type": "integer", "minimum": 0},
+        "standalone_item_event_count": {"type": "integer", "minimum": 0},
+        "supplemental_item_count": {"type": "integer", "minimum": 0},
+        "unknown_form_count": {"type": "integer", "minimum": 0},
+        "unknown_item_count": {"type": "integer", "minimum": 0},
+        "malformed_item_token_count": {"type": "integer", "minimum": 0},
+        "form_counts": {"$ref": "#/$defs/stringCounts"},
+        "filing_family_counts": {"$ref": "#/$defs/stringCounts"},
+        "form_category_counts": {"$ref": "#/$defs/stringCounts"},
+        "item_code_counts": {"$ref": "#/$defs/stringCounts"},
+        "item_category_counts": {"$ref": "#/$defs/stringCounts"},
+        "risk_flag_counts": {"$ref": "#/$defs/stringCounts"},
+        "exclusion_reason_counts": {"$ref": "#/$defs/stringCounts"}
+      }
+    }
+  }
+}

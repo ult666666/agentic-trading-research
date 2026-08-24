@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "manual_execution_source_receipt.schema.json",
+  "title": "Sanitized read-only broker observation receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "case_id", "event_type", "event_at_utc", "source_tool",
+    "source_session_fingerprint_sha256", "facts", "observed_in_session",
+    "contains_account_data", "contains_credentials", "broker_access", "broker_mutation",
+    "system_execution", "attestation", "receipt_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "manual_execution_source_receipt/1.0"},
+    "case_id": {"type": "string", "pattern": "^case:[0-9a-f]{64}$"},
+    "event_type": {"enum": ["decision", "order_entry", "fill", "terminal"]},
+    "event_at_utc": {"type": "string", "format": "date-time"},
+    "source_tool": {"type": "string", "minLength": 1},
+    "source_session_fingerprint_sha256": {"$ref": "#/$defs/sha"},
+    "facts": {"type": "object"},
+    "observed_in_session": {"const": true},
+    "contains_account_data": {"const": false},
+    "contains_credentials": {"const": false},
+    "broker_access": {"const": "read_only"},
+    "broker_mutation": {"const": false},
+    "system_execution": {"const": false},
+    "attestation": {"type": "string", "minLength": 20},
+    "receipt_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

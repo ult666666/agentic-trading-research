@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "free_source_ensemble_plan.schema.json",
+  "title": "Credential-redacted free-source assignment plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "target_session_date", "generated_utc", "status", "errors", "tasks",
+    "lane_coverage", "manual_actions", "procurement_policy_valid", "research_only",
+    "shadow_only", "maximum_external_spend_usd", "execution_enabled",
+    "broker_write_allowed", "source_authority_granted", "buy_authority_granted",
+    "feeds_production_scoring", "strategy_activation_allowed",
+    "raw_payload_persistence_allowed", "plan_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "free_source_ensemble_plan/1.0"},
+    "target_session_date": {"type": "string"},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["plan_complete", "plan_degraded", "blocked"]},
+    "errors": {"type": "array", "items": {"type": "string"}},
+    "tasks": {"type": "array"},
+    "lane_coverage": {"type": "object"},
+    "manual_actions": {"type": "array"},
+    "procurement_policy_valid": {"type": "boolean"},
+    "research_only": {"const": true},
+    "shadow_only": {"const": true},
+    "maximum_external_spend_usd": {"const": "0.00"},
+    "execution_enabled": {"const": false},
+    "broker_write_allowed": {"const": false},
+    "source_authority_granted": {"const": false},
+    "buy_authority_granted": {"const": false},
+    "feeds_production_scoring": {"const": false},
+    "strategy_activation_allowed": {"const": false},
+    "raw_payload_persistence_allowed": {"const": false},
+    "plan_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "morning_stage_telemetry.schema.json",
+  "title": "Morning stage telemetry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "target_session_date", "natural_run_id", "events", "safety", "artifact_sha256"],
+  "properties": {
+    "schema": {"const": "morning_stage_telemetry/1.0"},
+    "target_session_date": {"type": "string", "format": "date"},
+    "natural_run_id": {"type": "string", "pattern": "^morning-[A-Za-z0-9_.-]+$"},
+    "events": {
+      "type": "array",
+      "maxItems": 500,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["seq", "timestamp_utc", "timestamp_pt", "stage", "status", "elapsed_seconds", "remaining_to_total_deadline_seconds", "budget_stage", "detail"],
+        "properties": {
+          "seq": {"type": "integer", "minimum": 0},
+          "timestamp_utc": {"type": "string", "format": "date-time"},
+          "timestamp_pt": {"type": "string", "format": "date-time"},
+          "stage": {"type": "string", "maxLength": 80},
+          "status": {"enum": ["started", "finished", "done", "failed", "skipped", "written", "deferred"]},
+          "elapsed_seconds": {"type": ["integer", "string"], "minimum": 0},
+          "remaining_to_total_deadline_seconds": {"type": ["integer", "string"], "minimum": 0},
+          "budget_stage": {"type": ["string", "null"], "maxLength": 80},
+          "detail": {"type": "string", "maxLength": 500}
+        }
+      }
+    },
+    "safety": {"type": "object"},
+    "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

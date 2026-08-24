@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "autonomy_service_alert_receipt.schema.json",
+  "title": "Deduplicated autonomy service alert transition receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "generated_utc",
+    "target_session_date",
+    "status",
+    "transition",
+    "severity",
+    "health_overall_status",
+    "health_artifact_sha256",
+    "previous_active_fingerprint",
+    "active_fingerprint",
+    "active_codes",
+    "notification_required",
+    "notification_kind",
+    "state_written",
+    "errors",
+    "diagnostic_only",
+    "health_data_read_only",
+    "local_state_write_only",
+    "external_notification_enabled",
+    "retry_authority",
+    "schedule_change_allowed",
+    "report_change_allowed",
+    "strategy_change_allowed",
+    "execution_enabled",
+    "model_invoked",
+    "broker_invoked",
+    "contains_account_data",
+    "contains_credentials",
+    "artifact_sha256",
+    "slo_persistence"
+  ],
+  "properties": {
+    "schema": {
+      "const": "autonomy_service_alert_receipt/1.0"
+    },
+    "generated_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "target_session_date": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "status": {
+      "enum": [
+        "alert",
+        "unchanged",
+        "resolved",
+        "clear",
+        "unavailable",
+        "blocked"
+      ]
+    },
+    "transition": {
+      "enum": [
+        "new_alert",
+        "changed_alert",
+        "unchanged",
+        "resolved",
+        "clear",
+        "unavailable",
+        "state_invalid"
+      ]
+    },
+    "severity": {
+      "enum": [
+        "none",
+        "warning",
+        "critical"
+      ]
+    },
+    "health_overall_status": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "healthy",
+        "degraded",
+        "in_progress",
+        "at_issue",
+        null
+      ]
+    },
+    "health_artifact_sha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "previous_active_fingerprint": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "active_fingerprint": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "active_codes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9_.:-]+$"
+      }
+    },
+    "notification_required": {
+      "type": "boolean"
+    },
+    "notification_kind": {
+      "enum": [
+        "none",
+        "alert",
+        "recovery"
+      ]
+    },
+    "state_written": {
+      "type": "boolean"
+    },
+    "errors": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9_.:-]+$"
+      }
+    },
+    "diagnostic_only": {
+      "const": true
+    },
+    "health_data_read_only": {
+      "const": true
+    },
+    "local_state_write_only": {
+      "const": true
+    },
+    "external_notification_enabled": {
+      "const": false
+    },
+    "retry_authority": {
+      "const": false
+    },
+    "schedule_change_allowed": {
+      "const": false
+    },
+    "report_change_allowed": {
+      "const": false
+    },
+    "strategy_change_allowed": {
+      "const": false
+    },
+    "execution_enabled": {
+      "const": false
+    },
+    "model_invoked": {
+      "const": false
+    },
+    "broker_invoked": {
+      "const": false
+    },
+    "contains_account_data": {
+      "const": false
+    },
+    "contains_credentials": {
+      "const": false
+    },
+    "artifact_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "slo_persistence": {
+      "type": "object",
+      "description": "Consecutive-session miss duration per workflow, derived from durable per-session health receipts and the exchange calendar. Diagnostic only; grants no authority.",
+      "additionalProperties": false,
+      "propertyNames": {
+        "enum": [
+          "intake",
+          "macro_refresh",
+          "morning",
+          "post_open",
+          "post_close"
+        ]
+      },
+      "patternProperties": {
+        "^[a-z_]+$": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "consecutive_missed_sessions",
+            "sessions",
+            "history_complete",
+            "diagnostics",
+            "persistent",
+            "history_conflict"
+          ],
+          "properties": {
+            "consecutive_missed_sessions": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "sessions": {
+              "type": "array",
+              "maxItems": 12,
+              "items": {
+                "type": "string",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+              }
+            },
+            "history_complete": {
+              "type": "boolean"
+            },
+            "diagnostics": {
+              "type": "array",
+              "uniqueItems": true,
+              "maxItems": 12,
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z0-9_.:-]+$"
+              }
+            },
+            "persistent": {
+              "type": "boolean"
+            },
+            "history_conflict": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  }
+}

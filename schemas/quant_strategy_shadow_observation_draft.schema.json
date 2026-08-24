@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_strategy_shadow_observation_draft.schema.json",
+  "title": "Quant Strategy Shadow Observation Draft",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "tool", "plan_id", "plan_sha256", "session_date", "state",
+    "generated_at_utc", "data_cutoff_utc", "candidate", "benchmark", "incumbents",
+    "return_bundle", "reason_codes", "net_of_modeled_costs", "contains_future_data",
+    "contains_account_data", "actual_orders_count", "draft_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "quant_strategy_shadow_observation_draft/1.0"},
+    "tool": {"const": "quant.strategy_shadow_monitor"},
+    "plan_id": {"type": "string"}, "plan_sha256": {"$ref": "#/$defs/sha"},
+    "session_date": {"type": "string", "format": "date"},
+    "state": {"enum": ["complete", "unavailable"]},
+    "generated_at_utc": {"type": "string", "format": "date-time"},
+    "data_cutoff_utc": {"type": "string", "format": "date-time"},
+    "candidate": {"$ref": "#/$defs/observation"},
+    "benchmark": {"$ref": "#/$defs/observation"},
+    "incumbents": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"$ref": "#/$defs/observation"}},
+    "return_bundle": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["path", "file_sha256", "bundle_sha256"],
+          "properties": {
+            "path": {"type": "string", "pattern": "^data/runtime/(experiments|health|quant)/[^\\u0000]+$"},
+            "file_sha256": {"$ref": "#/$defs/sha"},
+            "bundle_sha256": {"$ref": "#/$defs/sha"}
+          }
+        }
+      ]
+    },
+    "reason_codes": {"type": "array", "maxItems": 32, "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$"}},
+    "net_of_modeled_costs": {"const": true}, "contains_future_data": {"const": false},
+    "contains_account_data": {"const": false}, "actual_orders_count": {"const": 0},
+    "draft_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "observation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["strategy_id", "net_return", "active", "gross_exposure"],
+      "properties": {
+        "strategy_id": {"type": "string", "minLength": 1},
+        "net_return": {"type": ["number", "null"]}, "active": {"type": ["boolean", "null"]},
+        "gross_exposure": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+      }
+    }
+  }
+}

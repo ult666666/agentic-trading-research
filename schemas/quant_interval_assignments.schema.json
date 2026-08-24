@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_interval_assignments.schema.json",
+  "title": "Quant Interval Assignments",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "fold_id", "source_artifact_sha256", "observations"],
+  "properties": {
+    "schema": {"const": "quant_interval_assignments/1.0"},
+    "fold_id": {"type": "string"},
+    "source_artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "observations": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["observation_id", "group_id", "event_date", "label_start_date", "label_end_date", "split"],
+        "properties": {
+          "observation_id": {"type": "string"},
+          "group_id": {"type": "string"},
+          "event_date": {"type": "string", "format": "date"},
+          "label_start_date": {"type": "string", "format": "date"},
+          "label_end_date": {"type": "string", "format": "date"},
+          "split": {"enum": ["train", "test"]}
+        }
+      }
+    }
+  }
+}

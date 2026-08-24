@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_portfolio_backtest.schema.json",
+  "title": "Quant Portfolio Backtest",
+  "type": "object",
+  "required": [
+    "schema",
+    "experiment_id",
+    "variant_id",
+    "cost_stress_multiplier",
+    "policy_versions",
+    "lineage",
+    "conservative_rules",
+    "summary",
+    "decisions",
+    "daily_path",
+    "decisions_sha256",
+    "daily_path_sha256",
+    "result_sha256",
+    "diagnostic_only",
+    "feeds_production",
+    "execution_enabled",
+    "contains_account_data",
+    "share_recommendation"
+  ],
+  "properties": {
+    "schema": {"const": "quant_portfolio_backtest/1.0"},
+    "experiment_id": {"type": "string"},
+    "variant_id": {"type": "string"},
+    "cost_stress_multiplier": {"type": "number", "minimum": 1},
+    "policy_versions": {"type": "object"},
+    "lineage": {"type": "object"},
+    "conservative_rules": {"type": "array", "items": {"type": "string"}},
+    "summary": {
+      "type": "object",
+      "required": ["source_scenario_count", "source_completed_count", "allocated_count", "not_allocated_count", "final_normalized_nav", "total_return", "maximum_drawdown", "turnover_on_initial_nav", "modeled_cost_on_initial_nav", "maximum_entry_gross_exposure", "maximum_end_of_day_gross_exposure", "market_move_constraint_breach_session_count", "actual_orders_count"],
+      "properties": {"actual_orders_count": {"const": 0}}
+    },
+    "decisions": {"type": "array", "minItems": 1},
+    "daily_path": {"type": "array", "minItems": 1},
+    "decisions_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "daily_path_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "result_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "diagnostic_only": {"const": true},
+    "feeds_production": {"const": false},
+    "execution_enabled": {"const": false},
+    "contains_account_data": {"const": false},
+    "share_recommendation": {"const": false}
+  }
+}

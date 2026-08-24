@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://charles.local/schemas/quant_spa_policy.schema.json",
+  "title": "Quant SPA Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "panel_schema", "audit_schema", "source_portfolio_schema",
+    "official_sources", "minimum_observations", "minimum_models", "maximum_models",
+    "maximum_panel_cells", "minimum_daily_return", "maximum_daily_return",
+    "bootstrap_method", "bootstrap_replications", "bootstrap_seed",
+    "base_expected_block_length_rule", "expected_block_length_multipliers",
+    "minimum_expected_block_length", "maximum_bootstrap_scalar_additions",
+    "variance_estimator", "test_statistic", "null_recentering", "primary_p_value",
+    "significance_level", "p_value_comparison", "family_completeness_required",
+    "exact_daily_alignment_required", "exact_policy_and_cost_stress_match_required",
+    "semantic_validation_rebuilds_from_sources", "safety"
+  ],
+  "properties": {
+    "schema": {"const": "quant_spa_policy/1.0"},
+    "version": {"const": "1.1.0"},
+    "panel_schema": {"const": "quant_spa_panel/1.0"},
+    "audit_schema": {"const": "quant_spa_audit/1.0"},
+    "source_portfolio_schema": {"const": "quant_portfolio_backtest/1.0"},
+    "official_sources": {
+      "type": "array", "minItems": 3, "uniqueItems": true,
+      "items": {"type": "string", "format": "uri"}
+    },
+    "minimum_observations": {"type": "integer", "minimum": 60},
+    "minimum_models": {"type": "integer", "minimum": 2},
+    "maximum_models": {"type": "integer", "minimum": 2, "maximum": 500},
+    "maximum_panel_cells": {"type": "integer", "minimum": 1},
+    "minimum_daily_return": {"const": -1.0},
+    "maximum_daily_return": {"type": "number", "minimum": 1},
+    "bootstrap_method": {"const": "politis_romano_stationary_bootstrap"},
+    "bootstrap_replications": {"type": "integer", "minimum": 2000},
+    "bootstrap_seed": {"type": "integer", "minimum": 0},
+    "base_expected_block_length_rule": {"const": "ceil_sqrt_observation_count"},
+    "expected_block_length_multipliers": {
+      "const": [0.5, 1.0, 2.0]
+    },
+    "minimum_expected_block_length": {"type": "integer", "minimum": 2},
+    "maximum_bootstrap_scalar_additions": {"type": "integer", "minimum": 1000000},
+    "variance_estimator": {
+      "const": "hansen_2005_stationary_bootstrap_population_long_run_variance"
+    },
+    "test_statistic": {"const": "studentized_maximum_positive_mean_return_differential"},
+    "null_recentering": {"const": ["lower", "consistent", "upper"]},
+    "primary_p_value": {"const": "consistent"},
+    "significance_level": {"const": 0.05},
+    "p_value_comparison": {"const": "strict_bootstrap_statistic_greater_than_observed"},
+    "family_completeness_required": {"const": true},
+    "exact_daily_alignment_required": {"const": true},
+    "exact_policy_and_cost_stress_match_required": {"const": true},
+    "semantic_validation_rebuilds_from_sources": {"const": true},
+    "safety": {"$ref": "#/$defs/policySafety"}
+  },
+  "$defs": {
+    "policySafety": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "research_only", "diagnostic_only", "execution_enabled", "activation_authority",
+        "feeds_production", "feeds_research_factory", "feeds_buy_gate",
+        "strategy_change_allowed", "promotion_allowed", "profitability_claim_allowed",
+        "counts_in_metrics", "broker_access", "network_invoked", "model_invoked",
+        "account_data_allowed"
+      ],
+      "properties": {
+        "research_only": {"const": true}, "diagnostic_only": {"const": true},
+        "execution_enabled": {"const": false}, "activation_authority": {"const": false},
+        "feeds_production": {"const": false}, "feeds_research_factory": {"const": false},
+        "feeds_buy_gate": {"const": false}, "strategy_change_allowed": {"const": false},
+        "promotion_allowed": {"const": false}, "profitability_claim_allowed": {"const": false},
+        "counts_in_metrics": {"const": false}, "broker_access": {"const": "none"},
+        "network_invoked": {"const": false}, "model_invoked": {"const": false},
+        "account_data_allowed": {"const": false}
+      }
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "manual_execution_observation_policy.schema.json",
+  "title": "Manual execution observation policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "registry_schema", "draft_schema", "event_schema",
+    "summary_schema", "source_receipt_schema", "allowed_source_types",
+    "allowed_broker_read_tools", "broker_receipt_event_types", "event_types",
+    "decision_states", "order_side",
+    "order_types", "terminal_states", "human_attestation", "broker_receipt_attestation",
+    "future_timestamp_tolerance_seconds", "quantity_tolerance", "maximum_price",
+    "maximum_quantity", "complete_candidate_denominator_required",
+    "corrections_are_append_only", "entry_shortfall_sign",
+    "effective_spread_requires_timestamped_nbbo", "effective_spread_available",
+    "realized_return_available", "safety"
+  ],
+  "properties": {
+    "schema": {"const": "manual_execution_observation_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "registry_schema": {"const": "manual_execution_case_registry/1.0"},
+    "draft_schema": {"const": "manual_execution_observation_draft/1.0"},
+    "event_schema": {"const": "manual_execution_observation_event/1.0"},
+    "summary_schema": {"const": "manual_execution_observation_summary/1.0"},
+    "source_receipt_schema": {"const": "manual_execution_source_receipt/1.0"},
+    "allowed_source_types": {"const": ["human_attestation", "broker_readonly_receipt"]},
+    "allowed_broker_read_tools": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "broker_receipt_event_types": {"const": ["order_entry", "fill", "terminal"]},
+    "event_types": {"const": ["decision", "order_entry", "fill", "terminal"]},
+    "decision_states": {"const": ["accept", "reject", "no_action", "unknown"]},
+    "order_side": {"const": "buy"},
+    "order_types": {"const": ["market", "limit", "fractional_limit", "other"]},
+    "terminal_states": {"const": ["filled", "partial_fill", "no_fill", "canceled", "expired", "unknown"]},
+    "human_attestation": {"type": "string", "minLength": 20},
+    "broker_receipt_attestation": {"type": "string", "minLength": 20},
+    "future_timestamp_tolerance_seconds": {"const": 300},
+    "quantity_tolerance": {"const": 1e-09},
+    "maximum_price": {"const": 10000000.0},
+    "maximum_quantity": {"const": 1000000000.0},
+    "complete_candidate_denominator_required": {"const": true},
+    "corrections_are_append_only": {"const": true},
+    "entry_shortfall_sign": {"const": "positive_is_worse_for_buy"},
+    "effective_spread_requires_timestamped_nbbo": {"const": true},
+    "effective_spread_available": {"const": false},
+    "realized_return_available": {"const": false},
+    "safety": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "research_only", "diagnostic_only", "execution_enabled", "broker_access",
+        "broker_tool_invoked", "order_preview_allowed", "order_mutation_allowed",
+        "system_claims_broker_confirmation", "feeds_production", "feeds_buy_gate",
+        "counts_in_performance", "executed_trade_performance", "realized_return_allowed",
+        "strategy_change_allowed"
+      ],
+      "properties": {
+        "research_only": {"const": true},
+        "diagnostic_only": {"const": true},
+        "execution_enabled": {"const": false},
+        "broker_access": {"const": "none"},
+        "broker_tool_invoked": {"const": false},
+        "order_preview_allowed": {"const": false},
+        "order_mutation_allowed": {"const": false},
+        "system_claims_broker_confirmation": {"const": false},
+        "feeds_production": {"const": false},
+        "feeds_buy_gate": {"const": false},
+        "counts_in_performance": {"const": false},
+        "executed_trade_performance": {"const": false},
+        "realized_return_allowed": {"const": false},
+        "strategy_change_allowed": {"const": false}
+      }
+    }
+  }
+}

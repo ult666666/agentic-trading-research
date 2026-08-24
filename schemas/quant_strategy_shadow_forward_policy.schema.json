@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant_strategy_shadow_forward_policy.schema.json",
+  "description": "Deterministic caller-dated shadow research policy. It accepts only exact immutable session packages for complete catalyst results and does not prove prospective/non-backfilled creation or canonical singleton publication.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "objective", "algorithm_version", "replay_spec_schema", "forward_result_schema", "run_schema", "supported_program", "allocation_policy", "decision_rules", "eligibility_rules", "simulation_semantics", "timestamp_policy", "path_policy", "safety"],
+  "properties": {
+    "schema": {"const": "quant_strategy_shadow_forward_policy/1.0"},
+    "version": {"const": "1.0.0"},
+    "objective": {"const": "Generate deterministic, caller-dated, session-by-session normalized-capital shadow results from exact immutable point-in-time session packages; this engine does not itself prove prospective or non-backfilled creation."},
+    "algorithm_version": {"const": "catalyst_continuation_shadow_forward/1.0.0"},
+    "replay_spec_schema": {"const": "quant_strategy_shadow_replay_spec/1.0"},
+    "forward_result_schema": {"const": "quant_strategy_shadow_forward_result/1.0"},
+    "run_schema": {"const": "quant_strategy_shadow_forward_run/1.0"},
+    "supported_program": {
+      "type": "object", "additionalProperties": false,
+      "required": ["program_id", "program_version", "decision_clock", "entry_model", "direction", "instrument_types", "variant_parameter_bounds"],
+      "properties": {
+        "program_id": {"const": "catalyst_continuation_baseline_v1"},
+        "program_version": {"const": "0.2.0"},
+        "decision_clock": {"const": "prior_close"},
+        "entry_model": {"const": "next_open"},
+        "direction": {"const": "long"},
+        "instrument_types": {"const": ["common_stock", "unleveraged_etf"]},
+        "variant_parameter_bounds": {
+          "type": "object", "additionalProperties": false,
+          "required": ["max_entry_gap_atr", "stop_atr", "target_r_multiple", "max_hold_sessions"],
+          "properties": {
+            "max_entry_gap_atr": {"$ref": "#/$defs/floatBound"},
+            "stop_atr": {"$ref": "#/$defs/floatBound"},
+            "target_r_multiple": {"$ref": "#/$defs/floatBound"},
+            "max_hold_sessions": {"$ref": "#/$defs/intBound"}
+          }
+        }
+      }
+    },
+    "allocation_policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["requested_weight", "benchmark_weight", "assumed_fraction_of_adv", "priority_rule", "sector_bucket_rule", "cost_rule", "same_session_exit_proceeds_reusable"],
+      "properties": {
+        "requested_weight": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+        "benchmark_weight": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+        "assumed_fraction_of_adv": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.01},
+        "priority_rule": {"const": "event_id_lexicographic"},
+        "sector_bucket_rule": {"const": "unknown_sector_single_concentration_bucket"},
+        "cost_rule": {"const": "maximum_of_post_stress_frozen_floor_and_once_stressed_predecision_cost_estimate"},
+        "same_session_exit_proceeds_reusable": {"const": false}
+      }
+    },
+    "decision_rules": {"$ref": "#/$defs/decisionRules"},
+    "eligibility_rules": {"$ref": "#/$defs/eligibilityRules"},
+    "simulation_semantics": {"$ref": "#/$defs/semantics"},
+    "timestamp_policy": {"$ref": "#/$defs/timestampPolicy"},
+    "path_policy": {"$ref": "#/$defs/pathPolicy"},
+    "safety": {"$ref": "#/$defs/safety"}
+  },
+  "$defs": {
+    "floatBound": {"type": "object", "additionalProperties": false, "required": ["minimum_exclusive", "maximum_inclusive"], "properties": {"minimum_exclusive": {"type": "number"}, "maximum_inclusive": {"type": "number"}}},
+    "intBound": {"type": "object", "additionalProperties": false, "required": ["minimum_inclusive", "maximum_inclusive"], "properties": {"minimum_inclusive": {"type": "integer"}, "maximum_inclusive": {"type": "integer"}}},
+    "decisionRules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["signal_source", "signal_session_rule", "level_rule", "max_entry_rule", "one_decision_per_source_row", "caller_scalar_return_allowed"],
+      "properties": {
+        "signal_source": {"const": "validated_exact_immutable_quant_session_feature_package_only"},
+        "signal_session_rule": {"type": "string", "minLength": 1},
+        "level_rule": {"type": "string", "minLength": 1},
+        "max_entry_rule": {"type": "string", "minLength": 1},
+        "one_decision_per_source_row": {"const": true},
+        "caller_scalar_return_allowed": {"const": false}
+      }
+    },
+    "eligibilityRules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["feature_row_must_be_eligible", "feature_exclusion_reasons_must_be_empty", "instrument_must_be_supported", "prior_close_and_atr_14_must_be_positive", "missing_or_conflicting_session_input"],
+      "properties": {
+        "feature_row_must_be_eligible": {"const": true},
+        "feature_exclusion_reasons_must_be_empty": {"const": true},
+        "instrument_must_be_supported": {"const": true},
+        "prior_close_and_atr_14_must_be_positive": {"const": true},
+        "missing_or_conflicting_session_input": {"const": "unavailable_never_zero_signal"}
+      }
+    },
+    "semantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["long_only", "leverage_allowed", "shorting_allowed", "entry_cost_once", "exit_cost_once", "same_bar_stop_target_rule", "gap_through_stop_rule", "target_rule", "time_exit_rule", "mark_rule", "benchmark_rule", "unavailable_state_rule"],
+      "properties": {
+        "long_only": {"const": true},
+        "leverage_allowed": {"const": false},
+        "shorting_allowed": {"const": false},
+        "entry_cost_once": {"const": true},
+        "exit_cost_once": {"const": true},
+        "same_bar_stop_target_rule": {"const": "stop_first"},
+        "gap_through_stop_rule": {"type": "string", "minLength": 1},
+        "target_rule": {"type": "string", "minLength": 1},
+        "time_exit_rule": {"type": "string", "minLength": 1},
+        "mark_rule": {"const": "session_close"},
+        "benchmark_rule": {"type": "string", "minLength": 1},
+        "unavailable_state_rule": {"type": "string", "minLength": 1}
+      }
+    },
+    "timestampPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operating_timezone", "market_timezone", "maximum_recording_delay_hours_for_complete", "cutoff_rule", "future_bar_rule"],
+      "properties": {
+        "operating_timezone": {"const": "America/Los_Angeles"},
+        "market_timezone": {"const": "America/New_York"},
+        "maximum_recording_delay_hours_for_complete": {"type": "integer", "minimum": 0},
+        "cutoff_rule": {"type": "string", "minLength": 1},
+        "future_bar_rule": {"type": "string", "minLength": 1}
+      }
+    },
+    "pathPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maximum_input_bytes", "maximum_output_bytes", "symlinks_allowed", "path_escape_allowed", "write_rule"],
+      "properties": {
+        "maximum_input_bytes": {"type": "integer", "minimum": 1},
+        "maximum_output_bytes": {"type": "integer", "minimum": 1},
+        "symlinks_allowed": {"const": false},
+        "path_escape_allowed": {"const": false},
+        "write_rule": {"type": "string", "minLength": 1}
+      }
+    },
+    "safety": {
+      "type": "object", "additionalProperties": false,
+      "required": ["research_only", "diagnostic_only", "execution_enabled", "activation_authority", "strategy_change_allowed", "feeds_production", "feeds_buy_gate", "feeds_freeze_gate", "feeds_risk_gate", "profitability_claim_allowed", "broker_access", "broker_tool_invoked", "account_data_allowed", "order_data_allowed", "actual_orders_count", "network_invoked", "model_invoked"],
+      "properties": {
+        "research_only": {"const": true}, "diagnostic_only": {"const": true}, "execution_enabled": {"const": false}, "activation_authority": {"const": false}, "strategy_change_allowed": {"const": false}, "feeds_production": {"const": false}, "feeds_buy_gate": {"const": false}, "feeds_freeze_gate": {"const": false}, "feeds_risk_gate": {"const": false}, "profitability_claim_allowed": {"const": false}, "broker_access": {"const": "none"}, "broker_tool_invoked": {"const": false}, "account_data_allowed": {"const": false}, "order_data_allowed": {"const": false}, "actual_orders_count": {"const": 0}, "network_invoked": {"const": false}, "model_invoked": {"const": false}
+      }
+    }
+  }
+}

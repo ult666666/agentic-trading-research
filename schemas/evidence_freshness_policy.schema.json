@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://charles.local/schemas/evidence_freshness_policy.schema.json",
+  "title": "Evidence freshness policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "anchor_field",
+    "future_skew_seconds",
+    "max_claims",
+    "stale_after_required_for_present_claims",
+    "unknown_category_action",
+    "invalid_timestamp_action",
+    "stale_present_claim_action",
+    "category_rules",
+    "safety"
+  ],
+  "properties": {
+    "schema": {"const": "evidence_freshness_policy/1.0"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "anchor_field": {"const": "retrieval_timestamp_utc"},
+    "future_skew_seconds": {"type": "integer", "minimum": 0, "maximum": 3600},
+    "max_claims": {"type": "integer", "minimum": 1, "maximum": 5000},
+    "stale_after_required_for_present_claims": {"const": true},
+    "unknown_category_action": {"const": "hard_block"},
+    "invalid_timestamp_action": {"const": "hard_block"},
+    "stale_present_claim_action": {"const": "exclude_from_authority_and_block_buy"},
+    "category_rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "required": [
+        "market_state",
+        "price",
+        "liquidity",
+        "catalyst",
+        "macro",
+        "technical",
+        "fundamental",
+        "portfolio",
+        "risk",
+        "sentiment",
+        "reference"
+      ],
+      "properties": {
+        "market_state": {"$ref": "#/$defs/categoryRule"},
+        "price": {"$ref": "#/$defs/categoryRule"},
+        "liquidity": {"$ref": "#/$defs/categoryRule"},
+        "catalyst": {"$ref": "#/$defs/categoryRule"},
+        "macro": {"$ref": "#/$defs/categoryRule"},
+        "technical": {"$ref": "#/$defs/categoryRule"},
+        "fundamental": {"$ref": "#/$defs/categoryRule"},
+        "portfolio": {"$ref": "#/$defs/categoryRule"},
+        "risk": {"$ref": "#/$defs/categoryRule"},
+        "sentiment": {"$ref": "#/$defs/categoryRule"},
+        "reference": {"$ref": "#/$defs/categoryRule"}
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "read_only",
+        "network_invoked",
+        "model_invoked",
+        "broker_invoked",
+        "execution_enabled",
+        "can_only_reduce_authority"
+      ],
+      "properties": {
+        "read_only": {"const": true},
+        "network_invoked": {"const": false},
+        "model_invoked": {"const": false},
+        "broker_invoked": {"const": false},
+        "execution_enabled": {"const": false},
+        "can_only_reduce_authority": {"const": true}
+      }
+    }
+  },
+  "$defs": {
+    "categoryRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_age_seconds"],
+      "properties": {
+        "max_age_seconds": {"type": "integer", "minimum": 1, "maximum": 31536000}
+      }
+    }
+  }
+}

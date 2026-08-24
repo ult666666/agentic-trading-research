@@ -1,0 +1,206 @@
+--- a/scripts/natural_run_acceptance.py
++++ b/scripts/natural_run_acceptance.py
+@@ -573,8 +573,41 @@
+     reasons = sorted(set(reasons))
+     projection["valid"] = not reasons
+     return projection, reasons, file_sha
++
+ 
++def _observation_projection_consistent(natural_states: Any,
++                                       workflow_statuses: Any) -> bool:
++    """Shared producer/validator predicate for observation eligibility.
+ 
++    2026-07-17 unification: evaluate() previously omitted the projection-consistency
++    terms that validate_receipt() required inside observation_expected, so on a session
++    with an at-issue workflow the producer could emit a receipt its own validator
++    rejected as receipt_observation_semantics_invalid. Both sides now call this one
++    predicate and can no longer drift.
++    """
++    allowed_workflow_statuses = {
++        "intake": {"healthy", "degraded"},
++        "macro_refresh": {"healthy", "degraded"},
++        "morning": {"healthy", "degraded"},
++        "post_open": {"healthy", "degraded", "skipped_expected"},
++        "post_close": {"healthy", "degraded"},
++    }
++    state_health_mapping = {
++        "completed": "healthy", "degraded": "degraded", "skipped": "skipped_expected",
++    }
++    return bool(
++        isinstance(natural_states, dict)
++        and set(natural_states) == set(WORKFLOWS)
++        and all(value in post_close_finality.TERMINAL_STATES
++                for value in natural_states.values())
++        and isinstance(workflow_statuses, dict)
++        and set(workflow_statuses) == set(WORKFLOWS)
++        and all(workflow_statuses.get(name) in allowed_workflow_statuses[name]
++                for name in WORKFLOWS)
++        and all(state_health_mapping.get(natural_states[name]) == workflow_statuses[name]
++                for name in WORKFLOWS))
++
++
+ def evaluate(*, target: str, now: dt.datetime, root: Path = ROOT,
+              policy: dict, health: dict | None, state: dict | None,
+              freeze_receipt: dict | None, broker_sli: dict | None,
+@@ -771,7 +804,9 @@
+ 
+     check_map = {row["id"]: row for row in checks}
+     operational = all(check_map[name]["status"] == "pass" for name in OPERATIONAL_CHECKS)
+-    observation_eligible = natural_ok and health_ok
++    observation_eligible = (
++        natural_ok and health_ok
++        and _observation_projection_consistent(natural_states, workflow_statuses))
+     canary = operational and lane_ok
+     hard_safety = bool(safety_reasons) or bool(health_errors) or bool(broker_errors)
+     if hard_safety:
+@@ -1211,7 +1246,7 @@
+     observation_expected = (
+         check_pass.get("natural_attempts") is True
+         and check_pass.get("service_health") is True
+-        and natural_projection_valid and state_health_consistent)
++        and _observation_projection_consistent(natural_states, workflow_statuses))
+ 
+     semantic_requirements = (
+         ("terminal_time", terminal_window_projection_valid,
+--- a/scripts/test_natural_run_acceptance.py
++++ b/scripts/test_natural_run_acceptance.py
+@@ -59,7 +59,7 @@
+     times = {
+         "intake": ("2026-07-10T12:00:02+00:00", "2026-07-10T12:10:00+00:00"),
+         "macro_refresh": ("2026-07-10T12:35:01+00:00", "2026-07-10T12:40:00+00:00"),
+-        "morning": ("2026-07-10T12:50:02+00:00", "2026-07-10T13:00:00+00:00"),
++        "morning": ("2026-07-10T12:32:02+00:00", "2026-07-10T13:05:00+00:00"),
+         "post_open": ("2026-07-10T13:45:00+00:00", "2026-07-10T13:55:00+00:00"),
+         "post_close": (POST_CLOSE_STARTED, POST_CLOSE_FINISHED),
+     }
+@@ -106,7 +106,10 @@
+                 row["child_pid"] = None
+                 row["postconditions"] = None
+             if name == "macro_refresh":
+-                row["outcome"] = "macro_refresh_no_due_events"
++                # Completed attempts carry the orchestrator's terminal-success outcome;
++                # only the postconditions.reason keeps the receipt-status vocabulary
++                # (contract updated 2026-07-17: contract_satisfied for every completed lane).
++                row["outcome"] = "contract_satisfied"
+                 row["postconditions"] = {
+                     "task_status": "success", "task_detail": "no due macro events",
+                     "task_state_fresh": True, "activation_authority": False,
+@@ -138,6 +141,9 @@
+         events.append({
+             "utc": finish, "workflow": name, "run_id": run_id,
+             "event": "attempt_finished", "reason": row["outcome"]})
++    # Morning (05:32) now starts before macro_refresh (05:35) under the 2026-07-17 timing
++    # contract, so the per-workflow construction order is no longer chronological.
++    events.sort(key=lambda row: row["utc"])
+     for index, event in enumerate(events):
+         event["seq"] = index
+     return {
+--- a/scripts/operator_console.py
++++ b/scripts/operator_console.py
+@@ -64,7 +64,7 @@
+ TOKEN_RE = re.compile(r"^[a-z][a-z0-9_]{0,47}$")
+ NATURAL_REASON_RE = re.compile(r"^[a-z0-9][a-z0-9_.:-]{0,159}$")
+ SHA_RE = re.compile(r"^[0-9a-f]{64}$")
+-MASKED_ACCOUNT_RE = re.compile(r"(?:\*{4}|\u2022{4})\d{4}")
++MASKED_ACCOUNT_RE = re.compile(r"(?:[*\u2022]{2,})[- ]?\d{2,4}")
+ EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
+ OVERVIEW_KEYS = {
+     "schema", "generated_utc", "target_session_date", "clocks", "market_day",
+@@ -843,8 +843,12 @@
+         if row["start_status"] in {"missed", "invalid"} \
+                 or row["terminal_status"] in {"missed", "invalid"}:
+             incidents.append({"code": f"{row['id']}_slo_at_issue", "severity": "warning", "scope": "workflow"})
+-    if sources["status"] in {"collecting", "unavailable"}:
++    if sources["status"] == "collecting":
+         incidents.append({"code": "source_history_incomplete", "severity": "info", "scope": "source"})
++    elif sources["status"] == "unavailable":
++        # A dark source-health diagnostic is an operator-visible warning, never mere info:
++        # "monitoring is warming up" and "monitoring is broken" must not share a code.
++        incidents.append({"code": "source_health_unavailable", "severity": "warning", "scope": "source"})
+     elif sources["status"] in {"degraded", "at_issue"}:
+         incidents.append({"code": "source_health_at_issue", "severity": "warning", "scope": "source"})
+ 
+@@ -1029,7 +1033,8 @@
+     if EMAIL_RE.search(text):
+         errors.append("overview_email_present")
+     if any(term in text.lower() for term in (
+-            "password", "api_key", "refresh_token", "cookie", "authorization")):
++            "password", "passwd", "api_key", "api-key", "refresh_token", "access_token",
++            "session_token", "private_key", "bearer", "cookie", "authorization", "secret")):
+         errors.append("overview_secret_shape_present")
+     return sorted(set(errors))
+ 
+@@ -1227,13 +1232,16 @@
+                     and not relative.startswith("assets/"):
+                 self._json(404, {"ok": False, "error": "not_found"}, head=head)
+                 return
+-            candidate = (static_root / relative).resolve()
+             try:
++                candidate = (static_root / relative).resolve()
+                 candidate.relative_to(static_root)
+-            except ValueError:
++                # OSError (e.g. ENAMETOOLONG on a ~2000-char component) must yield a
++                # clean 404 rather than an uncaught handler abort.
++                is_regular = candidate.is_file() and not candidate.is_symlink()
++            except (OSError, ValueError):
+                 self._json(404, {"ok": False, "error": "not_found"}, head=head)
+                 return
+-            if not candidate.is_file() or candidate.is_symlink():
++            if not is_regular:
+                 self._json(404, {"ok": False, "error": "not_found"}, head=head)
+                 return
+             try:
+--- a/scripts/operator_control.py
++++ b/scripts/operator_control.py
+@@ -3,7 +3,8 @@
+ 
+ The module can run a small allowlist of offline validation commands and queue local operator
+ instructions for later human/agent review. It never accepts shell text, command arguments,
+-credentials, model prompts, broker operations, or financial-execution requests.
++model prompts, broker operations, or financial-execution requests, and it best-effort screens
++instruction text for common credential/PII shapes (a local screen, not a guarantee).
+ """
+ from __future__ import annotations
+ 
+@@ -33,10 +34,23 @@
+ TOKEN_RE = re.compile(r"^[a-z][a-z0-9_]{0,47}$")
+ SESSION_RE = re.compile(r"^[A-Za-z0-9_-]{32,128}$")
+ SENSITIVE_PATTERNS = (
+-    re.compile(r"(?i)\b(?:api[_ -]?key|password|passwd|secret|access[_ -]?token)\s*[:=]"),
++    # Credential vocabulary no longer requires a ':'/'=' anchor, so natural-language
++    # secrets ("the password is ...") are also screened.
++    re.compile(r"(?i)\b(?:api[_ -]?key|password|passwd|secret|bearer|access[_ -]?token|"
++               r"refresh[_ -]?token|private[_ -]?key|session[_ -]?token)\b"),
+     re.compile(r"-----BEGIN [A-Z ]+PRIVATE KEY-----"),
+     re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}"),
+-    re.compile(r"\b\d{9,}\b"),
++    # Well-known key shapes (GitHub, AWS, provider secret keys, JWT).
++    re.compile(r"\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}"),
++    re.compile(r"\bAKIA[0-9A-Z]{12,}"),
++    re.compile(r"\bsk-[A-Za-z0-9-]{16,}"),
++    re.compile(r"\beyJ[A-Za-z0-9_-]{6,}\.eyJ[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{6,}"),
++    # PII shapes: SSN, separator-formatted card numbers, and digit runs that follow an
++    # account-like label. Bare long numbers (CIK, share volume, market cap, epoch) pass,
++    # fixing the previous over-inclusive \d{9,} rule.
++    re.compile(r"\b\d{3}[- ]\d{2}[- ]\d{4}\b"),
++    re.compile(r"\b\d{4}[ -]\d{4}[ -]\d{4}[ -]\d{1,7}\b"),
++    re.compile(r"(?i)\b(?:account|acct|routing|ssn|iban|card)\b\D{0,8}\d{4,}"),
+ )
+ 
+ SAFETY = {
+@@ -576,7 +590,14 @@
+         thread = threading.Thread(
+             target=self._worker, args=(command_id, action_id, requested),
+             name=f"operator-control-{command_id}", daemon=True)
+-        thread.start()
++        try:
++            thread.start()
++        except RuntimeError as exc:
++            # A failed launch must not wedge single-flight with a phantom active command.
++            with self._lock:
++                if self._active is not None and self._active["command_id"] == command_id:
++                    self._active = None
++            raise ControlError("command_thread_unavailable") from exc
+         return active
+ 
+     def _progress(self, command_id: str, step_id: str, index: int, total: int) -> None:
