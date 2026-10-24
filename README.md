@@ -102,5 +102,5 @@ state has no business being public.
 
 Nothing here is investment advice.
 
-**Author:** Chunyu (Charles) Dai — Carnegie Mellon, Artificial Intelligence + Business ·
-[linkedin.com/in/cdandrs](https://www.linkedin.com/in/cdandrs)
+**Author:** Chunyu (Charles) Dai — Carnegie Mellon University ·
+[portfolio](https://ult666666.github.io/) · [linkedin.com/in/cdandrs](https://www.linkedin.com/in/cdandrs)
