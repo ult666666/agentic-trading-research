@@ -1,9 +1,9 @@
 # Agentic Trading Research System
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB)](https://www.python.org)
-[![Scope](https://img.shields.io/badge/scope-research--only-informational)]()
-[![Execution](https://img.shields.io/badge/order_placement-manual_only-critical)]()
-[![Tests](https://img.shields.io/badge/automated_tests-3%2C300%2B-brightgreen)]()
+[![Scope](https://img.shields.io/badge/scope-research--only-informational)](#design-principles-this-project-actually-enforces)
+[![Execution](https://img.shields.io/badge/order_placement-manual_only-critical)](#design-principles-this-project-actually-enforces)
+[![Tests in the private repository](https://img.shields.io/badge/tests_in_private_repo-3%2C300%2B-brightgreen)](#what-this-is-in-engineering-terms)
 
 A research-only operating system for catalyst-driven, 1–10 trading-day swing-trade
 research on US-listed common stocks and unleveraged ETFs.
@@ -90,6 +90,10 @@ This is a **curated public snapshot** of a private working system, published to 
 engineering rather than to be run. It contains architecture documents, schemas, the
 safety and integrity layer, the quant diagnostic layer, and a representative set of
 orchestration modules and tests.
+
+The tests are included to be read. Many exercise runtime files that are deliberately left
+out (launchd job definitions, broker policy data, shell wrappers), so the suite does not
+pass standalone in this snapshot.
 
 Deliberately **not** included: market data, cached vendor responses, configuration, the
 research journal, logs, reports, and the complete strategy surface. Vendor market data
