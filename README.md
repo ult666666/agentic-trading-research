@@ -19,6 +19,28 @@ by convention.
 
 ---
 
+## Run a small, independent example
+
+The public snapshot now includes a **self-contained, synthetic Python research gate** so a
+reviewer can run the policy boundary without market feeds, model APIs, secrets or the
+private production system.
+
+- [Run six offline scenarios](examples/README.md) — a clean fictional fixture is only
+  **reviewable research**, never an order; stale sources, budget overruns and malformed
+  evidence fail closed.
+- [Inspect the gate implementation](examples/fail_closed_gate.py) and
+  [negative-case tests](examples/test_fail_closed_gate.py).
+- [Reproduce the GitHub CI check](.github/workflows/research-demo.yml) locally:
+
+    python3 -B examples/fail_closed_gate.py --all
+    python3 -B -m unittest discover -s examples -p 'test_*.py' -v
+
+This new example was authored for public education: it does not reproduce the private
+policy, authenticate receipts, certify market data or demonstrate live performance.
+It has no broker or order access. **No real trading occurs.**
+
+---
+
 ## What this is, in engineering terms
 
 An orchestration layer where **language models propose and deterministic code disposes.**
@@ -91,9 +113,9 @@ engineering rather than to be run. It contains architecture documents, schemas, 
 safety and integrity layer, the quant diagnostic layer, and a representative set of
 orchestration modules and tests.
 
-The tests are included to be read. Many exercise runtime files that are deliberately left
-out (launchd job definitions, broker policy data, shell wrappers), so the suite does not
-pass standalone in this snapshot.
+The original snapshot tests are included to be read. Many exercise runtime files that are deliberately left
+out (launchd job definitions, broker policy data, shell wrappers), so the legacy full suite does
+not pass standalone in this snapshot. **The separate tests under examples/ do pass on their own.**
 
 Deliberately **not** included: market data, cached vendor responses, configuration, the
 research journal, logs, reports, and the complete strategy surface. Vendor market data
