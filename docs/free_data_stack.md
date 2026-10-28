@@ -1,5 +1,10 @@
 # Zero-Dollar Research Data Stack
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 The broader multi-source orchestration, no-key Nasdaq/Federal Reserve/CFTC adapters, and
 pre-adjudication deduplication contract are documented in
 [`docs/free_source_ensemble.md`](free_source_ensemble.md). This file retains the provider-specific

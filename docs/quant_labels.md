@@ -1,5 +1,10 @@
 # Point-in-Time Forward Labels
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: implemented 2026-07-12 as a standalone, unscheduled offline diagnostic.
 
 ## Purpose
@@ -19,8 +24,8 @@ account. It makes no profitability claim.
 2. Either a validated generic daily OHLC archive or a hash-valid `adjusted_bar_view/1.0` whose view
    is `total_return` and whose bars pass the quant feature validator.
 3. An explicit `--as-of` date, the versioned
-   [`config/market_schedule.yaml`](../config/market_schedule.yaml), and
-   [`config/quant_label_policy.json`](../config/quant_label_policy.json).
+   `config/market_schedule.yaml`, and
+   `config/quant_label_policy.json`.
 
 The tool recomputes every symbol and SPY ordered bar prefix with `date < event_date` and requires
 those hashes and cutoffs to match each feature row. A different historical prefix is a hard

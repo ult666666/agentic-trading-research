@@ -1,10 +1,15 @@
 # Autonomous Quant Research Factory
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: implemented and connected to the unattended 13:15 PT post-close workflow on
 2026-07-09. The current production state is `collecting_point_in_time_data`; this is an honest
 data-readiness terminal, not a strategy failure.
 
-Authority: [`AGENTS.md`](../AGENTS.md) overrides this document. The factory is an offline research
+Authority: `AGENTS.md` overrides this document. The factory is an offline research
 and governance system. It cannot access a broker, activate a strategy, change production scoring
 or risk gates, authorize a Buy, or enable execution. Every order remains a manual human action.
 
@@ -30,7 +35,7 @@ Primary research informing these controls:
 
 ## Components
 
-- [`config/research_factory.json`](../config/research_factory.json): immutable safety policy,
+- `config/research_factory.json`: immutable safety policy,
   pre-registered strategy program, exact 81-variant grid, portfolio-export policy, walk-forward
   policy, and evidence gates.
 - [`scripts/quant/selection_bias.py`](../scripts/quant/selection_bias.py): aligned return-matrix
@@ -59,7 +64,7 @@ Primary research informing these controls:
   [`docs/quant_spa_audit.md`](quant_spa_audit.md).
 - [`scripts/quant/research_factory.py`](../scripts/quant/research_factory.py): current-run-bound
   state machine, bundle validator, evidence gate, and health-artifact writer.
-- [`scripts/run_post_close_review.sh`](../scripts/run_post_close_review.sh): unattended fail-soft
+- `scripts/run_post_close_review.sh`: unattended fail-soft
   invocation before the narrative model starts.
 - `data/runtime/health/<target>_research_factory.json`: one replaceable current health artifact.
 - `data/runtime/experiments/<bundle>/bundle.json`: immutable experiment bundle entry point.

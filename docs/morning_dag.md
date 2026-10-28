@@ -1,11 +1,16 @@
 # Deterministic Morning DAG
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: version 0.1 shadow controller implemented 2026-07-10. It is not the production Morning
 authority and cannot freeze, classify, score, authorize, or execute anything. Production Morning
 publication remains owned by the receipt/evidence/source-bound `research_freeze.py` path; new
 canonical legacy-v1 Official and appendix writes are permanently disabled.
 
-Authority: [`AGENTS.md`](../AGENTS.md) overrides this document.
+Authority: `AGENTS.md` overrides this document.
 
 ## Purpose
 
@@ -14,7 +19,7 @@ yet still miss the 06:15 PT service objective before synthesis and freeze. The D
 of absolute deadlines, dependencies, process groups, cancellation, validation, persistence, and
 terminal cardinality into deterministic Python.
 
-[`config/morning_dag.json`](../config/morning_dag.json) freezes the shadow contract:
+`config/morning_dag.json` freezes the shadow contract:
 
 ```text
 05:38-05:52 snapshot/readiness (existing deterministic owner)
@@ -103,11 +108,11 @@ schema plus matching shadow agent hashes.
 
 ## Verification
 
-[`scripts/test_morning_dag.py`](../scripts/test_morning_dag.py) covers strict configuration,
+`scripts/test_morning_dag.py` covers strict configuration,
 virtual deadlines, tool/MCP/model restrictions, dependency blocking, malformed/secret output,
 whole-process-group termination, immutable/idempotent terminal behavior, self-hash validation,
 double opt-in, the isolated pre-decision terminal capture, and a complete nine-worker fixture DAG
-with zero production artifacts. [`scripts/test_event_ledger.py`](../scripts/test_event_ledger.py)
+with zero production artifacts. `scripts/test_event_ledger.py`
 covers its chain, correction, as-of, duplicate-vintage, and invalid-evidence behavior.
 
 ## Promotion Gate

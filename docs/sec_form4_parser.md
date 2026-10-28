@@ -1,5 +1,10 @@
 # SEC Form 4 XML Normalizer
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 `scripts/sec_form4_parser.py` is an offline deterministic boundary for already-retrieved SEC
 Ownership XML. It converts a Form 4 or Form 4/A document into a bounded, hash-valid transaction
 bundle without fetching the filing, invoking a model or broker, retaining owner PII, or granting

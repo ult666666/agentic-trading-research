@@ -1,27 +1,32 @@
 # Cost and Portfolio Backtest
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: the version 1.0 offline cost estimator and overlapping portfolio simulator are implemented.
 They are diagnostic-only. The scheduled post-close grid worker now preregisters a complete plan
 for every strategy variant and builds the selected holdout candidate after selection, but this
 artifact does not change the research factory's evidence gates or any production workflow. Real
 historical spread/NBBO and observed implementation-shortfall data are still missing.
 
-Authority: [`AGENTS.md`](../AGENTS.md) overrides this document. The system remains research-only;
+Authority: `AGENTS.md` overrides this document. The system remains research-only;
 orders are manual, broker write tools remain denied, and execution is permanently disabled.
 
 ## Components
 
-- [`config/quant_cost_policy.json`](../config/quant_cost_policy.json): cost formula, input limits,
+- `config/quant_cost_policy.json`: cost formula, input limits,
   stress multipliers, no-fallback rule, and safety contract.
 - [`scripts/quant/cost_model.py`](../scripts/quant/cost_model.py): cutoff-aware cost estimate and
   validation CLI.
-- [`config/quant_portfolio_policy.json`](../config/quant_portfolio_policy.json): normalized capital,
+- `config/quant_portfolio_policy.json`: normalized capital,
   gross/net, position, sector, catalyst, stop-risk, open-position, and daily-entry limits.
 - [`scripts/quant/portfolio_backtest.py`](../scripts/quant/portfolio_backtest.py): complete-
   denominator validation, constrained allocation, daily mark-to-market, lineage, and result CLI.
 - [`schemas/quant_portfolio_plan.schema.json`](../schemas/quant_portfolio_plan.schema.json):
   predecision allocation metadata contract.
-- [`scripts/test_quant_portfolio_backtest.py`](../scripts/test_quant_portfolio_backtest.py):
+- `scripts/test_quant_portfolio_backtest.py`:
   adversarial and file-level CLI tests.
 
 ## Cost Contract

@@ -1,5 +1,10 @@
 # Natural-Run Acceptance
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 `scripts/natural_run_acceptance.py` turns the already-validated end-of-day control-plane artifacts
 into one bounded daily acceptance receipt and a multi-session canary rollup. It does not rerun a
 workflow or call a provider.

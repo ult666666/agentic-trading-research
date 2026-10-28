@@ -1,5 +1,10 @@
 # Databento Shadow Onboarding
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: account setup is the only manual gate. No market-data download, subscription, purchase,
 provider authority, model scoring, broker action, or order action is performed by this workflow.
 

@@ -1,5 +1,10 @@
 # Options Research Lane (v0) — Operator & Developer Guide
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 **Shadow-only. Research-only. Options execution is permanently disabled.** Ratified
 2026-08-02 (`journal/2026-08-02_options_kickstarter_ratification.md`); mandate text in
 CLAUDE.md/AGENTS.md §3c; governance in `config/governance.yaml

@@ -1,9 +1,14 @@
 # Pre-Decision Event Ledger
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: version 1.0 diagnostic shadow foundation implemented 2026-07-10. It is not a production
 decision, price, scoring, risk, freeze, metric, strategy, broker, or execution authority.
 
-Authority: [`AGENTS.md`](../AGENTS.md) overrides this document.
+Authority: `AGENTS.md` overrides this document.
 
 ## Purpose
 
@@ -24,7 +29,7 @@ receipts are never read or changed by this writer.
 ## Contract
 
 [`schemas/predecision_event.schema.json`](../schemas/predecision_event.schema.json) and
-[`scripts/event_ledger.py`](../scripts/event_ledger.py) define three row types:
+`scripts/event_ledger.py` define three row types:
 
 - `source_receipt`: proves when a source artifact was observed, even if its content repeats;
 - `event_observation`: records one event state at a specific pre-decision stage;

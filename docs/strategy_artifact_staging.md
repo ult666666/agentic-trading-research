@@ -1,9 +1,14 @@
 # Current-Run Strategy Artifact Staging
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: implemented in the unattended post-close chain. The normal current terminal is
 `not_candidate` because the point-in-time data lake and forward sample are not ready.
 
-Authority: [`AGENTS.md`](../AGENTS.md) overrides this document. Staging is offline research
+Authority: `AGENTS.md` overrides this document. Staging is offline research
 preservation only. It cannot register, promote, activate, score, recommend, or execute a strategy;
 it imports no broker, account, order, model, network, or registry mutation surface.
 
@@ -65,7 +70,7 @@ data/runtime/quant/strategy_artifacts/<bundle-id>/
   export_receipt.json
 ```
 
-The append-only [`data/quant_strategy_registry.jsonl`](../data/quant_strategy_registry.jsonl) is
+The append-only `data/quant_strategy_registry.jsonl` is
 outside this controller. It remains genesis-only and requires separate governed registration.
 
 ## Operations

@@ -1,5 +1,10 @@
 # SEC Document Review Queue and Result Seal
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 `scripts/sec_document_review.py` is the deterministic boundary between SEC filing metadata
 discovery and document-level verification. It consumes a validated
 `sec_filing_event_bundle/1.0`, creates one review task for every eligible filing, and seals an

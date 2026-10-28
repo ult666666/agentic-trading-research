@@ -1,11 +1,16 @@
 # Dependence-Aware Quant Inference Audit
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: version 1.0 is implemented as an offline diagnostic. It audits normalized portfolio daily
 returns and train/test label intervals. It does not change the research factory, promotion policy,
 strategy, risk limits, reports, Buy authority, broker permissions, or execution state.
 
-Authority: [`AGENTS.md`](../AGENTS.md) overrides this document. Machine semantics are fixed by
-[`config/quant_inference_policy.json`](../config/quant_inference_policy.json) and implemented by
+Authority: `AGENTS.md` overrides this document. Machine semantics are fixed by
+`config/quant_inference_policy.json` and implemented by
 [`scripts/quant/inference_audit.py`](../scripts/quant/inference_audit.py).
 
 ## Why This Exists

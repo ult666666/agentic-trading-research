@@ -1,5 +1,10 @@
 # Shadow Provider Bake-off
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: the deterministic 30-session Massive-versus-Databento evaluation harness is implemented.
 Both commercial providers remain disabled, no paid request has been made, the tracked license
 matrix is pending, and no score or role recommendation exists from real data.

@@ -1,10 +1,15 @@
 # SEC Automated-Access Boundary
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: `sec_access_policy/1.0` is implemented as a research-only prerequisite for the SEC
 metadata intake lane. It does not grant source authority, catalyst confirmation, a Buy rating,
 broker access, or execution permission.
 
-Authority: [`AGENTS.md`](../AGENTS.md) overrides this document.
+Authority: `AGENTS.md` overrides this document.
 
 ## Official Basis
 

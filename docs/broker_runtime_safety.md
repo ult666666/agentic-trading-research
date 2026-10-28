@@ -1,13 +1,18 @@
 # Broker Runtime Safety SLI
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: instrumentation foundation implemented 2026-07-10. Existing broker permission denies are
 unchanged. Live order execution remains prohibited.
 
-Authority: [`AGENTS.md`](../AGENTS.md) overrides this document.
+Authority: `AGENTS.md` overrides this document.
 
 ## Why Static Permission Validation Is Not Enough
 
-[`validate_broker_permissions.py`](../scripts/validate_broker_permissions.py) proves that the known
+`validate_broker_permissions.py` proves that the known
 tool registry and project settings classify 47 read tools and deny 25 preview/mutation tools. It
 does not prove which tools a particular unattended model attempted to call.
 
@@ -23,7 +28,7 @@ No missing log, crashed wrapper, or absent hook may be interpreted as zero.
 
 Every scheduled Claude lane now runs through
 [`scripts/audited_claude.py`](../scripts/audited_claude.py), which loads the additional settings in
-[`config/claude_broker_audit_settings.json`](../config/claude_broker_audit_settings.json).
+`config/claude_broker_audit_settings.json`.
 The file adds hooks only; it contains no permission allow or deny entries and therefore does not
 replace project settings.
 

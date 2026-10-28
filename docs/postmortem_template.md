@@ -1,5 +1,10 @@
 # Postmortem Template — field guidance
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Generated postmortems live in `reports/postmortems/<target>_<trigger>.md` and are produced by
 `scripts/postmortem.py` (never by hand-editing an existing postmortem — the generator never
 overwrites; a follow-up gets a `-2` suffix). A postmortem is a **diagnostic** record for this
