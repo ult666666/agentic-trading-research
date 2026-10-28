@@ -1,0 +1,32 @@
+# Python caches and tool output
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local secrets
+.env
+.env.*
+/secrets/
+
+# Private runtime state and configuration that this public snapshot never includes
+/config/
+/data/
+/journal/
+/launchd/
+/logs/
+/prompts/
+/reports/
+
+# OS and editor files
+.DS_Store
+.idea/
+.vscode/

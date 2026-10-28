@@ -17,6 +17,7 @@ sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import broker_namespace_policy as bnp  # noqa: E402
+from public_snapshot import requires_files  # noqa: E402
 
 LIVE = bnp.ROBINHOOD_LIVE_NAMESPACE
 LEGACY = bnp.ROBINHOOD_LEGACY_NAMESPACE
@@ -98,6 +99,7 @@ class TestNamespaceIdentity(unittest.TestCase):
         self.assertFalse(bnp.is_live_approved(
             f"mcp__{LEGACY}__get_equity_quotes", bnp.COLLECTOR_READ_BASENAMES))
 
+    @requires_files("scripts/validate_broker_permissions.py")
     def test_every_live_tool_is_also_in_the_permission_validator_allowlist(self):
         """The one-authoritative-source guarantee: no consumer may diverge.
 
@@ -109,6 +111,7 @@ class TestNamespaceIdentity(unittest.TestCase):
         missing = sorted(bnp.COLLECTOR_LIVE_TOOLS - set(vbp.READ_ALLOWLIST))
         self.assertEqual(missing, [], f"not in READ_ALLOWLIST: {missing}")
 
+    @requires_files("scripts/validate_broker_permissions.py")
     def test_retired_namespace_reads_are_in_no_positive_allow_path(self):
         """Deny-only: the retired namespace may never re-enter a read allowlist."""
         import validate_broker_permissions as vbp
@@ -118,6 +121,7 @@ class TestNamespaceIdentity(unittest.TestCase):
                 self.assertNotIn(tool, vbp.READ_ALLOWLIST, tool)
                 self.assertFalse(bnp.is_live_approved(tool, bnp.COLLECTOR_READ_BASENAMES), tool)
 
+    @requires_files("scripts/validate_broker_permissions.py", ".claude/settings.json")
     def test_retired_namespace_mutations_remain_denied(self):
         """The ONLY place a retired namespace survives is the mutation deny list."""
         import validate_broker_permissions as vbp
@@ -134,6 +138,7 @@ class TestNamespaceIdentity(unittest.TestCase):
         for name in retained:
             self.assertIn(name, deny, f"retired-namespace deny lost: {name}")
 
+    @requires_files("scripts/candidate_quote_hydrator.py")
     def test_hydrator_uses_the_shared_authority_not_its_own_literals(self):
         """A rename must not require editing an unrelated constant in the hydrator."""
         import candidate_quote_hydrator as cqh
@@ -142,6 +147,8 @@ class TestNamespaceIdentity(unittest.TestCase):
         self.assertNotIn(f'"mcp__{LEGACY}__get_equity_quotes"', source,
                          "hydrator still hardcodes a namespace literal")
 
+    @requires_files("scripts/run_robinhood_readonly_collector.sh",
+                    "prompts/robinhood_readonly_collector.md")
     def test_full_collector_live_surface_renders_from_shared_policy(self):
         runner = (ROOT / "scripts" / "run_robinhood_readonly_collector.sh").read_text()
         prompt = (ROOT / "prompts" / "robinhood_readonly_collector.md").read_text()
@@ -152,6 +159,10 @@ class TestNamespaceIdentity(unittest.TestCase):
         self.assertIn("{{RH_GET_EQUITY_QUOTES_TOOL}}", prompt)
         self.assertIn("--audit-receipt", runner)
 
+    @requires_files("scripts/candidate_quote_hydrator.py",
+                    "scripts/run_candidate_quote_hydrator.sh",
+                    "prompts/robinhood_candidate_quote_collector.md",
+                    "config/candidate_quote_hydration.json")
     def test_candidate_collector_live_surface_renders_from_shared_policy(self):
         import json
         import candidate_quote_hydrator as cqh
@@ -178,6 +189,7 @@ class TestNamespaceIdentity(unittest.TestCase):
         self.assertIn("{{RH_GET_EQUITY_TRADABILITY_TOOL}}", prompt)
 
 
+@requires_files("data/broker_tool_namespace.json", "scripts/validate_broker_permissions.py")
 class TestNamespaceSnapshotCannotSilentlyMisauthorize(unittest.TestCase):
     """`data/broker_tool_namespace.json` is a committed production BOOTSTRAP REGISTRY.
 

@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 
 import run_lock  # noqa: E402
+from public_snapshot import requires_files  # noqa: E402
 
 
 class RunLockTests(unittest.TestCase):
@@ -168,6 +169,7 @@ class RunLockTests(unittest.TestCase):
         self.assertEqual(public["status"], "valid_live")
         self._release(acquired)
 
+    @requires_files("scripts/lib/common.sh")
     def test_bash32_wrapper_acquires_and_releases_with_ownership_token(self) -> None:
         shell_root = self.root / "shell-root"
         library = shell_root / "scripts" / "lib"
@@ -190,6 +192,7 @@ class RunLockTests(unittest.TestCase):
         self.assertEqual(inspected["status"], "valid_live")
         self.assertNotIn("nonce", inspected)
 
+    @requires_files("scripts/run_post_close_review.sh")
     def test_post_close_keeps_one_fail_closed_lock_attempt(self) -> None:
         text = (ROOT / "scripts" / "run_post_close_review.sh").read_text(
             encoding="utf-8")
@@ -437,6 +440,7 @@ class ContentionDiagnosticsTests(unittest.TestCase):
         self.assertEqual(fields[1], "?")
         self.assertEqual(fields[2], "lock_metadata_shape_invalid")
 
+    @requires_files("scripts/lib/common.sh")
     def test_shell_wrapper_surfaces_the_reason_in_its_refusal(self) -> None:
         shell_root = self.root / "shell-root"
         library = shell_root / "scripts" / "lib"

@@ -15,23 +15,28 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
-import autonomy_service_health as health  # noqa: E402
-import broker_runtime_audit as broker_audit  # noqa: E402
-import candidate_quote_hydrator as quote_hydrator  # noqa: E402
-import data_preflight  # noqa: E402
-import free_source_health as source_health  # noqa: E402
-import free_source_health_alert as source_alert  # noqa: E402
-import legacy_morning_receipt  # noqa: E402
-import macro_actual_refresh  # noqa: E402
-import power_schedule_health as power_health  # noqa: E402
-import release_snapshot  # noqa: E402
-import runtime_provenance  # noqa: E402
-import research_authority  # noqa: E402
-import research_freeze  # noqa: E402
-import snapshot_gate  # noqa: E402
-import source_matrix  # noqa: E402
-import test_free_ensemble as free_ensemble_fixture  # noqa: E402
-from provider_adapters import base as adapter_base  # noqa: E402
+from public_snapshot import skip_private_module  # noqa: E402
+
+try:  # the public snapshot leaves some imported modules out
+    import autonomy_service_health as health  # noqa: E402
+    import broker_runtime_audit as broker_audit  # noqa: E402
+    import candidate_quote_hydrator as quote_hydrator  # noqa: E402
+    import data_preflight  # noqa: E402
+    import free_source_health as source_health  # noqa: E402
+    import free_source_health_alert as source_alert  # noqa: E402
+    import legacy_morning_receipt  # noqa: E402
+    import macro_actual_refresh  # noqa: E402
+    import power_schedule_health as power_health  # noqa: E402
+    import release_snapshot  # noqa: E402
+    import runtime_provenance  # noqa: E402
+    import research_authority  # noqa: E402
+    import research_freeze  # noqa: E402
+    import snapshot_gate  # noqa: E402
+    import source_matrix  # noqa: E402
+    import test_free_ensemble as free_ensemble_fixture  # noqa: E402
+    from provider_adapters import base as adapter_base  # noqa: E402
+except ModuleNotFoundError as exc:
+    raise skip_private_module(exc) from exc
 
 
 def scheduler(ok: bool = True) -> dict:

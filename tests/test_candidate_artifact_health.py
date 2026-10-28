@@ -21,11 +21,16 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
-import candidate_artifact_health as cah                    # noqa: E402
-import freeze_candidates as fc                             # noqa: E402
-import legacy_morning_receipt                              # noqa: E402
-import test_autonomy_service_health as health_fixtures     # noqa: E402
-from test_legacy_morning_receipt import stage_authoritative_inputs  # noqa: E402
+from public_snapshot import skip_private_module  # noqa: E402
+
+try:  # the public snapshot leaves some imported modules out
+    import candidate_artifact_health as cah                    # noqa: E402
+    import freeze_candidates as fc                             # noqa: E402
+    import legacy_morning_receipt                              # noqa: E402
+    import test_autonomy_service_health as health_fixtures     # noqa: E402
+    from test_legacy_morning_receipt import stage_authoritative_inputs  # noqa: E402
+except ModuleNotFoundError as exc:
+    raise skip_private_module(exc) from exc
 
 PY = sys.executable or "python3"
 T = "2026-07-08"

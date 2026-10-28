@@ -6,17 +6,24 @@ import ast
 import copy
 import io
 import json
+import sys
 import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
 
-import jsonschema
-from referencing import Registry, Resource
-
-import agent_context as context
-
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
+
+from public_snapshot import skip_private_module  # noqa: E402
+
+try:  # the public snapshot leaves some imported modules out
+    import agent_context as context  # noqa: E402
+except ModuleNotFoundError as exc:
+    raise skip_private_module(exc) from exc
+
+import jsonschema  # noqa: E402
+from referencing import Registry, Resource  # noqa: E402
 
 
 class TestAgentContext(unittest.TestCase):
