@@ -71,7 +71,7 @@ These checks do not place, preview, amend, or cancel an order:
 python3 scripts/kalshi/lib/kec_connector.py check-policy
 python3 scripts/kalshi/lib/kec_connector.py public-tools-json
 python3 scripts/kalshi/lib/kec_connector.py audit-source \
-  --source /Users/prince/Projects/kalshi-mcp/server.py
+  --source ~/kalshi-mcp/server.py
 python3 scripts/kalshi/rebuild_self_manifest.py --check
 ```
 

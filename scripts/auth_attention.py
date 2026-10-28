@@ -125,13 +125,13 @@ def _run_lock_actionable() -> list:
     lines = [
         "This is the 2026-07-29..07-31 failure mode: one unreclaimable lock silently took down three consecutive sessions.",
         "Read the exact classification and reason FIRST (never delete the lock):",
-        "  cd /Users/prince/Projects/trading-system && python3 scripts/lib/run_lock.py --root . inspect",
+        "  cd ~/trading-system && python3 scripts/lib/run_lock.py --root . inspect",
     ]
     lines.extend(RUN_LOCK_STATUS_ACTIONS[status]["text"]
                  for status in sorted(RUN_LOCK_STATUS_ACTIONS))
     lines.extend([
         "The operator quarantine MOVES the lock aside as permanent evidence and never deletes it:",
-        "  cd /Users/prince/Projects/trading-system && python3 scripts/lib/run_lock.py --root . quarantine --confirm",
+        "  cd ~/trading-system && python3 scripts/lib/run_lock.py --root . quarantine --confirm",
         "It REFUSES every status above that is marked NOT quarantinable, so a wrong guess fails closed rather than destroying forensic state.",
         "Never use rm -rf on the lock: it destroys the only artifact that explains a missed session.",
         "This marker clears automatically on the next run that acquires the lock.",
@@ -200,12 +200,12 @@ _KNOWN = {
         "actionable": [
             "On 2026-07-29 uncommitted control code ran in production for three days and caused the outage it was meant to prevent.",
             "Read the exact drift:",
-            "  cd /Users/prince/Projects/trading-system && python3 scripts/runtime_provenance.py --json",
+            "  cd ~/trading-system && python3 scripts/runtime_provenance.py --json",
             "Wrong branch      -> check out the production branch before the next scheduled session.",
             "Modified runtime  -> review with git diff, then commit or revert. Never leave control code uncommitted.",
             "Untracked shadow  -> an untracked file is shadowing a tracked runtime path; remove or track it.",
             "Stale snapshot    -> re-bind after the final commit:",
-            "  cd /Users/prince/Projects/trading-system && python3 scripts/release_snapshot.py create",
+            "  cd ~/trading-system && python3 scripts/release_snapshot.py create",
             "This marker clears automatically once provenance passes.",
         ],
     },
@@ -213,7 +213,7 @@ _KNOWN = {
         "headline": "A scheduled workflow has now MISSED ITS SLO ON CONSECUTIVE TRADING SESSIONS - this is a broken system, not a bad morning.",
         "actionable": [
             "Read which workflows and how many consecutive sessions:",
-            "  cd /Users/prince/Projects/trading-system && python3 -c \"import json;d=json.load(open('data/runtime/health/autonomy_service_alert.json'));print(json.dumps(d['slo_persistence'],indent=2))\"",
+            "  cd ~/trading-system && python3 -c \"import json;d=json.load(open('data/runtime/health/autonomy_service_alert.json'));print(json.dumps(d['slo_persistence'],indent=2))\"",
             "Then read the exit reason for the most recent attempt:",
             "  tail -60 logs/errors.log   &&   tail -40 logs/automation.log",
             "A repeated `runner_lock_contention` (exit 75) means the run lock never cleared - see the run_lock_unsafe guidance.",
@@ -227,9 +227,9 @@ _KNOWN = {
         "actionable": [
             "The marker was last refreshed for a session earlier than the one now being prepared.",
             "Re-derive current state instead of reading this file:",
-            "  cd /Users/prince/Projects/trading-system && python3 scripts/next_session_readiness.py",
+            "  cd ~/trading-system && python3 scripts/next_session_readiness.py",
             "Then re-check the durable marker:",
-            "  cd /Users/prince/Projects/trading-system && python3 scripts/auth_attention.py status",
+            "  cd ~/trading-system && python3 scripts/auth_attention.py status",
             "A stale marker usually means the watchdog stopped running - verify the schedule before anything else.",
         ],
     },
@@ -239,7 +239,7 @@ _KNOWN = {
             "One failed trading day. If the next session also fails this escalates to CRITICAL (robinhood_collector_unavailable_persistent).",
             "Probe the LIVE namespace first - a connector RENAME is the known cause and broke this lane twice (2026-07-22 and again on 2026-08-04, in the opposite direction):",
             "  claude mcp list",
-            "  cd /Users/prince/Projects/trading-system && python3 scripts/mcp_registry_probe.py",
+            "  cd ~/trading-system && python3 scripts/mcp_registry_probe.py",
             "Read the deterministic availability classification for the exact failing hop:",
             "  cat data/runtime/health/<target>_rh_availability.json",
             "Bind the structural audit to the measured registry (this is the check that was missing; the bare validator returned PASS throughout the 2026-07-22..08-04 outage):",
@@ -256,7 +256,7 @@ _KNOWN = {
             "This is the 2026-07-22..2026-08-04 failure mode: the read path was dead for ten trading sessions while every static gate reported PASS and the marker stayed at WARNING.",
             "Buy is blocked and next-session readiness is withheld until a real read succeeds. Nothing here authorizes an order; execution remains permanently disabled.",
             "Read the MEASURED registry attestation first - it names the failing hop deterministically:",
-            "  cd /Users/prince/Projects/trading-system && python3 scripts/mcp_registry_probe.py --json",
+            "  cd ~/trading-system && python3 scripts/mcp_registry_probe.py --json",
             "  claude mcp list",
             "If the classification is account_connectors_invisible_to_credential, this is an AUTHENTICATION blocker, NOT a rename. scripts/lib/common.sh exports CLAUDE_CODE_OAUTH_TOKEN from secrets/claude_oauth_token, and under that credential `claude mcp list` returns ONLY local stdio servers - every claude.ai connector is invisible. Reproduce in one line:",
             "  env -u CLAUDE_CODE_OAUTH_TOKEN claude mcp list | wc -l   # vs. with it set",

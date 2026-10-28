@@ -71,7 +71,7 @@ No migration is required for existing ledgers. `corrections` is optional and add
 To record a new correction:
 
 ```bash
-cd /Users/prince/Projects/trading-system
+cd ~/trading-system
 python3 - <<'PY'
 import sys; sys.path.insert(0, "scripts")
 import research_metrics as rm

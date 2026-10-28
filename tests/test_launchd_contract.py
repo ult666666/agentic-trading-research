@@ -60,14 +60,14 @@ def read_plist(root: Path, label: str) -> dict:
 class TestProgramArgumentSplit(unittest.TestCase):
     def test_splits_on_last_scripts_segment(self):
         root, relative = contract.split_program_argument(
-            "/Users/prince/Projects/trading-system/scripts/run_morning_scan.sh")
-        self.assertEqual(root, "/Users/prince/Projects/trading-system")
+            "/Users/example/trading-system/scripts/run_morning_scan.sh")
+        self.assertEqual(root, "/Users/example/trading-system")
         self.assertEqual(relative, "scripts/run_morning_scan.sh")
 
     def test_install_root_containing_scripts_word_is_not_confused(self):
         root, relative = contract.split_program_argument(
-            "/Users/x/my-scripts-repo/scripts/run_morning_scan.sh")
-        self.assertEqual(root, "/Users/x/my-scripts-repo")
+            "/Users/example/my-scripts-repo/scripts/run_morning_scan.sh")
+        self.assertEqual(root, "/Users/example/my-scripts-repo")
         self.assertEqual(relative, "scripts/run_morning_scan.sh")
 
     def test_relative_or_malformed_rejected(self):
@@ -192,7 +192,7 @@ class TestInstalledStateAuditFromFixtures(unittest.TestCase):
     def test_stale_installed_plist_points_at_old_path(self):
         installed = self._installed()
         installed[LABEL]["ProgramArguments"] = [
-            "/bin/bash", "/Users/prince/Desktop/trading-system/scripts/run_macro_actual_refresh.sh"]
+            "/bin/bash", "/Users/example/Desktop/trading-system/scripts/run_macro_actual_refresh.sh"]
         errors = contract.verify_installed_state(
             installed=installed, registered_labels=sorted(contract.EXPECTED_RUNNERS),
             wake_schedule=self.WAKE)

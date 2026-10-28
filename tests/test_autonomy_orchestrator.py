@@ -21,7 +21,7 @@ from pathlib import Path
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parent.parent
-DEPLOYMENT_ROOT = Path("/Users/prince/Projects/trading-system")
+DEPLOYMENT_ROOT = Path.home() / "trading-system"  # = launchd_contract.CANONICAL_INSTALL_ROOT
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 

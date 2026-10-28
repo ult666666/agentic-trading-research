@@ -42,7 +42,7 @@ blocks graduation.
 ## Running it (fixture mode — works on non-trading days)
 
 ```bash
-cd /Users/prince/Projects/trading-system
+cd ~/trading-system
 python3 - <<'EOF'
 import json, sys
 sys.path[:0] = ["scripts", "scripts/lib"]
