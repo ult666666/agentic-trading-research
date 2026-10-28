@@ -1,8 +1,13 @@
 # Strategy Uniqueness and Incremental Alpha Audit
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: implemented offline diagnostic; not scheduled; not a research-factory or production gate.
 
-Authority: [`AGENTS.md`](../AGENTS.md) overrides this document. The audit never establishes
+Authority: `AGENTS.md` overrides this document. The audit never establishes
 future profitability, activates a strategy, changes a score or risk rule, reads account data, or
 creates an order. Its strongest label is `incremental_alpha_review_candidate`, which means only
 that a human may consider the evidence in a separate category-D governance review.

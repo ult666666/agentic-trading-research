@@ -1,8 +1,13 @@
 # Strategy Registry and Comparison Cohorts
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: WP-21 implemented offline; registry is genesis-only and contains zero strategies.
 
-Authority: [`AGENTS.md`](../AGENTS.md) overrides this document. This layer controls research
+Authority: `AGENTS.md` overrides this document. This layer controls research
 denominators only. It does not activate a strategy, establish profitability, feed the research
 factory or production path, change a score/risk/Buy/freeze gate, access a broker or account, or
 create an order.
@@ -25,7 +30,7 @@ WP-21 closes that governance gap with two deterministic components:
    that sequence, requires exactly one benchmark, verifies every frozen source binding, and only
    then hands the cohort to WP-20.
 
-The registry begins at [`data/quant_strategy_registry.jsonl`](../data/quant_strategy_registry.jsonl)
+The registry begins at `data/quant_strategy_registry.jsonl`
 with one genesis event. It currently contains no strategy records because no mature real
 candidate/benchmark/incumbent portfolio panel exists.
 

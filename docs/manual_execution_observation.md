@@ -1,9 +1,14 @@
 # Manual Execution Observation Boundary
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: implemented 2026-07-11; automatic registry sync + post-close health added 2026-07-11
 (WP-14, §7a). Observation-only and diagnostic-only. No dedicated scheduler job exists; registry
 sync piggybacks on the freeze path and the existing post-close job, while event recording stays
-manual. Authority: [`AGENTS.md`](../AGENTS.md) overrides this document.
+manual. Authority: `AGENTS.md` overrides this document.
 
 ## 1. Purpose
 
@@ -23,9 +28,9 @@ account performance, or feed a production gate.
 ## 2. Contracts
 
 The versioned policy is
-[`config/manual_execution_observation_policy.json`](../config/manual_execution_observation_policy.json).
+`config/manual_execution_observation_policy.json`.
 The executable boundary is
-[`scripts/manual_execution_observation.py`](../scripts/manual_execution_observation.py).
+`scripts/manual_execution_observation.py`.
 
 ```text
 freeze_candidates/1.0
@@ -180,7 +185,7 @@ uses an exclusive file lock plus `fsync`.
 
 ## 7a. Automatic registry sync and health (WP-14)
 
-[`scripts/manual_execution_observation_sync.py`](../scripts/manual_execution_observation_sync.py)
+`scripts/manual_execution_observation_sync.py`
 initializes and monitors the registry deterministically once a frozen candidate artifact exists.
 It reuses the APIs above and duplicates none of the registry, hashing, state-machine, or privacy
 logic. A candidate must validate structurally and rederive against the target's freeze receipt
@@ -232,7 +237,7 @@ complete authority invariants (`research_only=true`, `diagnostic_only=true`,
 `strategy_change_allowed=false`) and is self-hashed; `validate` checks structure and seal. The
 sync layer never fabricates a decision, order, fill, exit, or an empty "successful" observation,
 and never calls any broker tool. The adversarial suite is
-[`scripts/test_manual_execution_observation_sync.py`](../scripts/test_manual_execution_observation_sync.py).
+`scripts/test_manual_execution_observation_sync.py`.
 
 ## 8. Current limit and next gate
 
@@ -255,4 +260,4 @@ Until then:
 - no strategy, risk, Buy, freeze, source, or promotion gate changes.
 
 The adversarial suite is
-[`scripts/test_manual_execution_observation.py`](../scripts/test_manual_execution_observation.py).
+`scripts/test_manual_execution_observation.py`.

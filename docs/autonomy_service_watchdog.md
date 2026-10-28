@@ -1,10 +1,15 @@
 # Autonomy Service Watchdog
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: deterministic local observer for the five service-SLO terminal deadlines, plus one fixed
 zero-attempt BLS macro continuity dispatch before the 05:46 evaluation. It has no trading or retry
 authority.
 
-Authority: [`AGENTS.md`](../AGENTS.md) overrides this document.
+Authority: `AGENTS.md` overrides this document.
 
 ## Why It Exists
 
@@ -15,8 +20,8 @@ PT it may dispatch the exact allowlisted BLS runner only when the autonomy state
 macro attempts. It never invokes a model, broker/account surface, order path, or dynamic command.
 
 The exact PT checkpoints are versioned in
-[`config/autonomy_service_alerts.json`](../config/autonomy_service_alerts.json) and cross-locked to
-[`config/autonomy_service_slos.json`](../config/autonomy_service_slos.json):
+`config/autonomy_service_alerts.json` and cross-locked to
+`config/autonomy_service_slos.json`:
 
 | Workflow | Terminal objective | Watchdog checkpoint |
 |---|---:|---:|
@@ -31,7 +36,7 @@ dynamic schedule, or model-driven timer.
 
 ## Evaluation Flow
 
-[`scripts/run_autonomy_watchdog.sh`](../scripts/run_autonomy_watchdog.sh) performs one bounded
+`scripts/run_autonomy_watchdog.sh` performs one bounded
 local pass:
 
 1. derive the PT target date with `scripts/lib/tzutil.py`;

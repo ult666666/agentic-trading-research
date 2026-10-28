@@ -1,5 +1,10 @@
 # Documentation Truth Contract
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Static operator documentation is useful only when its claims match versioned machine contracts.
 This control derives a small, non-private fact set from the repository and fails when the README,
 operating state, or setup checklist drifts from it.

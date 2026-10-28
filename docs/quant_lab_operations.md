@@ -1,5 +1,10 @@
 # Quant Lab Operations
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: implemented 2026-07-09. `AGENTS.md` overrides this guide.
 
 The quant lab is an offline research surface. Its artifacts are diagnostic-only,

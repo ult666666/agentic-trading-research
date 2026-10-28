@@ -1,10 +1,15 @@
 # Strategy Evidence Gate
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: implemented offline and diagnostic-only; not scheduled and not connected to production.
 The repository still has no mature real candidate package or locked incumbent cohort, so no real
 strategy is currently eligible.
 
-Authority: [`AGENTS.md`](../AGENTS.md) overrides this document. The strongest possible terminal is
+Authority: `AGENTS.md` overrides this document. The strongest possible terminal is
 `eligible_for_shadow_observation_review`. That terminal does not start shadow observation, mutate
 the strategy registry, change production, establish profitability, create an order, or authorize
 execution.
@@ -23,7 +28,7 @@ The quant stack previously had strong but separate answers to different question
 
 [`scripts/quant/strategy_evidence_gate.py`](../scripts/quant/strategy_evidence_gate.py) joins those
 contracts without weakening or replacing any of them. Its policy is
-[`config/quant_strategy_evidence_gate.json`](../config/quant_strategy_evidence_gate.json), and its
+`config/quant_strategy_evidence_gate.json`, and its
 output contract is
 [`schemas/quant_strategy_evidence_gate.schema.json`](../schemas/quant_strategy_evidence_gate.schema.json).
 

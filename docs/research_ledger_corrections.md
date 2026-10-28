@@ -1,5 +1,10 @@
 # Research-ledger corrections (append-only)
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 `data/research_ledger.json` is append-only. Its header has always promised that "corrections
 append with their own timestamp", but until 2026-08-04 there was no schema for one — so a ledger
 row pointing at a report that no longer existed had nowhere to be resolved and simply accumulated.
@@ -71,7 +76,7 @@ No migration is required for existing ledgers. `corrections` is optional and add
 To record a new correction:
 
 ```bash
-cd /Users/prince/Projects/trading-system
+cd ~/trading-system
 python3 - <<'PY'
 import sys; sys.path.insert(0, "scripts")
 import research_metrics as rm

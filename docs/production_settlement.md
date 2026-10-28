@@ -1,5 +1,10 @@
 # Production settlement procedure
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: adopted 2026-07-27 after the manifest-drift outage of that morning.
 Authority: this document describes the required ORDER of operations. The enforcing code is
 `scripts/build_manifest.py`, `scripts/release_snapshot.py`, `scripts/runtime_provenance.py`,

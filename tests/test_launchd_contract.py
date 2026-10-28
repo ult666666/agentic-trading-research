@@ -26,9 +26,12 @@ sys.path.insert(0, str(SCRIPTS))
 sys.path.insert(0, str(SCRIPTS / "lib"))
 
 import launchd_contract as contract  # noqa: E402
+from public_snapshot import requires_files  # noqa: E402
 
 LABEL = "com.charles.trading.macro-refresh"
 PROD = contract.CANONICAL_INSTALL_ROOT
+# The tracked plists and their runner scripts are private runtime files.
+NEEDS_TRACKED_PLISTS = requires_files("launchd/")
 
 
 def stage_tree(destination: Path, *, labels=None) -> Path:
@@ -60,14 +63,14 @@ def read_plist(root: Path, label: str) -> dict:
 class TestProgramArgumentSplit(unittest.TestCase):
     def test_splits_on_last_scripts_segment(self):
         root, relative = contract.split_program_argument(
-            "/Users/prince/Projects/trading-system/scripts/run_morning_scan.sh")
-        self.assertEqual(root, "/Users/prince/Projects/trading-system")
+            "/Users/example/trading-system/scripts/run_morning_scan.sh")
+        self.assertEqual(root, "/Users/example/trading-system")
         self.assertEqual(relative, "scripts/run_morning_scan.sh")
 
     def test_install_root_containing_scripts_word_is_not_confused(self):
         root, relative = contract.split_program_argument(
-            "/Users/x/my-scripts-repo/scripts/run_morning_scan.sh")
-        self.assertEqual(root, "/Users/x/my-scripts-repo")
+            "/Users/example/my-scripts-repo/scripts/run_morning_scan.sh")
+        self.assertEqual(root, "/Users/example/my-scripts-repo")
         self.assertEqual(relative, "scripts/run_morning_scan.sh")
 
     def test_relative_or_malformed_rejected(self):
@@ -76,6 +79,7 @@ class TestProgramArgumentSplit(unittest.TestCase):
                 contract.split_program_argument(bad)
 
 
+@NEEDS_TRACKED_PLISTS
 class TestVersionedContractIsPathIndependent(unittest.TestCase):
     """The same tracked bytes must verify from ANY worktree path."""
 
@@ -99,6 +103,7 @@ class TestVersionedContractIsPathIndependent(unittest.TestCase):
         self.assertEqual(report["errors"], [])
 
 
+@NEEDS_TRACKED_PLISTS
 class TestVersionedContractDetectsRealDefects(unittest.TestCase):
     def _staged(self, td: str) -> Path:
         return stage_tree(Path(td) / "tree")
@@ -192,7 +197,7 @@ class TestInstalledStateAuditFromFixtures(unittest.TestCase):
     def test_stale_installed_plist_points_at_old_path(self):
         installed = self._installed()
         installed[LABEL]["ProgramArguments"] = [
-            "/bin/bash", "/Users/prince/Desktop/trading-system/scripts/run_macro_actual_refresh.sh"]
+            "/bin/bash", "/Users/example/Desktop/trading-system/scripts/run_macro_actual_refresh.sh"]
         errors = contract.verify_installed_state(
             installed=installed, registered_labels=sorted(contract.EXPECTED_RUNNERS),
             wake_schedule=self.WAKE)
@@ -231,6 +236,7 @@ class TestTheTwoContractsAreIndependent(unittest.TestCase):
 
     WAKE = "wakepoweron at 4:55AM weekdays only"
 
+    @NEEDS_TRACKED_PLISTS
     def test_versioned_ok_while_installed_state_wrong(self):
         with tempfile.TemporaryDirectory() as td:
             root = stage_tree(Path(td) / "candidate")
@@ -246,6 +252,7 @@ class TestTheTwoContractsAreIndependent(unittest.TestCase):
                 wake_schedule=self.WAKE)
             self.assertTrue(any(e.startswith("installed_install_root_mismatch") for e in errors))
 
+    @NEEDS_TRACKED_PLISTS
     def test_installed_state_ok_while_versioned_contract_wrong(self):
         with tempfile.TemporaryDirectory() as td:
             root = stage_tree(Path(td) / "candidate")

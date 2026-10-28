@@ -23,9 +23,14 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 
-import autonomy_service_alert as alert  # noqa: E402
-import autonomy_service_health  # noqa: E402
-import slo_persistence  # noqa: E402
+from public_snapshot import skip_private_module  # noqa: E402
+
+try:  # the public snapshot leaves some imported modules out
+    import autonomy_service_alert as alert  # noqa: E402
+    import autonomy_service_health  # noqa: E402
+    import slo_persistence  # noqa: E402
+except ModuleNotFoundError as exc:
+    raise skip_private_module(exc) from exc
 
 WORKFLOW = "morning"
 

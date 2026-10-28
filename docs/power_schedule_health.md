@@ -1,5 +1,10 @@
 # Mac Power-Schedule Readiness
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 ## Purpose
 
 The deterministic data intake is scheduled for 05:00 PT. A healthy LaunchAgent does not prove

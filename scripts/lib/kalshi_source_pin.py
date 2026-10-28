@@ -39,7 +39,8 @@ POLICY_PATH = ROOT / "scripts" / "kalshi" / "config" / "connector_policy.json"
 # The external server is a single small Python module; 2 MiB is far above its real size and far
 # below anything that could stall an audited lane.
 MAX_SOURCE_BYTES = 2_000_000
-SOURCE_PATH = Path("/Users/prince/Projects/kalshi-mcp/server.py")
+# Neutral placeholder location (public snapshot); the private deployment pins its real checkout.
+SOURCE_PATH = Path.home() / "kalshi-mcp" / "server.py"
 
 _SHA_RE = re.compile(r"^[0-9a-f]{64}$")
 

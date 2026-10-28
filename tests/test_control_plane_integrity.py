@@ -15,10 +15,15 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 
-import audited_claude as wrapper  # noqa: E402
-import broker_runtime_audit as audit  # noqa: E402
-import control_plane_integrity as integrity  # noqa: E402
-import run_lock  # noqa: E402
+from public_snapshot import skip_private_module  # noqa: E402
+
+try:  # the public snapshot leaves some imported modules out
+    import audited_claude as wrapper  # noqa: E402
+    import broker_runtime_audit as audit  # noqa: E402
+    import control_plane_integrity as integrity  # noqa: E402
+    import run_lock  # noqa: E402
+except ModuleNotFoundError as exc:
+    raise skip_private_module(exc) from exc
 
 TARGET = "2026-07-16"
 

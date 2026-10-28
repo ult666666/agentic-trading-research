@@ -4,17 +4,16 @@
 WHY THIS EXISTS (2026-07-28 integration failure)
 ------------------------------------------------
 `launchd/*.plist` are INSTALL ARTIFACTS. launchd requires absolute paths, so every tracked plist
-necessarily bakes the canonical production install root
-(`/Users/prince/Projects/trading-system`) into `ProgramArguments` and `WorkingDirectory`. That is
-correct and must not change.
+necessarily bakes the canonical production install root (an absolute path under the operator's
+home directory, `~/trading-system` in this public snapshot) into `ProgramArguments` and
+`WorkingDirectory`. That is correct and must not change.
 
 `scripts/test_macro_actual_refresh.py` asserted
 ``plist["ProgramArguments"] == ["/bin/bash", str(ROOT / "scripts" / "run_macro_actual_refresh.sh")]``
 where ``ROOT`` is *the worktree currently running the test*. That assertion therefore holds ONLY
 when the checkout happens to be the production path. It passed in production and in the
 production-path fixture, and failed — correctly and unavoidably — inside the clean integration
-candidate at `/Users/prince/Projects/.trading-worktrees/p0-integration-candidate`, which is what
-blocked the integration.
+candidate in a separate linked worktree, which is what blocked the integration.
 
 The two questions were conflated. They are now separated:
 
@@ -40,8 +39,9 @@ from pathlib import Path
 SCHEMA = "launchd_versioned_contract/1.0"
 
 # The canonical production install root is a VERSIONED FACT declared by the tracked plists
-# themselves. It is deliberately NOT derived from the running worktree.
-CANONICAL_INSTALL_ROOT = "/Users/prince/Projects/trading-system"
+# themselves. It is deliberately NOT derived from the running worktree. The public snapshot
+# uses a neutral placeholder under the home directory instead of the real deployment path.
+CANONICAL_INSTALL_ROOT = str(Path.home() / "trading-system")
 
 EXPECTED_RUNNERS = {
     "com.charles.trading.intake": "scripts/run_data_intake.sh",

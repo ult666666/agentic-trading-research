@@ -1,13 +1,18 @@
 # Release Snapshot Runbook
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: `release_snapshot/1.0` implemented 2026-07-10 as the non-destructive prerequisite for
 clean release work. A snapshot is not a commit, branch, approval, or production deployment.
 
-Authority: [`AGENTS.md`](../AGENTS.md) overrides this document.
+Authority: `AGENTS.md` overrides this document.
 
 ## What It Captures
 
-[`scripts/release_snapshot.py`](../scripts/release_snapshot.py) reads one Git worktree and writes a
+`scripts/release_snapshot.py` reads one Git worktree and writes a
 private bundle outside it:
 
 ```text

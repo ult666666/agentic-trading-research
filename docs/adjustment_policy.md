@@ -1,12 +1,17 @@
 # Point-in-Time Adjustment Policy
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: version 1.0.0 is implemented for offline research. It derives reproducible `raw`,
 `split_only`, and `total_return` daily-bar views from one validated data-lake snapshot. It does
 not activate a provider, feed production scoring, change a strategy, grant Buy authority, or
 access a broker.
 
-Authority: [`AGENTS.md`](../AGENTS.md) overrides this document. The machine-enforced contract is
-[`config/adjustment_policy.json`](../config/adjustment_policy.json), implemented by
+Authority: `AGENTS.md` overrides this document. The machine-enforced contract is
+`config/adjustment_policy.json`, implemented by
 [`scripts/adjustment_policy.py`](../scripts/adjustment_policy.py).
 
 ## Why This Exists

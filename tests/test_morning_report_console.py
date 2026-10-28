@@ -17,8 +17,13 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 
-import morning_report_console as reports  # noqa: E402
-import operator_console as console  # noqa: E402
+from public_snapshot import skip_private_module  # noqa: E402
+
+try:  # the public snapshot leaves some imported modules out
+    import morning_report_console as reports  # noqa: E402
+    import operator_console as console  # noqa: E402
+except ModuleNotFoundError as exc:
+    raise skip_private_module(exc) from exc
 
 
 def _write(path: Path, text: str) -> None:

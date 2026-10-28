@@ -21,18 +21,23 @@ from pathlib import Path
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parent.parent
-DEPLOYMENT_ROOT = Path("/Users/prince/Projects/trading-system")
+DEPLOYMENT_ROOT = Path.home() / "trading-system"  # = launchd_contract.CANONICAL_INSTALL_ROOT
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 
-import autonomy_orchestrator as ao  # noqa: E402
-import deterministic_no_live_terminal as deterministic_terminal  # noqa: E402
-import freeze_candidates  # noqa: E402
-import legacy_morning_receipt  # noqa: E402
-from test_legacy_morning_receipt import stage_authoritative_inputs  # noqa: E402
-import test_free_ensemble as free_ensemble_fixture  # noqa: E402
-import data_lake_intake  # noqa: E402
-import tzutil  # noqa: E402
+from public_snapshot import skip_private_module  # noqa: E402
+
+try:  # the public snapshot leaves some imported modules out
+    import autonomy_orchestrator as ao  # noqa: E402
+    import deterministic_no_live_terminal as deterministic_terminal  # noqa: E402
+    import freeze_candidates  # noqa: E402
+    import legacy_morning_receipt  # noqa: E402
+    from test_legacy_morning_receipt import stage_authoritative_inputs  # noqa: E402
+    import test_free_ensemble as free_ensemble_fixture  # noqa: E402
+    import data_lake_intake  # noqa: E402
+    import tzutil  # noqa: E402
+except ModuleNotFoundError as exc:
+    raise skip_private_module(exc) from exc
 
 POST_CLOSE_TEST_RUN_ID = "postclose-20260709T201500Z-0123456789ab"
 

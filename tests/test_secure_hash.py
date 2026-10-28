@@ -20,6 +20,7 @@ sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 
 import secure_hash  # noqa: E402
 import kalshi_source_pin as pin  # noqa: E402
+from public_snapshot import requires_files  # noqa: E402
 
 MAX = 1_000_000
 
@@ -118,12 +119,15 @@ class TestSecureHash(unittest.TestCase):
 
 
 class TestKalshiSourcePin(unittest.TestCase):
+    @requires_files("scripts/kalshi/config/connector_policy.json")
     def test_authoritative_digest_comes_from_the_policy_json(self):
         expected = pin.expected_sha256()
         self.assertIsNotNone(expected)
         document = json.loads(pin.POLICY_PATH.read_text())
         self.assertEqual(expected, document["source_integrity"]["sha256"])
 
+    @requires_files("scripts/kalshi/config/connector_policy.json",
+                    "scripts/validate_broker_permissions.py")
     def test_all_consumers_agree_with_the_authority(self):
         """A stale duplicate literal must not be able to disagree silently."""
         import broker_runtime_audit as bra

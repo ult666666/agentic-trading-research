@@ -19,8 +19,13 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 
-import options_fixtures as fx  # noqa: E402
-import options_risk_gate as gate  # noqa: E402
+from public_snapshot import skip_private_module  # noqa: E402
+
+try:  # the public snapshot leaves some imported modules out
+    import options_fixtures as fx  # noqa: E402
+    import options_risk_gate as gate  # noqa: E402
+except ModuleNotFoundError as exc:
+    raise skip_private_module(exc) from exc
 
 FORBIDDEN_OUTPUT_TOKENS = ("BUY", "OFFICIAL", "APPROVED_ORDER", "READY_TO_SEND",
                            "ACTIONABLE_TICKET")

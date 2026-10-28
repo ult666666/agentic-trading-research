@@ -1,13 +1,18 @@
 # Superior Predictive Ability Audit
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: version 1.1 is an offline, diagnostic-only implementation of Peter Hansen's test for
 Superior Predictive Ability (SPA). It compares a complete declared family of modeled strategy
 portfolio paths with one explicit benchmark while accounting for model search and serial
 dependence. It is not connected to the research factory, production scoring, risk, Buy, freeze,
 metrics, brokerage, or execution.
 
-Authority: [`AGENTS.md`](../AGENTS.md) overrides this document. Machine semantics are fixed by
-[`config/quant_spa_policy.json`](../config/quant_spa_policy.json) and implemented by
+Authority: `AGENTS.md` overrides this document. Machine semantics are fixed by
+`config/quant_spa_policy.json` and implemented by
 [`scripts/quant/spa_audit.py`](../scripts/quant/spa_audit.py).
 
 ## Research basis

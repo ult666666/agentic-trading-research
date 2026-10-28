@@ -1,5 +1,10 @@
 # Research Qualification Engine (sim/research_qualification/)
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Deterministic, stdlib-only, model-free integration layer over the existing
 quant lab. It adds NO new statistical machinery where the lab already has it
 (walk-forward, purge/embargo, locked holdout, PBO, DSR, HAC, bootstrap, SPA,

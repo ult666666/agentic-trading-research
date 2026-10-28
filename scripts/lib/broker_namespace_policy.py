@@ -5,7 +5,8 @@ WHY
 ---
 Robinhood's MCP server name has now changed TWICE, in opposite directions:
 
-  * 2026-07-22  `claude_ai_RobinHood` -> `8941ceef-f601-4890-9727-e54e06fe07ff`
+  * 2026-07-22  `claude_ai_RobinHood` -> a connector-instance UUID (withheld from the public
+    snapshot; ROBINHOOD_UUID_ALIAS_NAMESPACE below holds a placeholder)
   * on/before 2026-08-04 the connector was re-exposed under its display name again, so the
     live server is `claude_ai_RobinHood` and the UUID no longer exists in the registry.
 
@@ -75,7 +76,8 @@ ROBINHOOD_LIVE_NAMESPACE = "robinhood-trading"
 # Retained name for the primary retired identity (archived receipts + deny binding). The
 # constant keeps its historical name so receipt-classification call sites do not churn.
 ROBINHOOD_LEGACY_NAMESPACE = "claude_ai_RobinHood"
-ROBINHOOD_UUID_ALIAS_NAMESPACE = "8941ceef-f601-4890-9727-e54e06fe07ff"
+# Public snapshot: the real account-scoped connector UUID is replaced by a placeholder.
+ROBINHOOD_UUID_ALIAS_NAMESPACE = "00000000-0000-0000-0000-000000000000"
 ROBINHOOD_LIVE_NAMESPACES: tuple[str, ...] = (ROBINHOOD_LIVE_NAMESPACE,)
 # dict.fromkeys (not a literal tuple) so that if LIVE and a retired name are ever set to the same
 # string the archive tuple degrades to one element instead of silently halving every APPROVED

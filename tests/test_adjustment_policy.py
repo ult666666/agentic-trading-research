@@ -15,11 +15,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
-import adjustment_policy as ap  # noqa: E402
-import data_lake_ingest as ingest  # noqa: E402
-import data_lake_quality  # noqa: E402
-import data_lake_snapshot  # noqa: E402
-from provider_adapters import base  # noqa: E402
+from public_snapshot import skip_private_module  # noqa: E402
+
+try:  # the public snapshot leaves some imported modules out
+    import adjustment_policy as ap  # noqa: E402
+    import data_lake_ingest as ingest  # noqa: E402
+    import data_lake_quality  # noqa: E402
+    import data_lake_snapshot  # noqa: E402
+    from provider_adapters import base  # noqa: E402
+except ModuleNotFoundError as exc:
+    raise skip_private_module(exc) from exc
 
 PROVIDER = "massive_bakeoff"
 OBSERVED = "2020-09-10T20:00:00+00:00"

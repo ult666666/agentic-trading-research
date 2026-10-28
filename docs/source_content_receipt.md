@@ -1,5 +1,10 @@
 # Source-content receipt (shadow-only)
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 `scripts/source_content_receipt.py` closes one narrow but important gap: it can prove that a
 bounded byte range came from the exact local representation whose SHA-256 is recorded in the
 receipt. It hashes and validates the same in-memory bytes, derives every anchor hash, rejects

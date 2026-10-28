@@ -14,8 +14,13 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 
-import options_analytics as oa  # noqa: E402
-import options_fixtures as fx  # noqa: E402
+from public_snapshot import skip_private_module  # noqa: E402
+
+try:  # the public snapshot leaves some imported modules out
+    import options_analytics as oa  # noqa: E402
+    import options_fixtures as fx  # noqa: E402
+except ModuleNotFoundError as exc:
+    raise skip_private_module(exc) from exc
 
 
 class TestPayoffMathematics(unittest.TestCase):

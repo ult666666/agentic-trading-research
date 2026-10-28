@@ -1,5 +1,10 @@
 # Databento Shadow Onboarding
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: account setup is the only manual gate. No market-data download, subscription, purchase,
 provider authority, model scoring, broker action, or order action is performed by this workflow.
 
@@ -7,8 +12,8 @@ provider authority, model scoring, broker action, or order action is performed b
 
 Databento historical usage-based access is the current evaluation path. Its historical service
 supports cost quotes before download and does not require a subscription. New accounts advertise
-$125 of historical-data credit. The existing campaign still caps Databento at $750, and the local
-probe adds a $25 cap per quoted request.
+$125 of historical-data credit. The evaluation campaign has a fixed total spending cap for
+Databento, and the local probe adds a smaller cap per quoted request.
 
 Massive remains disabled. Its published individual market-data terms default market data to
 display use and require separate licensing for non-display use or an investment strategy. A $199

@@ -1,11 +1,16 @@
 # Catalyst Event Graph
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Status: deterministic Layer-2 foundation implemented 2026-07-09. The graph is diagnostic-only and
 does not feed the Buy gate or production scorer. Structurally valid evidence that fails solely
 because generic source claims lack a trusted production receipt may still produce a
 `diagnostic_only_unverified` graph; the production report remains blocked.
 
-Authority: [`AGENTS.md`](../AGENTS.md) overrides this document. A graph verdict describes evidence
+Authority: `AGENTS.md` overrides this document. A graph verdict describes evidence
 lineage, not trade direction, expected return, suitability, or permission to act.
 
 ## Why It Exists
@@ -25,11 +30,11 @@ build explicitly.
 
 ## Artifacts
 
-- [`config/catalyst_taxonomy.json`](../config/catalyst_taxonomy.json): versioned exact aliases,
+- `config/catalyst_taxonomy.json`: versioned exact aliases,
   event categories, and binary/dilution flags.
 - [`scripts/catalyst_graph.py`](../scripts/catalyst_graph.py): pure deterministic builder,
   validator, immutable writer, and summary command.
-- [`scripts/evidence_schema.py`](../scripts/evidence_schema.py): authority for exact catalyst-to-
+- `scripts/evidence_schema.py`: authority for exact catalyst-to-
   claim joins and catalyst quorum.
 - `data/runtime/research/<target>/catalyst_graph.json`: untracked `catalyst_graph/1.0` artifact.
 
@@ -81,7 +86,7 @@ otherwise unsuitable. Every verdict carries `grants_actionability=false`.
 
 ## Freeze Integration
 
-[`scripts/research_freeze.py`](../scripts/research_freeze.py) builds the graph only after the report,
+`scripts/research_freeze.py` builds the graph only after the report,
 freeze receipt, research-ledger result, and structured-candidate artifact are complete. Graph
 generation is best-effort and cannot reclassify the report or alter any authority. A graph failure
 is returned as a diagnostic error; it never weakens a gate.

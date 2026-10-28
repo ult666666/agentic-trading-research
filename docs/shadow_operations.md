@@ -1,5 +1,10 @@
 # Autonomous Shadow Operations (sim/research_qualification/shadow_ops.py)
 
+> **Public snapshot:** this document comes from the private repository and describes the
+> private system as of the dates it gives. Many files it names, such as `config/`, `data/` and
+> `prompts/` files, `AGENTS.md` and many scripts, are private and not included here. Links point
+> only to files in this repository.
+
 Shadow means: **no live broker order, no real position or account mutation,
 no broker authentication, no scheduler installation.** Order intents are
 recorded locally, fills are simulated conservatively, P&L is shadow-only,
