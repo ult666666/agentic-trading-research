@@ -65,13 +65,14 @@ def stationary_blocks(periods: int, mean_block: float, rng: random.Random) -> li
     Starts are uniform over the rows; lengths are geometric with mean
     ``mean_block`` (drawn by inversion), and the last block is cut to fit.
     """
-    if periods < 1 or mean_block < 1:
-        raise ValueError("periods and mean_block must be at least 1")
+    if periods < 1 or not 1 <= mean_block < math.inf:
+        raise ValueError("periods must be at least 1 and mean_block finite and at least 1")
     stop = 1.0 / mean_block
     blocks, filled = [], 0
     while filled < periods:
         start = rng.randrange(periods)
-        length = 1 if stop >= 1 else 1 + int(math.log(1.0 - rng.random()) / math.log(1.0 - stop))
+        # log1p keeps log(1 - stop) nonzero when stop is tiny (mean blocks above about 1e16).
+        length = 1 if stop >= 1 else 1 + int(math.log(1.0 - rng.random()) / math.log1p(-stop))
         length = min(length, periods - filled)
         blocks.append((start, length))
         filled += length
