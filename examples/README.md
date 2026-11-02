@@ -1,53 +1,69 @@
-# Runnable offline example — deterministic research gate
+# Examples
 
-**Teaching example only.** This is original, synthetic demonstration code for the public showcase, not a copy of or replacement for the private trading engine. It never connects to a brokerage, market-data source, model API or user account, and has no order path.
+Two examples written for this public repository, separate from the private system's code. Both
+run on synthetic inputs with Python 3.11 or newer and only the standard library. Neither
+connects to a broker, a market-data source, a model API or a user account.
 
-## Try it with Python 3.11+
+- [The research review gate](#the-research-review-gate): `fail_closed_gate.py`
+- [Backtest-overfitting diagnostics](#backtest-overfitting-diagnostics): `backtest_diagnostics/`
+  and `overfitting_demo.py`
+
+The tests for both run with:
 
 ```bash
-python3 -B examples/fail_closed_gate.py --all
 python3 -B -m unittest discover -s examples -p 'test_*.py' -v
 ```
 
-One fictional clean scenario returns `REVIEWABLE_RESEARCH` (human review only). Five intentional failure scenarios return `HOLD` and machine-readable reasons. **Neither state authorizes trades**; `order_authorized` and `broker_invoked` are always false.
+## The research review gate
 
-| Scenario | Expected | Tested boundary |
+`fail_closed_gate.py` is an original, simplified stand-in for the private system's review gate.
+A model's trade idea reaches human review only if every check passes. Anything missing, stale or
+malformed returns `HOLD` with machine-readable reasons. Neither result authorizes a trade:
+`order_authorized` and `broker_invoked` are always false.
+
+```bash
+python3 -B examples/fail_closed_gate.py --all
+```
+
+| Scenario | Result | What it tests |
 | --- | --- | --- |
-| `fresh` | `REVIEWABLE_RESEARCH` | Illustrative checks pass, human review remains mandatory |
-| `stale-quote` | `HOLD` | Input outside the toy 5-minute freshness window |
-| `single-source` | `HOLD` | Two independent sources required |
-| `over-budget` | `HOLD` | Hypothetical loss exceeds synthetic risk budget |
-| `bad-digest` | `HOLD` | Invalid digest format |
-| `narrative-pressure` | `HOLD` | AI-generated text cannot override stale evidence |
+| `fresh` | `REVIEWABLE_RESEARCH` | Every check passes, and a person still reviews the idea |
+| `stale-quote` | `HOLD` | The quote is older than the 5-minute freshness window |
+| `single-source` | `HOLD` | Two independent sources are required |
+| `over-budget` | `HOLD` | The hypothetical loss exceeds the synthetic risk budget |
+| `bad-digest` | `HOLD` | A source digest has an invalid format |
+| `narrative-pressure` | `HOLD` | Persuasive model text cannot override stale evidence |
 
 ```mermaid
 flowchart LR
-    A["Synthetic AI proposal"] --> B["Typed input validation"]
+    A["Synthetic model proposal"] --> B["Typed input validation"]
     B --> C["Freshness and source checks"]
-    C --> D["Toy risk and catalyst checks"]
-    D --> E{Pass?}
-    E -- No --> F["HOLD + reasons"]
+    C --> D["Risk and catalyst checks"]
+    D --> E{All pass?}
+    E -- No --> F["HOLD with reasons"]
     E -- Yes --> G["Human research review"]
-    F --> H["NO ORDER PATH"]
+    F --> H["No order path"]
     G --> H
 ```
 
-## Limitations and provenance
+Limits of the gate:
 
-- The clock and candidate ID are fixed, so the demonstration is repeatable and cannot be fed a real ticker.
-- Receipt digest values are validated **for format only**. No source content is fetched or independently authenticated (`source_receipts_authenticated=false`).
-- Toy thresholds (synthetic $2M volume, 35 basis-point spread, 2:1 ratio) are not validated trading thresholds or actionable financial advice.
-- A real market calendar, transaction costs, options, broker permissions, live quote verification and portfolio-level risks are intentionally not implemented.
-- No real holdings, accounts, news, credentials, private runtime, logs or vendor data are embedded.
+- The clock and candidate ID are fixed, so the demo is repeatable and cannot be fed a real
+  ticker.
+- Source digests are checked for format only. No source content is fetched or authenticated, so
+  `source_receipts_authenticated` is always false.
+- The volume, spread and reward-to-risk thresholds are toy values, not tested trading rules.
+- There is no market calendar, transaction cost model, options support, broker permission check,
+  live quote check or portfolio-level risk.
 
-[Public architecture](../README.md) · [Automated checks](../.github/workflows/research-demo.yml) · [Review test cases](test_fail_closed_gate.py)
+The scenarios are tested in [`test_fail_closed_gate.py`](test_fail_closed_gate.py), and the
+[offline checks workflow](../.github/workflows/research-demo.yml) runs them on every push.
 
 ## Backtest-overfitting diagnostics
 
-`backtest_diagnostics/` is a self-contained package of four diagnostics that quant reviewers
-apply before trusting a backtest. It uses only the standard library, takes plain lists of
-per-period returns, and is deterministic for a given seed. All data in the demo and the tests
-are synthetic.
+`backtest_diagnostics/` holds four diagnostics that quant reviewers apply before trusting a
+backtest. It takes plain lists of per-period returns and is deterministic for a given seed. The
+[main README](../README.md#result) shows the demo's result.
 
 ```bash
 python3 -B examples/overfitting_demo.py                         # demo; exit 1 if a verdict is unexpected
@@ -64,7 +80,7 @@ python3 -B examples/overfitting_demo.py --psr 4000              # PSR on 4,000 s
 | `reality_check.py` | Stationary-bootstrap resamples; White's Reality Check and Hansen's consistent SPA test from the same resamples |
 | `synthetic.py`, `calibration.py` | No-skill and injected-skill return matrices; pass rates over many seeded universes |
 
-**How each works.**
+### How each diagnostic works
 
 - **PSR** (Bailey and López de Prado 2012) is
   Φ((SR − SR*) √(T − 1) / √(1 − γ3 SR + (γ4 − 1)/4 SR²)): the probability that the true Sharpe
@@ -82,35 +98,47 @@ python3 -B examples/overfitting_demo.py --psr 4000              # PSR on 4,000 s
   keeps clearly losing strategies at their own negative mean, so they cannot inflate the
   p-value.
 
-**How it is checked** (`python3 -B -m unittest discover -s examples -p 'test_*.py' -v`):
+### How it is checked
 
-- The DSR inputs of the numerical example in Bailey and López de Prado (2014) (100 trials, an
-  annualized Sharpe ratio of 2.5 over 1,250 daily returns, skewness −3, kurtosis 10, an
-  annualized trial variance of 0.5) give SR0 = 0.1132 and DSR = 0.9004.
-- The PSR matches its closed form for normal returns, and the minimum track record length
-  inverts it to 12 decimals. The expected maximum Sharpe ratio is within 3% of simulated maxima
-  for 10, 100 and 1,000 trials.
-- PBO matches a brute-force implementation (rebuilt matrices, sorting) on 18 matrix and block
-  combinations. It also passes a hand-checked example and is independent of strategy order.
-- Bootstrap means from prefix sums equal the means over the explicitly resampled rows. With
-  one strategy and a block of 1, the Reality Check p-value is within 0.01 of a one-sided normal
-  test.
-- Adding twenty clearly losing strategies to one skilled strategy leaves the SPA p-value at
-  0.046 and raises the Reality Check's from 0.046 to 0.384: SPA keeps those strategies at
-  their own negative means, while the Reality Check centres every strategy at zero. A huge
-  mean block (1e17) gives one block, and an infinite or NaN block length is rejected.
-- Null simulations check that a strategy judged alone passes PSR about 5% of the time, that
-  no-skill PBO averages about 0.5, and that the Reality Check and SPA reject no more than 5%
-  plus three standard errors. The demo test requires every expected verdict.
-- Each of nine deliberate mutations makes at least one test fail. Mutated were the DSR ignoring
-  N, a sign in the PSR kurtosis term, E[max] without the γ mix, CSCV ranking from the best, CSCV
-  picking the in-sample loser, uncentred Reality Check resamples, blocks without wrap-around, a
-  Reality Check that ignores the search, and an SPA that centres every strategy at its own mean. In a scratch environment, the DSR and PBO also agreed
-  to within 5e-11 with the snapshot's own `scripts/quant/selection_bias.py` on 20 synthetic
-  matrices (that module needs private code, so this check is not in CI).
+| What | Checked against | Result |
+| --- | --- | --- |
+| DSR and SR0 | The numerical example in Bailey and López de Prado (2014), inputs below | SR0 = 0.1132, DSR = 0.9004 |
+| PSR | Its closed form for normal returns | Equal |
+| Minimum track record length | The PSR it inverts | Equal to 12 decimals |
+| Expected maximum Sharpe ratio | Simulated maxima of 10, 100 and 1,000 trials | Within 3% |
+| PBO | A brute-force implementation (rebuilt matrices, sorting) on 18 matrix and block combinations, and a hand-checked example | Equal, and independent of strategy order |
+| Bootstrap means from prefix sums | Means over the explicitly resampled rows | Equal |
+| Reality Check, one strategy, block of 1 | A one-sided normal test | p-values within 0.01 |
+| SPA and Reality Check, one skilled strategy plus 20 clearly losing ones | The skilled strategy alone | SPA p stays at 0.046; the Reality Check's rises from 0.046 to 0.384 |
+| Block lengths | A huge mean block (1e17), and infinite or NaN lengths | One block; rejected |
+| Error rates | Null simulations | PSR alone passes about 5%, no-skill PBO averages about 0.5, and the Reality Check and SPA reject at most 5% plus three standard errors |
 
-**Pass rates over 400 seeded synthetic universes** (20 strategies, 500 Student-t returns each;
-standard errors are at most 0.025):
+The published DSR example has these inputs:
+
+| Input | Value |
+| --- | --- |
+| Trials | 100 |
+| Annualized Sharpe ratio of the best trial | 2.5 |
+| Daily returns | 1,250 |
+| Skewness and kurtosis | −3 and 10 |
+| Annualized variance of the trials' Sharpe ratios | 0.5 |
+
+The SPA row shows why the two tests differ: SPA keeps clearly losing strategies at their own
+negative means, while the Reality Check centres every strategy at zero, so losers raise its
+p-value. The demo test also requires every expected verdict.
+
+Nine deliberate bugs each make at least one test fail: the DSR ignoring N, a sign error in the
+PSR kurtosis term, E[max] without the γ mix, CSCV ranking from the best, CSCV picking the
+in-sample loser, uncentred Reality Check resamples, blocks without wrap-around, a Reality Check
+that ignores the search, and an SPA that centres every strategy at its own mean.
+
+Outside CI, the DSR and PBO also agreed with the snapshot's own
+[`scripts/quant/selection_bias.py`](../scripts/quant/selection_bias.py) to within 5e-11 on 20
+synthetic matrices. That module needs private code, so the comparison cannot run here.
+
+### Pass rates over 400 synthetic universes
+
+Each universe has 20 strategies of 500 Student-t returns. Standard errors are at most 0.025.
 
 | Diagnostic passes | No skill, block 10 | No skill, block 1 | Edge of 3.0 in strategy 0 |
 | --- | --- | --- | --- |
@@ -121,21 +149,27 @@ standard errors are at most 0.025):
 | SPA p < 0.05 | 0.095 | 0.060 | 0.920 |
 | Mean PBO | 0.506 | 0.506 | 0.089 |
 
-Picking the winner raises the PSR's false-pass rate from 5.00% for a strategy judged alone to
-64.7%. The DSR, PBO and Reality Check bring it back to 5% or below. SPA's 9.5% with a block of 10
-is a real property, not noise (999 resamples and normal returns give the same): on independent
-data, a long block makes its variance estimates noisy and the studentized maximum too large.
+Picking the winner raises the PSR's false-pass rate to 64.7%. Judged one at a time, 4,000
+no-skill strategies pass 5.00% of the time (`--psr 4000`). The DSR, PBO and Reality Check bring
+the winner's rate back to 5% or below.
 
-**Limits.**
+SPA's 9.5% with a block of 10 is a property of the test, not noise. Rerunning with 999
+resamples and normal returns gives the same rate. On independent data, a long block makes SPA's variance estimates
+noisy and its studentized maximum too large. Choose the block length for the serial dependence
+of the data.
+
+### Limits
 
 - The returns are independent Student-t draws. Real returns have autocorrelation, volatility
   clustering and regime changes, and no costs are modelled.
 - The DSR treats the trials as independent and estimates V from them. Correlated variants mean
-  fewer effective trials, which makes the DSR too strict. The DSR is also a strict test of skill
-  here: it passed only 46.3% of winners with a 3.0 edge over two years.
-- PBO needs every variant that was tried, equal blocks that divide T, and a choice of S; the 0.10
-  threshold in the demo is illustrative. The Reality Check and SPA test against a zero benchmark,
-  are one-sided, and depend on the bootstrap block length; their p-values move in steps of
-  1 / (B + 1).
-- The code is pure Python: CSCV costs C(S, S/2) × N × S/2 operations, and the bootstrap
-  B × N × T / (mean block) operations. None of this shows that any strategy is profitable.
+  fewer effective trials, which makes the DSR too strict. It is also a strict test of skill here:
+  with an edge of 3.0, it passed only 46.3% of winners.
+- PBO needs every variant that was tried, equal blocks that divide T, and a choice of S. The
+  0.10 threshold in the demo is illustrative.
+- The Reality Check and SPA test against a zero benchmark, are one-sided, and depend on the
+  bootstrap block length. Their p-values move in steps of 1 / (B + 1).
+- The code is pure Python. CSCV costs C(S, S/2) × N × S/2 operations, and the bootstrap costs
+  B × N × T / (mean block) operations.
+- The diagnostics can flag a lucky backtest. Passing them does not show that a strategy will be
+  profitable.
