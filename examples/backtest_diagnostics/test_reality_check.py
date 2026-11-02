@@ -21,6 +21,14 @@ class BootstrapTests(unittest.TestCase):
         self.assertLess(abs(fmean(lengths) / 8.0 - 1), 0.05)
         self.assertEqual({length for _, length in stationary_blocks(50, 1.0, rng)}, {1})
 
+    def test_a_huge_mean_block_gives_one_block_and_nonfinite_ones_are_rejected(self):
+        # 1 - 1/mean_block rounds to 1.0 above about 1e16, which used to divide by log(1.0) = 0.
+        rng = random.Random(0)
+        self.assertEqual([length for _, length in stationary_blocks(10, 1e17, rng)], [10])
+        for bad in (float("inf"), float("nan")):
+            with self.assertRaises(ValueError):
+                stationary_blocks(10, bad, rng)
+
     def test_prefix_sums_equal_means_over_the_resampled_rows(self):
         matrix = no_skill_matrix(97, 4, seed=2)
         means = bootstrap_means(matrix, 25, 6.0, seed=9)
@@ -50,6 +58,20 @@ class SnoopingTests(unittest.TestCase):
         self.assertEqual((reality.best, spa.best), (7, 7))
         self.assertLess(reality.p_value, 0.01)
         self.assertLessEqual(spa.p_value, reality.p_value)
+
+    def test_adding_hopeless_strategies_raises_only_the_reality_check_p_value(self):
+        # Hansen's consistent SPA keeps a strategy whose t-ratio is below -sqrt(2 log log T) at
+        # its own negative mean in the resamples, so twenty clearly losing strategies leave its
+        # p-value unchanged. The Reality Check centres every strategy at zero, so the same
+        # strategies raise its p-value (here from 0.046 to 0.384).
+        alone = add_skill(no_skill_matrix(500, 1, seed=20), 0, 1.0)
+        losers = no_skill_matrix(500, 20, seed=120)
+        combined = [row + [value - 0.004 for value in extra] for row, extra in zip(alone, losers)]
+        reality_alone, spa_alone = data_snooping_tests(alone, resamples=499, seed=5)
+        reality_all, spa_all = data_snooping_tests(combined, resamples=499, seed=5)
+        self.assertEqual((spa_all.best, spa_all.p_value), (0, spa_alone.p_value))
+        self.assertLess(reality_alone.p_value, 0.05)
+        self.assertGreater(reality_all.p_value, 0.05)
 
     def test_no_strategy_beating_the_benchmark_gives_large_p_values(self):
         matrix = [[value - 0.002 for value in row] for row in no_skill_matrix(300, 10, seed=6)]

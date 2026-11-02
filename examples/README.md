@@ -95,13 +95,17 @@ python3 -B examples/overfitting_demo.py --psr 4000              # PSR on 4,000 s
 - Bootstrap means from prefix sums equal the means over the explicitly resampled rows. With
   one strategy and a block of 1, the Reality Check p-value is within 0.01 of a one-sided normal
   test.
+- Adding twenty clearly losing strategies to one skilled strategy leaves the SPA p-value at
+  0.046 and raises the Reality Check's from 0.046 to 0.384: SPA keeps those strategies at
+  their own negative means, while the Reality Check centres every strategy at zero. A huge
+  mean block (1e17) gives one block, and an infinite or NaN block length is rejected.
 - Null simulations check that a strategy judged alone passes PSR about 5% of the time, that
   no-skill PBO averages about 0.5, and that the Reality Check and SPA reject no more than 5%
   plus three standard errors. The demo test requires every expected verdict.
-- Each of eight deliberate mutations makes at least one test fail. Mutated were the DSR ignoring
+- Each of nine deliberate mutations makes at least one test fail. Mutated were the DSR ignoring
   N, a sign in the PSR kurtosis term, E[max] without the γ mix, CSCV ranking from the best, CSCV
-  picking the in-sample loser, uncentred Reality Check resamples, blocks without wrap-around, and
-  a Reality Check that ignores the search. In a scratch environment, the DSR and PBO also agreed
+  picking the in-sample loser, uncentred Reality Check resamples, blocks without wrap-around, a
+  Reality Check that ignores the search, and an SPA that centres every strategy at its own mean. In a scratch environment, the DSR and PBO also agreed
   to within 5e-11 with the snapshot's own `scripts/quant/selection_bias.py` on 20 synthetic
   matrices (that module needs private code, so this check is not in CI).
 
